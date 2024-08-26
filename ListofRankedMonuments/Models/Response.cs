@@ -23,3 +23,4 @@ public class Response
     [JsonPropertyName("TotalRecords")]
     public int? TotalRecords { get; set; }
 }
+

@@ -30,9 +30,9 @@ public class UserService : IUserService
         {
             Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, userName),
+            new Claim(ClaimTypes.Name, userName),
                 new Claim(ClaimTypes.Role, user.Email)
-            }),
+        }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
             Issuer = jwtSettings["Issuer"],
             Audience = jwtSettings["Audience"],
