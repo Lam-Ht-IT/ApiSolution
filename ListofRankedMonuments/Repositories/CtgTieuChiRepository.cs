@@ -46,7 +46,8 @@ namespace QUANLYVANHOA.Repositories
                                 GhiChu = reader["GhiChu"].ToString(),
                                 KieuDuLieuCot = reader["KieuDuLieuCot"] as int?,
                                 TrangThai = reader.GetBoolean("TrangThai"),
-                                LoaiTieuChi = reader["LoaiTieuChi"] as int?
+                                LoaiTieuChi = reader["LoaiTieuChi"] as int?,
+                                CapDo = reader["CapDo"] as int?
                             });
                         }
 
@@ -90,7 +91,8 @@ namespace QUANLYVANHOA.Repositories
                                 GhiChu = reader["GhiChu"].ToString(),
                                 KieuDuLieuCot = reader["KieuDuLieuCot"] as int?,
                                 TrangThai = reader.GetBoolean("TrangThai"),
-                                LoaiTieuChi = reader["LoaiTieuChi"] as int?
+                                LoaiTieuChi = reader["LoaiTieuChi"] as int?,
+                                CapDo = reader.GetInt32("CapDo")
                             };
                         }
                     }
@@ -100,7 +102,7 @@ namespace QUANLYVANHOA.Repositories
             return tieuChi;
         }
 
-        public async Task<int> Insert(CtgTieuChi tieuChi)
+        public async Task<int> Insert(CtgTieuChiModelInsert tieuChi)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -112,7 +114,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TieuChiChaID",tieuChi.TieuChiChaID ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@GhiChu", tieuChi.GhiChu ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@KieuDuLieuCot", tieuChi.KieuDuLieuCot ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@TrangThai", tieuChi.TrangThai ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@LoaiTieuChi", tieuChi.LoaiTieuChi ?? (object)DBNull.Value);
 
                     await connection.OpenAsync();
@@ -121,7 +122,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Update(CtgTieuChi tieuChi)
+        public async Task<int> Update(CtgTieuChiModelUpdate tieuChi)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -134,7 +135,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TieuChiChaID", tieuChi.TieuChiChaID ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@GhiChu", tieuChi.GhiChu ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@KieuDuLieuCot", tieuChi.KieuDuLieuCot ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@TrangThai", tieuChi.TrangThai ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@LoaiTieuChi", tieuChi.LoaiTieuChi ?? (object)DBNull.Value);
 
                     await connection.OpenAsync();

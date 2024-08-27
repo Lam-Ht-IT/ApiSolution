@@ -103,8 +103,6 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
             }
 
-
-
             await _chiTieuRepository.Insert(chiTieu);
             return Ok(new { Status = 1, Message = "Inserted data successfully" });
         }
