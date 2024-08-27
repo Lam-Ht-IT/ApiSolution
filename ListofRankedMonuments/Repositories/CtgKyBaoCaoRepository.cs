@@ -39,6 +39,7 @@ namespace QUANLYVANHOA.Repositories
                             kyBaoCaoList.Add(new CtgKyBaoCao
                             {
                                 KyBaoCaoID = reader.GetInt32("KyBaoCaoID"),
+                                KyBaoCaoChaID = reader.GetInt32("KyBaoCaoChaID"),
                                 TenKyBaoCao = reader.GetString(reader.GetOrdinal("TenKyBaoCao")),
                                 TrangThai = reader.GetBoolean("TrangThai"),
                                 GhiChu = reader.GetString(reader.GetOrdinal("GhiChu")),
@@ -79,6 +80,7 @@ namespace QUANLYVANHOA.Repositories
                             kyBaoCao = new CtgKyBaoCao
                             {
                                 KyBaoCaoID = reader.GetInt32("KyBaoCaoID"),
+                                KyBaoCaoChaID = reader.GetInt32("KyBaoCaoChaID"),
                                 TenKyBaoCao = reader.GetString(reader.GetOrdinal("TenKyBaoCao")),
                                 TrangThai = reader.GetBoolean("TrangThai"),
                                 GhiChu = reader.GetString(reader.GetOrdinal("GhiChu")),
@@ -92,7 +94,7 @@ namespace QUANLYVANHOA.Repositories
             return kyBaoCao;
         }
 
-        public async Task<int> Insert(CtgKyBaoCao kyBaoCao)
+        public async Task<int> Insert(CtgKyBaoCaoModelInsert kyBaoCao)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -102,7 +104,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TenKyBaoCao", kyBaoCao.TenKyBaoCao);
                     command.Parameters.AddWithValue("@TrangThai", kyBaoCao.TrangThai);
                     command.Parameters.AddWithValue("@GhiChu", kyBaoCao.GhiChu);
-                    command.Parameters.AddWithValue("@LoaiKyBaoCao", kyBaoCao.LoaiKyBaoCao);
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
@@ -110,7 +111,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Update(CtgKyBaoCao kyBaoCao)
+        public async Task<int> Update(CtgKyBaoCaoModelUpdate kyBaoCao)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -121,7 +122,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TenKyBaoCao", kyBaoCao.TenKyBaoCao);
                     command.Parameters.AddWithValue("@TrangThai", kyBaoCao.TrangThai);
                     command.Parameters.AddWithValue("@GhiChu", kyBaoCao.GhiChu);
-                    command.Parameters.AddWithValue("@LoaiKyBaoCao", kyBaoCao.LoaiKyBaoCao);
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();

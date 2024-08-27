@@ -22,6 +22,10 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = name.Trim();
+            }
             // Validate pageNumber and pageSize
             if (pageNumber <= 0)
             {

@@ -43,10 +43,10 @@ namespace QUANLYVANHOA.Repositories
                                 ChiTieuID = reader.GetInt32(reader.GetOrdinal("ChiTieuID")),
                                 MaChiTieu = reader["MaChiTieu"].ToString(),
                                 TenChiTieu = reader["TenChiTieu"].ToString(),
-                                ChiTieuChaID = reader["ChiTieuChaID"] as int?,
+                                ChiTieuChaID = reader.IsDBNull(reader.GetOrdinal("ChiTieuChaID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ChiTieuChaID")),
                                 GhiChu = reader["GhiChu"].ToString(),
                                 TrangThai = reader.GetBoolean(reader.GetOrdinal("TrangThai")),
-                                LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID")) // Sửa lỗi kiểu dữ liệu
+                                LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID"))
                             };
 
                             chiTieuList.Add(chiTieu);
@@ -88,7 +88,7 @@ namespace QUANLYVANHOA.Repositories
                                 ChiTieuID = reader.GetInt32(reader.GetOrdinal("ChiTieuID")),
                                 MaChiTieu = reader["MaChiTieu"].ToString(),
                                 TenChiTieu = reader["TenChiTieu"].ToString(),
-                                ChiTieuChaID = reader["ChiTieuChaID"] as int?,
+                                ChiTieuChaID = reader.IsDBNull(reader.GetOrdinal("ChiTieuChaID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ChiTieuChaID")),
                                 GhiChu = reader["GhiChu"].ToString(),
                                 TrangThai = reader.GetBoolean(reader.GetOrdinal("TrangThai")),
                                 LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID"))
@@ -101,7 +101,7 @@ namespace QUANLYVANHOA.Repositories
             return chiTieu;
         }
 
-        public async Task<int> Insert(CtgChiTieu chiTieu)
+        public async Task<int> Insert(CtgChiTieuModelInsert chiTieu)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -112,7 +112,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TenChiTieu", chiTieu.TenChiTieu);
                     command.Parameters.AddWithValue("@ChiTieuChaID", chiTieu.ChiTieuChaID ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@GhiChu", chiTieu.GhiChu ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@TrangThai", chiTieu.TrangThai);
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", chiTieu.LoaiMauPhieuID); // Sửa lỗi kiểu dữ liệu
 
                     await connection.OpenAsync();
@@ -121,7 +120,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Update(CtgChiTieu chiTieu)
+        public async Task<int> Update(CtgChiTieuModelUpdate chiTieu)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -133,7 +132,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TenChiTieu", chiTieu.TenChiTieu);
                     command.Parameters.AddWithValue("@ChiTieuChaID", chiTieu.ChiTieuChaID ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@GhiChu", chiTieu.GhiChu ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@TrangThai", chiTieu.TrangThai);
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", chiTieu.LoaiMauPhieuID); // Sửa lỗi kiểu dữ liệu
 
                     await connection.OpenAsync();
@@ -160,18 +158,15 @@ namespace QUANLYVANHOA.Repositories
         private List<CtgChiTieu> BuildHierarchy(List<CtgChiTieu> chiTieuList)
         {
             var lookup = chiTieuList.ToLookup(c => c.ChiTieuChaID);
-            var rootItems = lookup[null].ToList();
+            var rootItems = lookup[0].ToList();
 
             // Để đảm bảo tất cả các cấp độ của cây đều được bao gồm
             foreach (var item in chiTieuList)
             {
-                if (item.ChiTieuChaID.HasValue)
+                var parent = chiTieuList.FirstOrDefault(c => c.ChiTieuID == item.ChiTieuChaID);
+                if (parent != null)
                 {
-                    var parent = chiTieuList.FirstOrDefault(c => c.ChiTieuID == item.ChiTieuChaID.Value);
-                    if (parent != null)
-                    {
-                        parent.Children.Add(item);
-                    }
+                    parent.Children.Add(item);
                 }
             }
 

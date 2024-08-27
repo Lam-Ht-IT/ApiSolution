@@ -21,10 +21,30 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = name.Trim();
+            }
+
+            if (pageNumber <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
+            }
+
+            if (pageSize <= 0 || pageSize > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 50." });
+            }
+
             var result = await _chiTieuRepository.GetAll(name, pageNumber, pageSize);
             var chiTieuList = result.Item1;
             var totalRecords = result.Item2;
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            if (chiTieuList.Count() == 0)
+            {
+                return NotFound(new { Status = 0, Message = "No data available" });
+            }
 
             return Ok(new
             {
@@ -41,29 +61,94 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
             var chiTieu = await _chiTieuRepository.GetByID(id);
             if (chiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return NotFound(new { Status = 0, Message = "ID not found" });
             }
+
             return Ok(new { Status = 1, Message = "Get information successfully", Data = chiTieu });
         }
 
         [HttpPost("Insert")]
         [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> Insert(CtgChiTieu chiTieu)
+        public async Task<IActionResult> Insert([FromBody] CtgChiTieuModelInsert chiTieu)
         {
+            if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
+            {
+                chiTieu.TenChiTieu = chiTieu.TenChiTieu.Trim();
+            }
+            if (string.IsNullOrWhiteSpace(chiTieu.TenChiTieu) || chiTieu.TenChiTieu.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid TenChiTieu. The TenChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (string.IsNullOrWhiteSpace(chiTieu.MaChiTieu) || chiTieu.MaChiTieu.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid MaChiTieu. The MaChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (chiTieu.GhiChu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
+            }
+
+            if (chiTieu.LoaiMauPhieuID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
+            }
+
+
+
             await _chiTieuRepository.Insert(chiTieu);
-            return CreatedAtAction(nameof(GetByID), new { id = chiTieu.ChiTieuID }, new { Status = 1, Message = "Inserted data successfully" });
+            return Ok(new { Status = 1, Message = "Inserted data successfully" });
         }
 
         [HttpPut("Update")]
         [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> Update(CtgChiTieu chiTieu)
+        public async Task<IActionResult> Update(CtgChiTieuModelUpdate chiTieu)
         {
+            if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
+            {
+                chiTieu.TenChiTieu = chiTieu.TenChiTieu.Trim();
+            }
+
+            if (chiTieu.ChiTieuID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
             var existingChiTieu = await _chiTieuRepository.GetByID(chiTieu.ChiTieuID);
             if (existingChiTieu == null)
-                return NotFound(new { Status = 0, Message = "Not Found ID" });
+            {
+                return NotFound(new { Status = 0, Message = "ID not found" });
+            }
+
+            if (string.IsNullOrWhiteSpace(chiTieu.TenChiTieu) || chiTieu.TenChiTieu.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid TenChiTieu. The TenChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (string.IsNullOrWhiteSpace(chiTieu.MaChiTieu) || chiTieu.MaChiTieu.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid MaChiTieu. The MaChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (chiTieu.GhiChu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
+            }
+
+            if (chiTieu.LoaiMauPhieuID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
+            }
+
 
             await _chiTieuRepository.Update(chiTieu);
             return Ok(new { Status = 1, Message = "Updated data successfully" });
@@ -73,10 +158,15 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
             var chiTieu = await _chiTieuRepository.GetByID(id);
             if (chiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return NotFound(new { Status = 0, Message = "ID not found" });
             }
 
             await _chiTieuRepository.Delete(id);

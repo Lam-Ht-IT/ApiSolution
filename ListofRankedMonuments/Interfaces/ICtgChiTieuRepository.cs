@@ -8,8 +8,8 @@ namespace QUANLYVANHOA.Interfaces
     {
         Task<(IEnumerable<CtgChiTieu>, int)> GetAll(string? name, int pageNumber, int pageSize);
         Task<CtgChiTieu> GetByID(int id);
-        Task<int> Insert(CtgChiTieu chiTieu);
-        Task<int> Update(CtgChiTieu chiTieu);
+        Task<int> Insert(CtgChiTieuModelInsert chiTieu);
+        Task<int> Update(CtgChiTieuModelUpdate chiTieu);
         Task<int> Delete(int id);
     }
 }

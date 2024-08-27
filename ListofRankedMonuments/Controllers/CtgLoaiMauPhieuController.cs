@@ -77,10 +77,14 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetByID(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
             var loaiMauPhieu = await _loaiMauPhieuRepository.GetByID(id);
             if (loaiMauPhieu == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return NotFound(new { Status = 0, Message = "ID not found" });
             }
             return Ok(new { Status = 1, Message = "Get information successfully", Data = loaiMauPhieu });
         }
@@ -89,7 +93,10 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgLoaiMauPhieuModelInsert model)
         {
-
+            if (!string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu))
+            {
+                model.TenLoaiMauPhieu = model.TenLoaiMauPhieu.Trim();
+            }
             // Validate input data
             if (string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu) || model.TenLoaiMauPhieu.Length > 50)
             {
@@ -129,6 +136,11 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Update([FromBody] CtgLoaiMauPhieuModelUpdate model)
         {
+            if (model.LoaiMauPhieuID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
             var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(model.LoaiMauPhieuID);
             if (existingLoaiMauPhieu == null) return NotFound(new { Status = 0, Message = "ID not found" });
 
