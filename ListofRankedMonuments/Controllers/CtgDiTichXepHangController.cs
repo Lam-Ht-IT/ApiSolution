@@ -90,10 +90,6 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgDiTichXepHangModelInsert model)
         {
-            if (!string.IsNullOrWhiteSpace(model.TenDiTich))
-            {
-                model.TenDiTich = model.TenDiTich.Trim();
-            }
             // Kiểm tra dữ liệu đầu vào
             if (string.IsNullOrWhiteSpace(model.TenDiTich) || model.TenDiTich.Length > 50)
             {
@@ -126,16 +122,16 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Update([FromBody] CtgDiTichXepHangModelUpdate diTichXepHang)
         {
+            var existingDiTich = await _ditichxephangrepository.GetByID(diTichXepHang.DiTichXepHangID);
+            if (existingDiTich == null) return NotFound(new { Status = 0, Message = "ID not found" });
             if (!string.IsNullOrWhiteSpace(diTichXepHang.TenDiTich))
             {
                 diTichXepHang.TenDiTich = diTichXepHang.TenDiTich.Trim();
             }
-            var existingDiTich = await _ditichxephangrepository.GetByID(diTichXepHang.DiTichXepHangID);
-            if (existingDiTich == null) return NotFound(new { Status = 0, Message = "ID not found" });
 
-            if (string.IsNullOrWhiteSpace(diTichXepHang.TenDiTich) || diTichXepHang.TenDiTich.Length > 100)
+            if (string.IsNullOrWhiteSpace(diTichXepHang.TenDiTich) || diTichXepHang.TenDiTich.Length > 50)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid TenDiTich. Must not be empty and not exceed 100 characters." });
+                return BadRequest(new { Status = 0, Message = "Invalid TenDiTich. Must not be empty and not exceed 50 characters." });
             }
 
             int ghiChuAsInt;

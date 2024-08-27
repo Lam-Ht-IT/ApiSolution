@@ -22,6 +22,11 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = name.Trim();
+            }
+
             // Validate pageNumber and pageSize
             if (pageNumber <= 0)
             {
@@ -84,10 +89,11 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgLoaiMauPhieuModelInsert model)
         {
+
             // Validate input data
-            if (string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu) || model.TenLoaiMauPhieu.Length > 100)
+            if (string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu) || model.TenLoaiMauPhieu.Length > 50)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid TenLoaiMauPhieu. Must not be empty and not exceed 100 characters." });
+                return BadRequest(new { Status = 0, Message = "Invalid TenLoaiMauPhieu. Must not be empty and not exceed 50 characters." });
             }
 
             if (string.IsNullOrWhiteSpace(model.MaLoaiMauPhieu) || model.MaLoaiMauPhieu.Length > 50)
@@ -95,12 +101,19 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaLoaiMauPhieu. Must not be empty and not exceed 50 characters." });
             }
 
+            int ghiChuAsInt;
+            if (!int.TryParse(model.GhiChu, out ghiChuAsInt) || ghiChuAsInt < 1)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. Must be a valid integer greater than or equal to 0." });
+            }
+
+
             // Create a new CtgLoaiMauPhieu object
             var newLoaiMauPhieu = new CtgLoaiMauPhieuModelInsert
             {
                 TenLoaiMauPhieu = model.TenLoaiMauPhieu.Trim(),
                 MaLoaiMauPhieu = model.MaLoaiMauPhieu.Trim(),
-                GhiChu = model.GhiChu?.Trim(),
+                GhiChu = ghiChuAsInt.ToString()
             };
 
             // Insert the object into the database
@@ -118,6 +131,11 @@ namespace QUANLYVANHOA.Controllers
         {
             var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(model.LoaiMauPhieuID);
             if (existingLoaiMauPhieu == null) return NotFound(new { Status = 0, Message = "ID not found" });
+
+            if (!string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu)) 
+            {
+                model.TenLoaiMauPhieu = model.TenLoaiMauPhieu.Trim();
+            }
 
             if (string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu) || model.TenLoaiMauPhieu.Length > 100)
             {

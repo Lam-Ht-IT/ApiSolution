@@ -84,15 +84,24 @@ namespace QUANLYVANHOA.Controllers
         [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgDonViTinhModelInsert model)
         {
-            // Validate input data
-            if (string.IsNullOrWhiteSpace(model.TenDonViTinh) || model.TenDonViTinh.Length > 100)
+            if (!string.IsNullOrWhiteSpace(model.TenDonViTinh))
             {
-                return BadRequest(new { Status = 0, Message = "Invalid TenDonViTinh. Must not be empty and not exceed 100 characters." });
+                model.TenDonViTinh = model.TenDonViTinh.Trim();
+            }
+            // Validate input data
+            if (string.IsNullOrWhiteSpace(model.TenDonViTinh) || model.TenDonViTinh.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid TenDonViTinh. Must not be empty and not exceed 50 characters." });
             }
 
             if (string.IsNullOrWhiteSpace(model.MaDonViTinh) || model.MaDonViTinh.Length > 50)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid MaDonViTinh. Must not be empty and not exceed 50 characters." });
+            }
+
+            if (model.GhiChu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. Must not exceed 50 characters." });
             }
 
             // Create a new CtgDonViTinh object
@@ -120,6 +129,12 @@ namespace QUANLYVANHOA.Controllers
             var existingDonViTinh = await _donViTinhRepository.GetByID(model.DonViTinhID);
             if (existingDonViTinh == null) return NotFound(new { Status = 0, Message = "ID not found" });
 
+            if (!string.IsNullOrWhiteSpace(model.TenDonViTinh))
+            {
+                model.TenDonViTinh = model.TenDonViTinh.Trim();
+            }
+
+
             if (string.IsNullOrWhiteSpace(model.TenDonViTinh) || model.TenDonViTinh.Length > 100)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid TenDonViTinh. Must not be empty and not exceed 100 characters." });
@@ -128,6 +143,11 @@ namespace QUANLYVANHOA.Controllers
             if (string.IsNullOrWhiteSpace(model.MaDonViTinh) || model.MaDonViTinh.Length > 50)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid MaDonViTinh. Must not be empty and not exceed 50 characters." });
+            }
+
+            if (model.GhiChu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. Must not exceed 50 characters." });
             }
 
             var result = await _donViTinhRepository.Update(model);
