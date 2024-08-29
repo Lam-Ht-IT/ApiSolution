@@ -20,7 +20,7 @@ namespace QUANLYVANHOA.Controllers
             _userService = userService;
         }
 
-        [CustomAuthorize(1, "ManageUsers")]
+        [CustomAuthorize(1, "Management")]
         [HttpGet("UsersList")]
         public async Task<IActionResult> GetAll(string? userName, int pageNumber = 1, int pageSize = 20)
         {
