@@ -152,7 +152,7 @@ namespace QUANLYVANHOA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@FunctionID", functionInGroup.FunctionID);
                     command.Parameters.AddWithValue("@GroupID", functionInGroup.GroupID);
-                    command.Parameters.AddWithValue("@Permission", functionInGroup.Permission);
+                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permission);
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
