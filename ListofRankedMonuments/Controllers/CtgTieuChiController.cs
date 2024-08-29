@@ -21,32 +21,21 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
-            // Xử lý và kiểm tra dữ liệu đầu vào
             if (!string.IsNullOrWhiteSpace(name))
             {
                 name = name.Trim();
             }
 
-            // Xác thực số trang và kích thước trang
             if (pageNumber <= 0)
             {
-                return BadRequest(new Response
-                {
-                    Status = 0,
-                    Message = "Invalid page number. Page number must be greater than 0."
-                });
+                return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
             }
 
             if (pageSize <= 0 || pageSize > 50)
             {
-                return BadRequest(new Response
-                {
-                    Status = 0,
-                    Message = "Invalid page size. Page size must be between 1 and 50."
-                });
+                return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 50." });
             }
 
-            // Gọi repository để lấy dữ liệu
             var result = await _tieuchirepository.GetAll(name, pageNumber, pageSize);
             var tieuchiList = result.Item1;
             var totalRecords = result.Item2;
@@ -54,16 +43,8 @@ namespace QUANLYVANHOA.Controllers
 
             if (tieuchiList.Count() == 0)
             {
-                return NotFound(new
-                {
-                    Status = 0,
-                    Message = "No data available",
-                    Data = tieuchiList
-
-                });
-
+                return NotFound(new { Status = 0, Message = "No data available" });
             }
-
 
             return Ok(new
             {
@@ -82,86 +63,90 @@ namespace QUANLYVANHOA.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid ID" });
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
             }
 
-            var tieuchi = await _tieuchirepository.GetByID(id);
-            if (tieuchi == null)
+            var tieuChi = await _tieuchirepository.GetByID(id);
+            if (tieuChi == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return NotFound(new { Status = 0, Message = "ID not found" });
             }
 
             // Convert entity to model if needed
-            var tieuchiModel = new CtgTieuChiModel
-            {
-                TieuChiID = tieuchi.TieuChiID,
-                MaTieuChi = tieuchi.MaTieuChi,
-                TenTieuChi = tieuchi.TenTieuChi,
-                TieuChiChaID = tieuchi.TieuChiChaID,
-                GhiChu = tieuchi.GhiChu,
-                KieuDuLieuCot = tieuchi.KieuDuLieuCot,
-                TrangThai = tieuchi.TrangThai,
-                LoaiTieuChi = tieuchi.LoaiTieuChi,
-                Children = tieuchi.Children
-            };
-
-            return Ok(new { Status = 1, Message = "Get information successfully", Data = tieuchiModel });
+            return Ok(new { Status = 1, Message = "Get information successfully", Data = tieuChi });
         }
+
         [HttpPost("Insert")]
         [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> Insert([FromBody] CtgTieuChiModel tieuchiModel)
+        public async Task<IActionResult> Insert([FromBody] CtgTieuChiModelInsert tieuchi)
         {
-            if (tieuchiModel == null)
+            if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
             {
-                return BadRequest(new { Status = 0, Message = "Invalid data" });
+                tieuchi.TenTieuChi = tieuchi.TenTieuChi.Trim();
+            }
+            if (string.IsNullOrWhiteSpace(tieuchi.TenTieuChi) || tieuchi.TenTieuChi.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid TenTieuChi. The TenTieuChi must be required and not exceed 50 characters" });
             }
 
-            if (string.IsNullOrEmpty(tieuchiModel.TenTieuChi))
+            if (string.IsNullOrWhiteSpace(tieuchi.MaTieuChi) || tieuchi.MaTieuChi.Length > 50)
             {
-                return BadRequest(new { Status = 0, Message = "Name cannot be null or empty" });
+                return BadRequest(new { Status = 0, Message = "Invalid MaTieuChi. The MaTieuChi must be required and not exceed 50 characters" });
             }
 
-            var tieuchi = new CtgTieuChi
+            if (tieuchi.GhiChu.Length > 100)
             {
-                MaTieuChi = tieuchiModel.MaTieuChi,
-                TenTieuChi = tieuchiModel.TenTieuChi,
-                TieuChiChaID = tieuchiModel.TieuChiChaID,
-                GhiChu = tieuchiModel.GhiChu,
-                KieuDuLieuCot = tieuchiModel.KieuDuLieuCot,
-                TrangThai = tieuchiModel.TrangThai,
-                LoaiTieuChi = tieuchiModel.LoaiTieuChi
-            };
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
+            }
+
+            if (tieuchi.LoaiTieuChi <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
+            }
 
             await _tieuchirepository.Insert(tieuchi);
-            return CreatedAtAction(nameof(GetByID), new { id = tieuchi.TieuChiID }, new { Status = 1, Message = "Inserted data successfully" });
+            return Ok( new { Status = 1, Message = "Inserted data successfully" });
         }
 
         [HttpPut("Update")]
         [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> Update([FromBody] CtgTieuChiModel tieuchiModel)
+        public async Task<IActionResult> Update([FromBody] CtgTieuChiModelUpdate tieuchi)
         {
-            if (tieuchiModel == null || tieuchiModel.TieuChiID <= 0)
+            if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
             {
-                return BadRequest(new { Status = 0, Message = "Invalid data or ID" });
+                tieuchi.TenTieuChi = tieuchi.TenTieuChi.Trim();
             }
 
-            var existingTieuChi = await _tieuchirepository.GetByID(tieuchiModel.TieuChiID);
-            if (existingTieuChi == null)
+            if (tieuchi.TieuChiID <= 0)
             {
-                return NotFound(new { Status = 0, Message = "Not Found ID" });
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
             }
 
-            var tieuchi = new CtgTieuChi
+            var existingChiTieu = await _tieuchirepository.GetByID(tieuchi.TieuChiID);
+            if (existingChiTieu == null)
             {
-                TieuChiID = tieuchiModel.TieuChiID,
-                MaTieuChi = tieuchiModel.MaTieuChi,
-                TenTieuChi = tieuchiModel.TenTieuChi,
-                TieuChiChaID = tieuchiModel.TieuChiChaID,
-                GhiChu = tieuchiModel.GhiChu,
-                KieuDuLieuCot = tieuchiModel.KieuDuLieuCot,
-                TrangThai = tieuchiModel.TrangThai,
-                LoaiTieuChi = tieuchiModel.LoaiTieuChi
-            };
+                return NotFound(new { Status = 0, Message = "ID not found" });
+            }
+
+            if (string.IsNullOrWhiteSpace(tieuchi.TenTieuChi) || tieuchi.TenTieuChi.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid TenChiTieu. The TenChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (string.IsNullOrWhiteSpace(tieuchi.MaTieuChi) || tieuchi.MaTieuChi.Length > 50)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid MaChiTieu. The MaChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (tieuchi.GhiChu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
+            }
+
+            if (tieuchi.LoaiTieuChi <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
+            }
 
             await _tieuchirepository.Update(tieuchi);
             return Ok(new { Status = 1, Message = "Updated data Successfully" });

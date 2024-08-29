@@ -37,7 +37,7 @@ namespace QUANLYVANHOA.Repositories
                                 FunctionInGroupID = reader.GetInt32(reader.GetOrdinal("FunctionInGroupID")),
                                 FunctionID = reader.GetInt32(reader.GetOrdinal("FunctionID")),
                                 GroupID = reader.GetInt32(reader.GetOrdinal("GroupID")),
-                                Permisstion = reader.GetInt32(reader.GetOrdinal("Permisstion"))
+                                Permission = reader.GetInt32(reader.GetOrdinal("Permission"))
                             });
                         }
                     }
@@ -69,7 +69,7 @@ namespace QUANLYVANHOA.Repositories
                                 FunctionInGroupID = reader.GetInt32(reader.GetOrdinal("FunctionInGroupID")),
                                 FunctionID = reader.GetInt32(reader.GetOrdinal("FunctionID")),
                                 GroupID = reader.GetInt32(reader.GetOrdinal("GroupID")),
-                                Permisstion = reader.GetInt32(reader.GetOrdinal("Permission"))
+                                Permission = reader.GetInt32(reader.GetOrdinal("Permission"))
                             });
                         }
                     }
@@ -101,7 +101,7 @@ namespace QUANLYVANHOA.Repositories
                                 FunctionInGroupID = reader.GetInt32(reader.GetOrdinal("FunctionInGroupID")),
                                 FunctionID = reader.GetInt32(reader.GetOrdinal("FunctionID")),
                                 GroupID = reader.GetInt32(reader.GetOrdinal("GroupID")),
-                                Permisstion = reader.GetInt32(reader.GetOrdinal("Permisstion"))
+                                Permission = reader.GetInt32(reader.GetOrdinal("Permisstion"))
                             });
                         }
                     }
@@ -133,7 +133,7 @@ namespace QUANLYVANHOA.Repositories
                                 FunctionInGroupID = reader.GetInt32(reader.GetOrdinal("FunctionInGroupID")),
                                 FunctionID = reader.GetInt32(reader.GetOrdinal("FunctionID")),
                                 GroupID = reader.GetInt32(reader.GetOrdinal("GroupID")),
-                                Permisstion = reader.GetInt32(reader.GetOrdinal("Permisstion"))
+                                Permission = reader.GetInt32(reader.GetOrdinal("Permisstion"))
                             };
                         }
                     }
@@ -150,8 +150,9 @@ namespace QUANLYVANHOA.Repositories
                 using (var command = new SqlCommand("FIG_Create", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@FunctionID", functionInGroup.FunctionID);
                     command.Parameters.AddWithValue("@GroupID", functionInGroup.GroupID);
-                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permisstion);
+                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permission);
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
@@ -169,7 +170,7 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@FunctionInGroupID", functionInGroup.FunctionInGroupID);
                     command.Parameters.AddWithValue("@FunctionID", functionInGroup.FunctionID);
                     command.Parameters.AddWithValue("@GroupID", functionInGroup.GroupID);
-                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permisstion);
+                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permission);
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
