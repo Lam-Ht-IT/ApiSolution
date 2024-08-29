@@ -34,7 +34,7 @@ public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         int permissions = 0;
         //string connectionString = "Server=YPKCXKLQ\\SQLEXPRESS;Database=QuanLyVanHoa;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False";
-        string connectionString = "Server=192.168.100.108;Database=QuanLyVanHoa;User Id=nguyenhoangha;Password=nguyenhoangha;Trusted_Connection=False;MultipleActiveResultSets=True;Encrypt=False";
+        string connectionString = "Server=192.168.100.108;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;Trusted_Connection=False;MultipleActiveResultSets=True;Encrypt=False";
 
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
