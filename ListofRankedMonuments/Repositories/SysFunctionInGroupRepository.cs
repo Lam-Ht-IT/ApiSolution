@@ -101,7 +101,11 @@ namespace QUANLYVANHOA.Repositories
                                 FunctionInGroupID = reader.GetInt32(reader.GetOrdinal("FunctionInGroupID")),
                                 FunctionID = reader.GetInt32(reader.GetOrdinal("FunctionID")),
                                 GroupID = reader.GetInt32(reader.GetOrdinal("GroupID")),
+<<<<<<< HEAD
                                 Permission = reader.GetInt32(reader.GetOrdinal("Permisstion"))
+=======
+                                Permission = reader.GetInt32(reader.GetOrdinal("Permission"))
+>>>>>>> 94c1f78d3bd1f5c140cbe4c6f3d4488aeb9ce6eb
                             });
                         }
                     }
@@ -133,7 +137,9 @@ namespace QUANLYVANHOA.Repositories
                                 FunctionInGroupID = reader.GetInt32(reader.GetOrdinal("FunctionInGroupID")),
                                 FunctionID = reader.GetInt32(reader.GetOrdinal("FunctionID")),
                                 GroupID = reader.GetInt32(reader.GetOrdinal("GroupID")),
-                                Permission = reader.GetInt32(reader.GetOrdinal("Permisstion"))
+                                Permission = reader.GetInt32(reader.GetOrdinal("Permission"))
+
+
                             };
                         }
                     }
@@ -152,7 +158,8 @@ namespace QUANLYVANHOA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@FunctionID", functionInGroup.FunctionID);
                     command.Parameters.AddWithValue("@GroupID", functionInGroup.GroupID);
-                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permission);
+                    command.Parameters.AddWithValue("@Permission", functionInGroup.Permission);
+
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
@@ -170,7 +177,7 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@FunctionInGroupID", functionInGroup.FunctionInGroupID);
                     command.Parameters.AddWithValue("@FunctionID", functionInGroup.FunctionID);
                     command.Parameters.AddWithValue("@GroupID", functionInGroup.GroupID);
-                    command.Parameters.AddWithValue("@Permisstion", functionInGroup.Permission);
+                    command.Parameters.AddWithValue("@Permission", functionInGroup.Permission);
 
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
