@@ -9,6 +9,7 @@ namespace QUANLYVANHOA.Controllers
 {
 
     [Route("api/[controller]")]
+    [CustomAuthorize(1, "ManageTarget")]
     [ApiController]
     public class CtgChiTieuController : ControllerBase
     {
@@ -96,6 +97,11 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaChiTieu. The MaChiTieu must be required and not exceed 50 characters" });
             }
 
+            if (chiTieu.ChiTieuChaID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "ChiTieuChaID cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
+            }
+
             if (chiTieu.GhiChu.Length > 100)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
@@ -122,6 +128,11 @@ namespace QUANLYVANHOA.Controllers
             if (chiTieu.ChiTieuID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
+            if (chiTieu.ChiTieuChaID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "ChiTieuChaID cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
             }
 
             var existingChiTieu = await _chiTieuRepository.GetByID(chiTieu.ChiTieuID);

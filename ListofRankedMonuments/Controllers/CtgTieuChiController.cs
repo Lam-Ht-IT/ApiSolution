@@ -96,6 +96,11 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaTieuChi. The MaTieuChi must be required and not exceed 50 characters" });
             }
 
+            if (tieuchi.TieuChiChaID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "TieuChiChaID cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
+            }
+
             if (tieuchi.GhiChu.Length > 100)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
@@ -122,6 +127,11 @@ namespace QUANLYVANHOA.Controllers
             if (tieuchi.TieuChiID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
+            if (tieuchi.TieuChiChaID <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "TieuChiChaID cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
             }
 
             var existingChiTieu = await _tieuchirepository.GetByID(tieuchi.TieuChiID);
