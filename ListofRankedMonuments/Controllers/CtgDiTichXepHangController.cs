@@ -20,6 +20,7 @@ namespace QUANLYVANHOA.Controllers
             _ditichxephangrepository = ditichxephangrepository;
         }
 
+        [CustomAuthorize(1, "ManageMonumentRanking")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -74,8 +75,8 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(1, "ManageMonumentRanking")]
         [HttpGet("FindByID")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetByID(int id)
         {
             var ditichxephang = await _ditichxephangrepository.GetByID(id);
@@ -86,8 +87,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = ditichxephang });
         }
 
+        [CustomAuthorize(2, "ManageMonumentRanking")]
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgDiTichXepHangModelInsert model)
         {
             // Kiểm tra dữ liệu đầu vào
@@ -118,8 +119,8 @@ namespace QUANLYVANHOA.Controllers
             return StatusCode(500, new { Status = 0, Message = "Insertion failed" });
         }
 
+        [CustomAuthorize(4, "ManageMonumentRanking")]
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Update([FromBody] CtgDiTichXepHangModelUpdate diTichXepHang)
         {
             var existingDiTich = await _ditichxephangrepository.GetByID(diTichXepHang.DiTichXepHangID);
@@ -148,8 +149,8 @@ namespace QUANLYVANHOA.Controllers
             return StatusCode(500, new { Status = 0, Message = "Update failed" });
         }
 
+        [CustomAuthorize(8, "ManageMonumentRanking")]
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingDiTich = await _ditichxephangrepository.GetByID(id);

@@ -18,6 +18,7 @@ namespace QUANLYVANHOA.Controllers
             _tieuchirepository = tieuchirepository;
         }
 
+        [CustomAuthorize(1, "ManageCriterial")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -58,6 +59,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(1, "ManageCriterial")]
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
         {
@@ -77,7 +79,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(2, "ManageCriterial")]
         public async Task<IActionResult> Insert([FromBody] CtgTieuChiModelInsert tieuchi)
         {
             if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
@@ -109,7 +111,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageCriterial")]
         public async Task<IActionResult> Update([FromBody] CtgTieuChiModelUpdate tieuchi)
         {
             if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
@@ -153,7 +155,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageCriterial")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)

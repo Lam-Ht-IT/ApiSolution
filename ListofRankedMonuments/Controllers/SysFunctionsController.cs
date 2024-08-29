@@ -20,7 +20,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FunctionsList")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetAll(string? functionName, int pageNumber = 1, int pageSize = 20)
         {
             if (!string.IsNullOrWhiteSpace(functionName))
@@ -72,7 +72,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindingFunction")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetByID(int functionId)
         {
             var function = await _functionRepository.GetByID(functionId);
@@ -94,8 +94,9 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(2, "ManageUsers")]
         [HttpPost("CreatingFunction")]
-        public async Task<IActionResult> Create([FromBody] SysFunction function)
+        public async Task<IActionResult> Create([FromBody] SysFunctionModelInsert function)
         {
             if (string.IsNullOrWhiteSpace(function.FunctionName) || function.FunctionName.Contains(" "))
             {
@@ -125,7 +126,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            return CreatedAtAction(nameof(GetByID), new { functionId = function.FunctionID }, new Response
+            return Ok(new Response
             {
                 Status = 1,
                 Message = "Function created successfully."
@@ -133,8 +134,8 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("UpdatingFunction")]
-        [Authorize(Policy = "AdminPolicy")]
-        public async Task<IActionResult> Update([FromBody] SysFunction function)
+        [CustomAuthorize(4, "ManageUsers")]
+        public async Task<IActionResult> Update([FromBody] SysFunctionModelUpdate function)
         {
             var existingFunction = await _functionRepository.GetByID(function.FunctionID);
             if (existingFunction == null)
@@ -182,7 +183,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("DeleteFunction")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int functionId)
         {
             var existingFunction = await _functionRepository.GetByID(functionId);

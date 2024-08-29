@@ -17,6 +17,7 @@ namespace QUANLYVANHOA.Controllers
             _kyBaoCaoRepository = kyBaoCaoRepository;
         }
 
+        [CustomAuthorize(1, "ManageReportingPeriod")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -57,6 +58,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(1, "ManageReportingPeriod")]
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
         {
@@ -75,7 +77,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(2, "ManageReportingPeriod")]
         public async Task<IActionResult> Insert([FromBody] CtgKyBaoCaoModelInsert model)
         {
             if (!string.IsNullOrWhiteSpace(model.TenKyBaoCao))
@@ -103,7 +105,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageReportingPeriod")]
         public async Task<IActionResult> Update(CtgKyBaoCaoModelUpdate kyBaoCao)
         {
             if (kyBaoCao.KyBaoCaoID <= 0)
@@ -127,7 +129,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageReportingPeriod")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)

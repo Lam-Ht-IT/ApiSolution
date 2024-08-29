@@ -19,6 +19,7 @@ namespace QUANLYVANHOA.Controllers
             _loaiMauPhieuRepository = loaiMauPhieuRepository;
         }
 
+        [CustomAuthorize(1, "ManageFormType")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -74,7 +75,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindByID")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageFormType")]
         public async Task<IActionResult> GetByID(int id)
         {
             if (id <= 0)
@@ -90,7 +91,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(2, "ManageFormType")]
         public async Task<IActionResult> Insert([FromBody] CtgLoaiMauPhieuModelInsert model)
         {
             if (!string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu))
@@ -133,7 +134,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageFormType")]
         public async Task<IActionResult> Update([FromBody] CtgLoaiMauPhieuModelUpdate model)
         {
             if (model.LoaiMauPhieuID <= 0)
@@ -168,7 +169,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageFormType")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(id);

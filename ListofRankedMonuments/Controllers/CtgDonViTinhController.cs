@@ -19,6 +19,7 @@ namespace QUANLYVANHOA.Controllers
             _donViTinhRepository = donViTinhRepository;
         }
 
+        [CustomAuthorize(1, "ManageUnitofMeasure")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -72,8 +73,8 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(1, "ManageUnitofMeasure")]
         [HttpGet("FindByID")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetByID(int id)
         {
             var donViTinh = await _donViTinhRepository.GetByID(id);
@@ -84,8 +85,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = donViTinh });
         }
 
+        [CustomAuthorize(2, "ManageUnitofMeasure")]
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgDonViTinhModelInsert model)
         {
             if (!string.IsNullOrWhiteSpace(model.TenDonViTinh))
@@ -126,8 +127,8 @@ namespace QUANLYVANHOA.Controllers
             return StatusCode(500, new { Status = 0, Message = "Insertion failed" });
         }
 
+        [CustomAuthorize(4, "ManageUnitofMeasure")]
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Update([FromBody] CtgDonViTinhModelUpdate model)
         {
             var existingDonViTinh = await _donViTinhRepository.GetByID(model.DonViTinhID);
@@ -162,8 +163,8 @@ namespace QUANLYVANHOA.Controllers
             return StatusCode(500, new { Status = 0, Message = "Update failed" });
         }
 
+        [CustomAuthorize(8, "ManageUnitofMeasure")]
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingDonViTinh = await _donViTinhRepository.GetByID(id);

@@ -20,6 +20,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("List")]
+        [CustomAuthorize(1, "ManageTypeofMonument")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
             if (!string.IsNullOrWhiteSpace(name))
@@ -73,7 +74,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindByID")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageTypeofMonument")]
         public async Task<IActionResult> GetByID(int id)
         {
             var loaiDiTich = await _loaiDiTichRepository.GetByID(id);
@@ -85,7 +86,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(2, "ManageTypeofMonument")]
         public async Task<IActionResult> Insert([FromBody] CtgLoaiDiTichModelInsert model)
         {
             if (!string.IsNullOrWhiteSpace(model.TenLoaiDiTich))
@@ -122,7 +123,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageTypeofMonument")]
         public async Task<IActionResult> Update([FromBody] CtgLoaiDiTichModelUpdate model)
         {
             if (!string.IsNullOrWhiteSpace(model.TenLoaiDiTich))
@@ -154,7 +155,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageTypeofMonument")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingLoaiDiTich = await _loaiDiTichRepository.GetByID(id);

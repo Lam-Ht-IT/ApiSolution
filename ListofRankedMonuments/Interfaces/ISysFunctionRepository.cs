@@ -9,8 +9,8 @@ namespace QUANLYVANHOA.Interfaces
     {
         Task<(IEnumerable<SysFunction>, int)> GetAll(string? functionName, int pageNumber, int pageSize);
         Task<SysFunction> GetByID(int functionID);
-        Task<int> Create(SysFunction function);
-        Task<int> Update(SysFunction function);
+        Task<int> Create(SysFunctionModelInsert function);
+        Task<int> Update(SysFunctionModelUpdate function);
         Task<int> Delete(int functionID);
     }
 }

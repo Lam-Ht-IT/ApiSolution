@@ -71,8 +71,9 @@ namespace QUANLYVANHOA.Controllers
                 TotalRecords = totalRecords
             });
         }
+        
+        [CustomAuthorize(1, "ManageUsers")]
         [HttpGet("FindingUser")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetByID(int userId)
         {
             var user = await _userRepository.GetByID(userId);
@@ -136,9 +137,7 @@ namespace QUANLYVANHOA.Controllers
                     Status = 0,
                     Message = "Password cannot exceed 64 characters."
                 });
-            }
-
-            // Validation for other fields
+            }   
             if (string.IsNullOrWhiteSpace(user.Email))
             {
                 return BadRequest(new Response
@@ -262,6 +261,7 @@ namespace QUANLYVANHOA.Controllers
                 Message = "User updated successfully."
             });
         }
+
         [CustomAuthorize(8, "ManageUsers")]
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> Delete(int userId)
@@ -293,7 +293,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-
+            
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {

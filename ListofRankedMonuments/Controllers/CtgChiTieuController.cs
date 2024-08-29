@@ -7,6 +7,7 @@ using QUANLYVANHOA.Models;
 
 namespace QUANLYVANHOA.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class CtgChiTieuController : ControllerBase
@@ -18,6 +19,7 @@ namespace QUANLYVANHOA.Controllers
             _chiTieuRepository = chiTieuRepository;
         }
 
+        [CustomAuthorize(1, "ManageTarget")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -58,6 +60,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(1, "ManageTarget")]
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
         {
@@ -75,8 +78,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = chiTieu });
         }
 
+        [CustomAuthorize(2, "ManageTarget")]
         [HttpPost("Insert")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Insert([FromBody] CtgChiTieuModelInsert chiTieu)
         {
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
@@ -107,8 +110,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Inserted data successfully" });
         }
 
+        [CustomAuthorize(4, "ManageTarget")]
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Update(CtgChiTieuModelUpdate chiTieu)
         {
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
@@ -152,8 +155,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Updated data successfully" });
         }
 
+        [CustomAuthorize(8, "ManageTarget")]
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)

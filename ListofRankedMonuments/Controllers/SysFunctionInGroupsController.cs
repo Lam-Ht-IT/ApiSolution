@@ -19,6 +19,7 @@ namespace QUANLYVANHOA.Controllers
             _sysFunctionInGroupRepository = sysFunctionInGroupRepository;
         }
 
+        [CustomAuthorize(1, "ManageUsers")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll()
         {
@@ -31,8 +32,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = functionInGroups });
         }
 
+        [CustomAuthorize(1, "ManageUsers")]
         [HttpGet("FindByID")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetByID(int id)
         {
             var functionInGroup = await _sysFunctionInGroupRepository.GetByID(id);
@@ -44,8 +45,8 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = functionInGroup });
         }
 
+        [CustomAuthorize(1, "ManageUsers")]
         [HttpGet("FindByGroupID")]
-        [Authorize(Policy = "AdminPolicy")]
         public async Task<IActionResult> GetByGroupID(int groupId)
         {
             var functionInGroups = await _sysFunctionInGroupRepository.GetByGroupID(groupId);
@@ -58,7 +59,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindByFunctionID")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetByFunctionID(int functionId)
         {
             var functionInGroups = await _sysFunctionInGroupRepository.GetByFunctionID(functionId);
@@ -71,7 +72,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Create")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(2, "ManageUsers")]
         public async Task<IActionResult> Create([FromBody] SysFunctionInGroup model)
         {
             if (model.GroupID <= 0 || model.FunctionID <= 0)
@@ -84,7 +85,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageUsers")]
         public async Task<IActionResult> Update([FromBody] SysFunctionInGroup model)
         {
             var existingFunctionInGroup = await _sysFunctionInGroupRepository.GetByID(model.FunctionInGroupID);
@@ -98,7 +99,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingFunctionInGroup = await _sysFunctionInGroupRepository.GetByID(id);

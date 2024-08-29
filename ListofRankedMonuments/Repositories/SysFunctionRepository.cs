@@ -86,7 +86,7 @@ namespace QUANLYVANHOA.Repositories
             return function;
         }
 
-        public async Task<int> Create(SysFunction function)
+        public async Task<int> Create(SysFunctionModelInsert function)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -102,7 +102,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Update(SysFunction function)
+        public async Task<int> Update(SysFunctionModelUpdate function)
         {
             using (var connection = new SqlConnection(_connectionString))
             {

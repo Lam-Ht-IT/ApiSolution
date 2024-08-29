@@ -19,6 +19,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("List")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetAll()
         {
             var userInGroups = await _sysUserInGroupRepository.GetAll();
@@ -31,7 +32,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindByID")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetByID(int id)
         {
             var userInGroup = await _sysUserInGroupRepository.GetByID(id);
@@ -44,7 +45,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindByGroupID")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetByGroupID(int groupId)
         {
             var userInGroups = await _sysUserInGroupRepository.GetByGroupID(groupId);
@@ -57,7 +58,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindByUserID")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetByUserID(int userId)
         {
             var userInGroups = await _sysUserInGroupRepository.GetByUserID(userId);
@@ -70,7 +71,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Create")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(2, "ManageUsers")]
         public async Task<IActionResult> Create([FromBody] SysUserInGroup model)
         {
             if (model.UserID <= 0 || model.GroupID <= 0)
@@ -83,7 +84,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageUsers")]
         public async Task<IActionResult> Update([FromBody] SysUserInGroup model)
         {
             var existingUserInGroup = await _sysUserInGroupRepository.GetByID(model.UserInGroupID);
@@ -97,7 +98,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingUserInGroup = await _sysUserInGroupRepository.GetByID(id);

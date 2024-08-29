@@ -20,7 +20,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("GroupsList")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetAll(string? groupName, int pageNumber = 1, int pageSize = 20)
         {
             if (!string.IsNullOrWhiteSpace(groupName))
@@ -72,7 +72,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpGet("FindingGroup")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetByID(int groupId)
         {
             var group = await _groupRepository.GetByID(groupId);
@@ -94,6 +94,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [CustomAuthorize(2, "ManageUsers")]
         [HttpPost("CreatingGroup")]
         public async Task<IActionResult> Create([FromBody] SysGroup group)
         {
@@ -133,7 +134,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("UpdatingGroup")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(4, "ManageUsers")]
         public async Task<IActionResult> Update([FromBody] SysGroup group)
         {
             var existingGroup = await _groupRepository.GetByID(group.GroupID);
@@ -182,7 +183,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("DeleteGroup")]
-        [Authorize(Policy = "AdminPolicy")]
+        [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int groupId)
         {
             var existingGroup = await _groupRepository.GetByID(groupId);
