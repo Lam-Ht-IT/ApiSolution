@@ -53,7 +53,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!donViTinhList.Any())
             {
-                return NotFound(new
+                return Ok(new
                 {
                     Status = 0,
                     Message = "No data available",
@@ -80,7 +80,7 @@ namespace QUANLYVANHOA.Controllers
             var donViTinh = await _donViTinhRepository.GetByID(id);
             if (donViTinh == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return Ok(new { Status = 0, Message = "Id not found" });
             }
             return Ok(new { Status = 1, Message = "Get information successfully", Data = donViTinh });
         }
@@ -132,7 +132,7 @@ namespace QUANLYVANHOA.Controllers
         public async Task<IActionResult> Update([FromBody] CtgDonViTinhModelUpdate model)
         {
             var existingDonViTinh = await _donViTinhRepository.GetByID(model.DonViTinhID);
-            if (existingDonViTinh == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingDonViTinh == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             if (!string.IsNullOrWhiteSpace(model.TenDonViTinh))
             {
@@ -168,7 +168,7 @@ namespace QUANLYVANHOA.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existingDonViTinh = await _donViTinhRepository.GetByID(id);
-            if (existingDonViTinh == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingDonViTinh == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             var result = await _donViTinhRepository.Delete(id);
             if (result > 0)

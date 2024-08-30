@@ -51,7 +51,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!groups.Any())
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "No data available",
@@ -78,7 +78,7 @@ namespace QUANLYVANHOA.Controllers
             var group = await _groupRepository.GetByID(groupId);
             if (group == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Id not found",
@@ -140,7 +140,7 @@ namespace QUANLYVANHOA.Controllers
             var existingGroup = await _groupRepository.GetByID(group.GroupID);
             if (existingGroup == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Group not found."
@@ -189,7 +189,7 @@ namespace QUANLYVANHOA.Controllers
             var existingGroup = await _groupRepository.GetByID(groupId);
             if (existingGroup == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Group not found."

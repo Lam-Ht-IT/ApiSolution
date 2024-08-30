@@ -53,7 +53,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!loaiDiTichList.Any())
             {
-                return NotFound(new
+                return Ok(new
                 {
                     Status = 0,
                     Message = "No data available",
@@ -80,7 +80,7 @@ namespace QUANLYVANHOA.Controllers
             var loaiDiTich = await _loaiDiTichRepository.GetByID(id);
             if (loaiDiTich == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return Ok(new { Status = 0, Message = "Id not found" });
             }
             return Ok(new { Status = 1, Message = "Get information successfully", Data = loaiDiTich });
         }
@@ -132,7 +132,7 @@ namespace QUANLYVANHOA.Controllers
             }
 
             var existingLoaiDiTich = await _loaiDiTichRepository.GetByID(model.LoaiDiTichID);
-            if (existingLoaiDiTich == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingLoaiDiTich == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             if (string.IsNullOrWhiteSpace(model.TenLoaiDiTich) || model.TenLoaiDiTich.Length > 100)
             {
@@ -159,7 +159,7 @@ namespace QUANLYVANHOA.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existingLoaiDiTich = await _loaiDiTichRepository.GetByID(id);
-            if (existingLoaiDiTich == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingLoaiDiTich == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             var result = await _loaiDiTichRepository.Delete(id);
             if (result > 0)

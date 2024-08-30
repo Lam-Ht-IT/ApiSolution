@@ -26,7 +26,7 @@ namespace QUANLYVANHOA.Controllers
             var functionInGroups = await _sysFunctionInGroupRepository.GetAll();
             if (!functionInGroups.Any())
             {
-                return NotFound(new { Status = 0, Message = "No data available" });
+                return Ok(new { Status = 0, Message = "No data available" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = functionInGroups });
@@ -39,7 +39,7 @@ namespace QUANLYVANHOA.Controllers
             var functionInGroup = await _sysFunctionInGroupRepository.GetByID(id);
             if (functionInGroup == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return Ok(new { Status = 0, Message = "Id not found" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = functionInGroup });
@@ -52,7 +52,7 @@ namespace QUANLYVANHOA.Controllers
             var functionInGroups = await _sysFunctionInGroupRepository.GetByGroupID(groupId);
             if (!functionInGroups.Any())
             {
-                return NotFound(new { Status = 0, Message = "No data found for this group" });
+                return Ok(new { Status = 0, Message = "No data found for this group" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = functionInGroups });
@@ -65,7 +65,7 @@ namespace QUANLYVANHOA.Controllers
             var functionInGroups = await _sysFunctionInGroupRepository.GetByFunctionID(functionId);
             if (!functionInGroups.Any())
             {
-                return NotFound(new { Status = 0, Message = "No data found for this function" });
+                return Ok(new { Status = 0, Message = "No data found for this function" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = functionInGroups });
@@ -91,7 +91,7 @@ namespace QUANLYVANHOA.Controllers
             var existingFunctionInGroup = await _sysFunctionInGroupRepository.GetByID(model.FunctionInGroupID);
             if (existingFunctionInGroup == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             await _sysFunctionInGroupRepository.Update(model);
@@ -105,7 +105,7 @@ namespace QUANLYVANHOA.Controllers
             var existingFunctionInGroup = await _sysFunctionInGroupRepository.GetByID(id);
             if (existingFunctionInGroup == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             await _sysFunctionInGroupRepository.Delete(id);

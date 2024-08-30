@@ -51,7 +51,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!functions.Any())
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "No data available",
@@ -78,7 +78,7 @@ namespace QUANLYVANHOA.Controllers
             var function = await _functionRepository.GetByID(functionId);
             if (function == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Id not found",
@@ -140,7 +140,7 @@ namespace QUANLYVANHOA.Controllers
             var existingFunction = await _functionRepository.GetByID(function.FunctionID);
             if (existingFunction == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Function not found."
@@ -189,7 +189,7 @@ namespace QUANLYVANHOA.Controllers
             var existingFunction = await _functionRepository.GetByID(functionId);
             if (existingFunction == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Function not found."

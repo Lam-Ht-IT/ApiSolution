@@ -43,7 +43,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (kyBaoCaoList.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data available" });
+                return Ok(new { Status = 0, Message = "No data available" });
             }
 
             return Ok(new
@@ -70,7 +70,7 @@ namespace QUANLYVANHOA.Controllers
             var kyBaoCao = await _kyBaoCaoRepository.GetByID(id);
             if (kyBaoCao == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = kyBaoCao });
@@ -116,7 +116,7 @@ namespace QUANLYVANHOA.Controllers
             var existingKyBaoCao = await _kyBaoCaoRepository.GetByID(kyBaoCao.KyBaoCaoID);
             if (existingKyBaoCao == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             if (string.IsNullOrWhiteSpace(kyBaoCao.TenKyBaoCao) || kyBaoCao.TenKyBaoCao.Length > 50)
@@ -140,7 +140,7 @@ namespace QUANLYVANHOA.Controllers
             var kyBaoCao = await _kyBaoCaoRepository.GetByID(id);
             if (kyBaoCao == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             await _kyBaoCaoRepository.Delete(id);

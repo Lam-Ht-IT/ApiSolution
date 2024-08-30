@@ -55,7 +55,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!ditichxephangs.Any())
             {
-                return NotFound(new
+                return Ok(new
                 {
                     Status = 0,
                     Message = "No data available",
@@ -82,7 +82,7 @@ namespace QUANLYVANHOA.Controllers
             var ditichxephang = await _ditichxephangrepository.GetByID(id);
             if (ditichxephang == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found", Data = ditichxephang });
+                return Ok(new { Status = 0, Message = "Id not found", Data = ditichxephang });
             }
             return Ok(new { Status = 1, Message = "Get information successfully", Data = ditichxephang });
         }
@@ -124,7 +124,7 @@ namespace QUANLYVANHOA.Controllers
         public async Task<IActionResult> Update([FromBody] CtgDiTichXepHangModelUpdate diTichXepHang)
         {
             var existingDiTich = await _ditichxephangrepository.GetByID(diTichXepHang.DiTichXepHangID);
-            if (existingDiTich == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingDiTich == null) return Ok(new { Status = 0, Message = "ID not found" });
             if (!string.IsNullOrWhiteSpace(diTichXepHang.TenDiTich))
             {
                 diTichXepHang.TenDiTich = diTichXepHang.TenDiTich.Trim();
@@ -154,7 +154,7 @@ namespace QUANLYVANHOA.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existingDiTich = await _ditichxephangrepository.GetByID(id);
-            if (existingDiTich == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingDiTich == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             var result = await _ditichxephangrepository.Delete(id);
             if (result > 0)

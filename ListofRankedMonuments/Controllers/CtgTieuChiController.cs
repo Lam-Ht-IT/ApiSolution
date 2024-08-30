@@ -44,7 +44,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (tieuchiList.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data available" });
+                return Ok(new { Status = 0, Message = "No data available" });
             }
 
             return Ok(new
@@ -71,7 +71,7 @@ namespace QUANLYVANHOA.Controllers
             var tieuChi = await _tieuchirepository.GetByID(id);
             if (tieuChi == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             // Convert entity to model if needed
@@ -137,7 +137,7 @@ namespace QUANLYVANHOA.Controllers
             var existingChiTieu = await _tieuchirepository.GetByID(tieuchi.TieuChiID);
             if (existingChiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             if (string.IsNullOrWhiteSpace(tieuchi.TenTieuChi) || tieuchi.TenTieuChi.Length > 50)
@@ -176,7 +176,7 @@ namespace QUANLYVANHOA.Controllers
             var tieuchi = await _tieuchirepository.GetByID(id);
             if (tieuchi == null)
             {
-                return NotFound(new { Status = 0, Message = "Not found id" });
+                return Ok(new { Status = 0, Message = "Not found id" });
             }
 
             await _tieuchirepository.Delete(id);
