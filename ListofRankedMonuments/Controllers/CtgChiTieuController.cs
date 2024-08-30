@@ -46,7 +46,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (chiTieuList.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data available" });
+                return Ok(new { Status = 0, Message = "No data available" });
             }
 
             return Ok(new
@@ -73,7 +73,7 @@ namespace QUANLYVANHOA.Controllers
             var chiTieu = await _chiTieuRepository.GetByID(id);
             if (chiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = chiTieu });
@@ -138,7 +138,7 @@ namespace QUANLYVANHOA.Controllers
             var existingChiTieu = await _chiTieuRepository.GetByID(chiTieu.ChiTieuID);
             if (existingChiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             if (string.IsNullOrWhiteSpace(chiTieu.TenChiTieu) || chiTieu.TenChiTieu.Length > 50)
@@ -178,7 +178,7 @@ namespace QUANLYVANHOA.Controllers
             var chiTieu = await _chiTieuRepository.GetByID(id);
             if (chiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             await _chiTieuRepository.Delete(id);

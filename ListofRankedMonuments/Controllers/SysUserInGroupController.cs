@@ -25,7 +25,7 @@ namespace QUANLYVANHOA.Controllers
             var userInGroups = await _sysUserInGroupRepository.GetAll();
             if (userInGroups.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data available" });
+                return Ok(new { Status = 0, Message = "No data available" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = userInGroups });
@@ -38,7 +38,7 @@ namespace QUANLYVANHOA.Controllers
             var userInGroup = await _sysUserInGroupRepository.GetByID(id);
             if (userInGroup == null)
             {
-                return NotFound(new { Status = 0, Message = "Id not found" });
+                return Ok(new { Status = 0, Message = "Id not found" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = userInGroup });
@@ -51,7 +51,7 @@ namespace QUANLYVANHOA.Controllers
             var userInGroups = await _sysUserInGroupRepository.GetByGroupID(groupId);
             if (userInGroups.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data found for this group" });
+                return Ok(new { Status = 0, Message = "No data found for this group" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = userInGroups });
@@ -64,7 +64,7 @@ namespace QUANLYVANHOA.Controllers
             var userInGroups = await _sysUserInGroupRepository.GetByUserID(userId);
             if (userInGroups.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data found for this user" });
+                return Ok(new { Status = 0, Message = "No data found for this user" });
             }
 
             return Ok(new { Status = 1, Message = "Get information successfully", Data = userInGroups });
@@ -90,7 +90,7 @@ namespace QUANLYVANHOA.Controllers
             var existingUserInGroup = await _sysUserInGroupRepository.GetByID(model.UserInGroupID);
             if (existingUserInGroup == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             await _sysUserInGroupRepository.Update(model);
@@ -104,7 +104,7 @@ namespace QUANLYVANHOA.Controllers
             var existingUserInGroup = await _sysUserInGroupRepository.GetByID(id);
             if (existingUserInGroup == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             await _sysUserInGroupRepository.Delete(id);

@@ -52,7 +52,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!users.Any())
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "No data available",
@@ -79,7 +79,7 @@ namespace QUANLYVANHOA.Controllers
             var user = await _userRepository.GetByID(userId);
             if (user == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "Id not found",
@@ -183,7 +183,7 @@ namespace QUANLYVANHOA.Controllers
             var existingUser = await _userRepository.GetByID(user.UserID);
             if (existingUser == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "User not found."
@@ -269,7 +269,7 @@ namespace QUANLYVANHOA.Controllers
             var existingUser = await _userRepository.GetByID(userId);
             if (existingUser == null)
             {
-                return NotFound(new Response
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "User not found."

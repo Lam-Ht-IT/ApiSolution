@@ -54,7 +54,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (!loaiMauPhieuList.Any())
             {
-                return NotFound(new
+                return Ok(new
                 {
                     Status = 0,
                     Message = "No data available",
@@ -85,7 +85,7 @@ namespace QUANLYVANHOA.Controllers
             var loaiMauPhieu = await _loaiMauPhieuRepository.GetByID(id);
             if (loaiMauPhieu == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
             return Ok(new { Status = 1, Message = "Get information successfully", Data = loaiMauPhieu });
         }
@@ -143,7 +143,7 @@ namespace QUANLYVANHOA.Controllers
             }
 
             var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(model.LoaiMauPhieuID);
-            if (existingLoaiMauPhieu == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingLoaiMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             if (!string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu)) 
             {
@@ -173,7 +173,7 @@ namespace QUANLYVANHOA.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(id);
-            if (existingLoaiMauPhieu == null) return NotFound(new { Status = 0, Message = "ID not found" });
+            if (existingLoaiMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             var result = await _loaiMauPhieuRepository.Delete(id);
             if (result > 0)

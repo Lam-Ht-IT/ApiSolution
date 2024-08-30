@@ -18,7 +18,7 @@ namespace QUANLYVANHOA.Controllers
             _tieuchirepository = tieuchirepository;
         }
 
-        [CustomAuthorize(1, "ManageCriterial")]
+        [CustomAuthorize(1, "ManageCriteria")]
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
@@ -44,7 +44,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (tieuchiList.Count() == 0)
             {
-                return NotFound(new { Status = 0, Message = "No data available" });
+                return Ok(new { Status = 0, Message = "No data available" });
             }
 
             return Ok(new
@@ -59,7 +59,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-        [CustomAuthorize(1, "ManageCriterial")]
+        [CustomAuthorize(1, "ManageCriteria")]
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
         {
@@ -71,7 +71,7 @@ namespace QUANLYVANHOA.Controllers
             var tieuChi = await _tieuchirepository.GetByID(id);
             if (tieuChi == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             // Convert entity to model if needed
@@ -79,7 +79,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPost("Insert")]
-        [CustomAuthorize(2, "ManageCriterial")]
+        [CustomAuthorize(2, "ManageCriteria")]
         public async Task<IActionResult> Insert([FromBody] CtgTieuChiModelInsert tieuchi)
         {
             if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
@@ -116,7 +116,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpPut("Update")]
-        [CustomAuthorize(4, "ManageCriterial")]
+        [CustomAuthorize(4, "ManageCriteria")]
         public async Task<IActionResult> Update([FromBody] CtgTieuChiModelUpdate tieuchi)
         {
             if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
@@ -137,7 +137,7 @@ namespace QUANLYVANHOA.Controllers
             var existingChiTieu = await _tieuchirepository.GetByID(tieuchi.TieuChiID);
             if (existingChiTieu == null)
             {
-                return NotFound(new { Status = 0, Message = "ID not found" });
+                return Ok(new { Status = 0, Message = "ID not found" });
             }
 
             if (string.IsNullOrWhiteSpace(tieuchi.TenTieuChi) || tieuchi.TenTieuChi.Length > 50)
@@ -165,7 +165,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [HttpDelete("Delete")]
-        [CustomAuthorize(8, "ManageCriterial")]
+        [CustomAuthorize(8, "ManageCriteria")]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)
@@ -176,7 +176,7 @@ namespace QUANLYVANHOA.Controllers
             var tieuchi = await _tieuchirepository.GetByID(id);
             if (tieuchi == null)
             {
-                return NotFound(new { Status = 0, Message = "Not found id" });
+                return Ok(new { Status = 0, Message = "Not found id" });
             }
 
             await _tieuchirepository.Delete(id);
