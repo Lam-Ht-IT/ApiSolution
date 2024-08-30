@@ -2,6 +2,7 @@
 using QUANLYVANHOA.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 public class UserService : IUserService
@@ -15,13 +16,13 @@ public class UserService : IUserService
         _configuration = configuration;
     }
 
-    public async Task<(bool IsValid, string Token, string Message)> AuthenticateUser(string userName, string password)
+    public async Task<(bool IsValid, string Token, string RefreshToken, string Message)> AuthenticateUser(string userName, string password)
     {
-        var user = await _userRepository.VerifyLoginAsync(userName, password);
+        var user = await _userRepository.VerifyLogin(userName, password);
 
         if (user == null)
         {
-            return (false, null, "Invalid username or password.");
+            return (false, null, null, "Invalid username or password.");
         }
 
         var jwtSettings = _configuration.GetSection("Jwt");
@@ -30,9 +31,9 @@ public class UserService : IUserService
         {
             Subject = new ClaimsIdentity(new[]
             {
-            new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Name, userName),
                 new Claim(ClaimTypes.Role, user.Email)
-        }),
+            }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
             Issuer = jwtSettings["Issuer"],
             Audience = jwtSettings["Audience"],
@@ -40,9 +41,58 @@ public class UserService : IUserService
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-        var token = tokenHandler.WriteToken(securityToken);
+        var token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
 
-        return (true, token, "Login successful.");
+        // Tạo refresh token và lưu trữ
+        var refreshToken = GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Refresh token có thời hạn 7 ngày
+        await _userRepository.Update(user);
+
+        return (true, token, refreshToken, "Login successful.");
+    }
+
+    public async Task<(string Token, string RefreshToken)> RefreshToken(string refreshToken)
+    {
+        var user = await _userRepository.GetByRefreshToken(refreshToken);
+        if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        {
+            return (null, null); // Refresh token không hợp lệ hoặc đã hết hạn
+        }
+
+        var jwtSettings = _configuration.GetSection("Jwt");
+        var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Email)
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
+            Issuer = jwtSettings["Issuer"],
+            Audience = jwtSettings["Audience"],
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var newToken = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+
+        // Cập nhật refresh token mới nếu cần thiết
+        var newRefreshToken = GenerateRefreshToken();
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        await _userRepository.Update(user);
+
+        return (newToken, newRefreshToken);
+    }
+
+    private string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
     }
 }

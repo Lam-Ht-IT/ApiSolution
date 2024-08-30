@@ -143,8 +143,37 @@ namespace QUANLYVANHOA.Repositories
                 }
             }
         }
+        public async Task<SysUser> GetByRefreshToken(string refreshToken)
+        {
+            SysUser user = null;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("GetUserByRefreshToken", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@RefreshToken", refreshToken);
 
-        public async Task<SysUser> VerifyLoginAsync(string userName, string password)
+                    await connection.OpenAsync();
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            user = new SysUser
+                            {
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                Email = reader.GetString(reader.GetOrdinal("Email")),
+                                RefreshToken = reader.GetString(reader.GetOrdinal("RefreshToken")),
+                                RefreshTokenExpiryTime = reader.GetDateTime(reader.GetOrdinal("RefreshTokenExpiryTime"))
+                            };
+                        }
+                    }
+                }
+            }
+            return user;
+        }
+
+        public async Task<SysUser> VerifyLogin(string userName, string password)
         {
             SysUser user = null;
 

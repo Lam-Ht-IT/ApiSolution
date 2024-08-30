@@ -1,15 +1,20 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Jose;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QUANLYVANHOA.Interfaces;
 using QUANLYVANHOA.Repositories;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Cấu hình JWT từ appsettings.json
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 // Register repository and service
 builder.Services.AddScoped<ISysUserRepository, SysUserRepository>();
@@ -70,13 +75,36 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
         };
+
+        // Event handling for automatic token refresh
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                {
+                    context.Response.Headers.Add("Token-Expired", "true");
+                }
+                return Task.CompletedTask;
+            },
+
+            OnChallenge = context =>
+            {
+                // Bỏ qua thử thách mặc định để tránh trả về 401 khi token hết hạn
+                context.HandleResponse();
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = JsonSerializer.Serialize(new { error = "You are not authorized" });
+                return context.Response.WriteAsync(result);
+            }
+        };
     });
 
 // Add Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy => policy.RequireRole("admin@example.com"));
-    options.AddPolicy("UserPolicy", policy => policy.RequireRole("3"));
+    options.AddPolicy("UserPolicy", policy => policy.RequireRole("user1@example.com"));
 });
 
 // Thêm dịch vụ CORS vào DI container

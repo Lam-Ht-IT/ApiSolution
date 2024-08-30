@@ -24,3 +24,13 @@ public class Response
     public int? TotalRecords { get; set; }
 }
 
+public class ResponseRefreshToken : Response
+{
+    [JsonPropertyName("RefreshToken")]
+    public string RefreshToken { get; set; }
+}
+public class RefreshTokenRequest
+{
+    public string RefreshToken { get; set; }
+}
+
