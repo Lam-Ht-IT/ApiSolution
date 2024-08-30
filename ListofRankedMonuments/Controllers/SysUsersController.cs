@@ -304,7 +304,7 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Xác thực người dùng và tạo token
-            var (isValid, token, message) = await _userService.AuthenticateUser(model.UserName, model.Password);
+            var (isValid, token, refreshToken, message) = await _userService.AuthenticateUser(model.UserName, model.Password);
 
             if (!isValid)
             {
@@ -317,6 +317,26 @@ namespace QUANLYVANHOA.Controllers
                 Status = 1,
                 Message = message,
                 Data = new { Token = token }
+            });
+        }
+
+
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest model)
+        {
+            var (newToken, newRefreshToken) = await _userService.RefreshToken(model.RefreshToken);
+
+            if (newToken == null)
+            {
+                return Unauthorized(new Response { Status = 0, Message = "Invalid refresh token." });
+            }
+
+            return Ok(new ResponseRefreshToken
+            {
+                Status = 1,
+                Data = newToken,
+                Message = "Success!",
+                RefreshToken = newRefreshToken
             });
         }
     }

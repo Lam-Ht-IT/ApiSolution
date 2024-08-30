@@ -10,6 +10,10 @@ namespace QUANLYVANHOA.Controllers
         public string Password { get; set; }
         public bool Status { get; set; }
         public string Note { get; set; }
+
+        // Refresh Token
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
     }
 
     public class LoginModel
