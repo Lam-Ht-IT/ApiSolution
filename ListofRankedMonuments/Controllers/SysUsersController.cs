@@ -245,7 +245,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            int rowsAffected = await _userRepository.Update(user);
+            int rowsAffected = await _userRepository.UpdateRefreshToken(user);
             if (rowsAffected == 0)
             {
                 return StatusCode(500, new Response
@@ -312,11 +312,12 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Trả về token nếu xác thực thành công
-            return Ok(new Response
+            return Ok(new 
             {
                 Status = 1,
                 Message = message,
-                Data = new { Token = token }
+                Token = token,
+                RefreshToken = refreshToken
             });
         }
 
@@ -328,7 +329,7 @@ namespace QUANLYVANHOA.Controllers
 
             if (newToken == null)
             {
-                return Unauthorized(new Response { Status = 0, Message = "Invalid refresh token." });
+                return Unauthorized(new Response { Status = 0, Message = "Invalid or expired refresh token." });
             }
 
             return Ok(new ResponseRefreshToken

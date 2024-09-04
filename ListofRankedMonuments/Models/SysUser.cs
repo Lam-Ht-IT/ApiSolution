@@ -9,11 +9,11 @@ namespace QUANLYVANHOA.Controllers
         public string Email { get; set; }
         public string Password { get; set; }
         public bool Status { get; set; }
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         // Refresh Token
-        public string RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiryTime { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
     }
 
     public class LoginModel

@@ -45,7 +45,11 @@ namespace QUANLYVANHOA.Repositories
                                 Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Password = reader.GetString(reader.GetOrdinal("Password")),
                                 Status = reader.GetBoolean(reader.GetOrdinal("Status")),
-                                Note = reader.GetString(reader.GetOrdinal("Note"))
+                                Note = reader.GetString(reader.GetOrdinal("Note")),
+                                RefreshToken = !reader.IsDBNull(reader.GetOrdinal("RefreshToken")) ? reader.GetString(reader.GetOrdinal("RefreshToken")) : null,
+                                RefreshTokenExpiryTime = !reader.IsDBNull(reader.GetOrdinal("RefreshTokenExpiryTime"))
+                                                        ? reader.GetDateTime(reader.GetOrdinal("RefreshTokenExpiryTime"))
+                                                        : (DateTime?)null
                             });
                         }
 
@@ -130,6 +134,24 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
+        public async Task<int> UpdateRefreshToken(SysUser user)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand("UMS_UpdateToken", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@UserID", user.UserID);
+                    cmd.Parameters.AddWithValue("@RefreshToken", user.RefreshToken);
+                    cmd.Parameters.AddWithValue("@RefreshTokenExpiryTime", user.RefreshTokenExpiryTime);
+
+                    await connection.OpenAsync();
+                    return await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+
         public async Task<int> Delete(int userId)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -148,7 +170,7 @@ namespace QUANLYVANHOA.Repositories
             SysUser user = null;
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("GetUserByRefreshToken", connection))
+                using (var command = new SqlCommand("UMS_GetByRefreshToken", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@RefreshToken", refreshToken);

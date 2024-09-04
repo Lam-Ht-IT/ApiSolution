@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using Microsoft.IdentityModel.Tokens;
 using QUANLYVANHOA.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -47,7 +48,7 @@ public class UserService : IUserService
         var refreshToken = GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Refresh token có thời hạn 7 ngày
-        await _userRepository.Update(user);
+        await _userRepository.UpdateRefreshToken(user);
 
         return (true, token, refreshToken, "Login successful.");
     }
@@ -81,7 +82,7 @@ public class UserService : IUserService
         var newRefreshToken = GenerateRefreshToken();
         user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-        await _userRepository.Update(user);
+        await _userRepository.UpdateRefreshToken(user);
 
         return (newToken, newRefreshToken);
     }
