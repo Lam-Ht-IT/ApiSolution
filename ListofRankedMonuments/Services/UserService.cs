@@ -1,10 +1,13 @@
 ﻿using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.IdentityModel.Tokens;
 using QUANLYVANHOA.Interfaces;
+using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using QUANLYVANHOA.Services;
+using Newtonsoft.Json;
 
 public class UserService : IUserService
 {
@@ -26,6 +29,9 @@ public class UserService : IUserService
             return (false, null, null, "Invalid username or password.");
         }
 
+        // Lấy danh sách các quyền của người dùng từ cơ sở dữ liệu
+        var permissions = CustomAuthorizeAttribute.GetAllUserFunctionsAndPermissions(userName);
+
         var jwtSettings = _configuration.GetSection("Jwt");
         var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -33,7 +39,8 @@ public class UserService : IUserService
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimTypes.Role, user.Email)
+                new Claim(ClaimTypes.Role, user.Email),
+                new Claim("FunctionsAndPermissions", JsonConvert.SerializeObject(permissions)) // Lưu các quyền của từng chức năng vào JWT
             }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
             Issuer = jwtSettings["Issuer"],
