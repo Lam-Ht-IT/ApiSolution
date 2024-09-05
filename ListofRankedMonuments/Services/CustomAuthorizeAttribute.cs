@@ -68,7 +68,7 @@ public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
             conn.Open();
-            SqlCommand cmd = new SqlCommand("FIG_GetUserPermissions", conn);
+            SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@UserName", userName);
             cmd.Parameters.AddWithValue("@FunctionName", functionName);
@@ -89,7 +89,7 @@ public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
         using (SqlConnection conn = new SqlConnection("Server=192.168.100.126;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;"))
         {
             conn.Open();
-            SqlCommand cmd = new SqlCommand("FIG_GetAllUserPermissions", conn);
+            SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@UserName", userName);
 
