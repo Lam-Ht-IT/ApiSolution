@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
+using QUANLYVANHOA.Interfaces;
 using System.Data.SqlClient;
 using System.Security.Claims;
 
-public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
+public class CustomAuthorizeAttribute : Attribute
 {
     private readonly int _requiredPermission;
     private readonly string _requiredFunction;
@@ -20,6 +21,16 @@ public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
         if (!context.HttpContext.User.Identity.IsAuthenticated)
         {
             context.Result = new UnauthorizedResult();
+            return;
+        }
+
+        // Manually resolve the service (e.g., IUserService) using HttpContext.RequestServices
+        // Giải quyết thủ công service (vd: IUserService) bằng HttpContext.RequestServices
+        var userService = context.HttpContext.RequestServices.GetService<IUserService>();
+
+        if (userService == null)
+        {
+            context.Result = new ForbidResult();
             return;
         }
 
@@ -89,7 +100,7 @@ public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
         using (SqlConnection conn = new SqlConnection("Server=192.168.100.126;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;"))
         {
             conn.Open();
-            SqlCommand cmd = new SqlCommand("FIG_GetAllUserPermissions", conn);
+            SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@UserName", userName);
 

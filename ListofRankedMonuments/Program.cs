@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QUANLYVANHOA.Interfaces;
 using QUANLYVANHOA.Repositories;
+using QUANLYVANHOA.Utilities;
 using System.Text;
 using System.Text.Json;
 
@@ -16,20 +17,24 @@ builder.Services.AddEndpointsApiExplorer();
 // Cấu hình JWT từ appsettings.json
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
+// Automatically register all repositories in the assembly
+// Tự động đăng ký tất cả các repository trong assembly
+builder.Services.AddRepositoriesAndServices(typeof(SysUserRepository).Assembly);
+
 // Register repository and service
-builder.Services.AddScoped<ISysUserRepository, SysUserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ICtgDiTichXepHangRepository, CtgDiTichXepHangRepository>();
-builder.Services.AddScoped<ICtgTieuChiRepository, CtgTieuChiRepository>();
-builder.Services.AddScoped<ICtgChiTieuRepository, CtgChiTieuRepository>();
-builder.Services.AddScoped<ICtgKyBaoCaoRepository, CtgKyBaoCaoRepository>();
-builder.Services.AddScoped<ISysGroupRepository, SysGroupRepository>();
-builder.Services.AddScoped<ISysFunctionRepository, SysFunctionRepository>();
-builder.Services.AddScoped<ISysFunctionInGroupRepository, SysFunctionInGroupRepository>();
-builder.Services.AddScoped<ISysUserInGroupRepository, SysUserInGroupRepository>();
-builder.Services.AddScoped<ICtgLoaiMauPhieuRepository, CtgLoaiMauPhieuRepository>();
-builder.Services.AddScoped<ICtgLoaiDiTichRepository, CtgLoaiDiTichRepository>();
-builder.Services.AddScoped<ICtgDonViTinhRepository, CtgDonViTinhRepository>();
+//builder.Services.AddScoped<ISysUserRepository, SysUserRepository>();
+//builder.Services.AddScoped<IUserService, UserService>();
+//builder.Services.AddScoped<ICtgDiTichXepHangRepository, CtgDiTichXepHangRepository>();
+//builder.Services.AddScoped<ICtgTieuChiRepository, CtgTieuChiRepository>();
+//builder.Services.AddScoped<ICtgChiTieuRepository, CtgChiTieuRepository>();
+//builder.Services.AddScoped<ICtgKyBaoCaoRepository, CtgKyBaoCaoRepository>();
+//builder.Services.AddScoped<ISysGroupRepository, SysGroupRepository>();
+//builder.Services.AddScoped<ISysFunctionRepository, SysFunctionRepository>();
+//builder.Services.AddScoped<ISysFunctionInGroupRepository, SysFunctionInGroupRepository>();
+//builder.Services.AddScoped<ISysUserInGroupRepository, SysUserInGroupRepository>();
+//builder.Services.AddScoped<ICtgLoaiMauPhieuRepository, CtgLoaiMauPhieuRepository>();
+//builder.Services.AddScoped<ICtgLoaiDiTichRepository, CtgLoaiDiTichRepository>();
+//builder.Services.AddScoped<ICtgDonViTinhRepository, CtgDonViTinhRepository>();
 
 
 builder.Services.AddSwaggerGen(c =>
