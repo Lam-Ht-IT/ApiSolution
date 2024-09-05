@@ -14,10 +14,12 @@ namespace QUANLYVANHOA.Controllers
     public class CtgChiTieuController : ControllerBase
     {
         private readonly ICtgChiTieuRepository _chiTieuRepository;
+        private readonly ICtgLoaiMauPhieuRepository _loaiMauPhieuRepository;
 
-        public CtgChiTieuController(ICtgChiTieuRepository chiTieuRepository)
+        public CtgChiTieuController(ICtgChiTieuRepository chiTieuRepository, ICtgLoaiMauPhieuRepository loaiMauPhieuRepository)
         {
             _chiTieuRepository = chiTieuRepository;
+            _loaiMauPhieuRepository = loaiMauPhieuRepository;
         }
 
         [CustomAuthorize(1, "ManageTarget")]
@@ -83,6 +85,7 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] CtgChiTieuModelInsert chiTieu)
         {
+            var existingChiTieuCha = await _loaiMauPhieuRepository.GetByID(chiTieu.LoaiMauPhieuID);
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
             {
                 chiTieu.TenChiTieu = chiTieu.TenChiTieu.Trim();
@@ -107,10 +110,16 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
             }
 
+            var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(chiTieu.LoaiMauPhieuID);
+            if (existingLoaiMauPhieu == null)
+            {
+                return Ok(new { Status = 0, Message = "LoaiMauPhieu does not exist" });
+            }
             if (chiTieu.LoaiMauPhieuID <= 0)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
+                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. It must be greater than 0." });
             }
+
 
             await _chiTieuRepository.Insert(chiTieu);
             return Ok(new { Status = 1, Message = "Inserted data successfully" });
@@ -156,9 +165,14 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
             }
 
+            var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(chiTieu.LoaiMauPhieuID);
+            if (existingLoaiMauPhieu == null)
+            {
+                return Ok(new { Status = 0, Message = "LoaiMauPhieu does not exist" });
+            }
             if (chiTieu.LoaiMauPhieuID <= 0)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
+                return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. It must be greater than 0." });
             }
 
 
