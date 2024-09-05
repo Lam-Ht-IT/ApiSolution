@@ -79,7 +79,7 @@ public class CustomAuthorizeAttribute : Attribute
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
             conn.Open();
-            SqlCommand cmd = new SqlCommand("FIG_GetUserPermissions", conn);
+            SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);
             cmd.CommandType = System.Data.CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@UserName", userName);
             cmd.Parameters.AddWithValue("@FunctionName", functionName);
