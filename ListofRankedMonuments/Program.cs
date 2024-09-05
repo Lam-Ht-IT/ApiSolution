@@ -21,7 +21,9 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 // Tự động đăng ký tất cả các repository trong assembly
 builder.Services.AddRepositoriesAndServices(typeof(SysUserRepository).Assembly);
 
-// Register repository and service
+
+
+////Register repository and service
 //builder.Services.AddScoped<ISysUserRepository, SysUserRepository>();
 //builder.Services.AddScoped<IUserService, UserService>();
 //builder.Services.AddScoped<ICtgDiTichXepHangRepository, CtgDiTichXepHangRepository>();

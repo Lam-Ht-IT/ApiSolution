@@ -6,7 +6,7 @@ using QUANLYVANHOA.Interfaces;
 using System.Data.SqlClient;
 using System.Security.Claims;
 
-public class CustomAuthorizeAttribute : Attribute
+public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
 {
     private readonly int _requiredPermission;
     private readonly string _requiredFunction;
