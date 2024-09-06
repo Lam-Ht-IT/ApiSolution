@@ -75,7 +75,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
     private int GetUserPermissions(string userName, string functionName)
     {
         int permissions = 0;
-        string connectionString = "Server=192.168.100.126;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;";
+        string connectionString = "Server=192.168.100.132;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;";
 
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
