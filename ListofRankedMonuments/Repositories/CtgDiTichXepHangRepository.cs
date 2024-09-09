@@ -91,7 +91,6 @@ namespace QUANLYVANHOA.Repositories
                     }
                 }
             }
-
             return ditichXepHang;
         }
 
