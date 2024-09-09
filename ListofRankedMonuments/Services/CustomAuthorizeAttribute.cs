@@ -98,7 +98,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
     {
         var permissions = new Dictionary<string, int>();
 
-        using (SqlConnection conn = new SqlConnection("Server=192.168.100.126;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;"))
+        using (SqlConnection conn = new SqlConnection("Server=192.168.100.132;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;"))
         {
             conn.Open();
             SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);

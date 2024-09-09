@@ -68,6 +68,7 @@ public class UserService : IUserService
             return (null, null); // Refresh token không hợp lệ hoặc đã hết hạn
         }
         var permissions = CustomAuthorizeAttribute.GetAllUserFunctionsAndPermissions(user.UserName);
+
         var jwtSettings = _configuration.GetSection("Jwt");
         var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -76,8 +77,7 @@ public class UserService : IUserService
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Role, user.Email),
-                new Claim("FunctionsAndPermissions", JsonConvert.SerializeObject(permissions)) // Lưu các quyền của từng chức năng vào JWT
-
+                new Claim("FunctionsAndPermissions", JsonConvert.SerializeObject(permissions))
             }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"])),
             Issuer = jwtSettings["Issuer"],

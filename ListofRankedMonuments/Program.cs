@@ -17,11 +17,11 @@ builder.Services.AddEndpointsApiExplorer();
 // Cấu hình JWT từ appsettings.json
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
-// Automatically register all repositories in the assembly
+
 // Tự động đăng ký tất cả các repository trong assembly
-builder.Services.AddRepositoriesAndServices(typeof(SysUserRepository).Assembly);
-
-
+// Assembly là một đơn vị mã đã được biên dịch (compiled unit)
+// => contain: Types(classes, interfaces, enums), Methods, properties, events
+builder.Services.AddRepositoriesAndServices(typeof(SysUserRepository).Assembly); // typeof(SysUserRepository) đại diện, object chứa metadata
 
 ////Register repository and service
 //builder.Services.AddScoped<ISysUserRepository, SysUserRepository>();
