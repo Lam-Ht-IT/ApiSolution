@@ -90,9 +90,9 @@ namespace QUANLYVANHOA.Repositories
                                 TieuChiChaID = reader["TieuChiChaID"] as int?,
                                 GhiChu = reader["GhiChu"].ToString(),
                                 KieuDuLieuCot = reader["KieuDuLieuCot"] as int?,
-                                TrangThai = reader.GetBoolean("TrangThai"),
+                                TrangThai = reader.GetBoolean("TrangThai") ,
                                 LoaiTieuChi = reader["LoaiTieuChi"] as int?,
-                                CapDo = reader.GetInt32("CapDo")
+                                CapDo = reader["CapDo"] as int?
                             };
                         }
                     }
