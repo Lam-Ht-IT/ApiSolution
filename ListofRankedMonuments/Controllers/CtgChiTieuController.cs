@@ -24,7 +24,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(1, "ManageTarget")]
         [HttpGet("List")]
-        public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
+        public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 100)
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
@@ -36,9 +36,9 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
             }
 
-            if (pageSize <= 0 || pageSize > 50)
+            if (pageSize <= 0 || pageSize > 100)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 50." });
+                return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 100." });
             }
 
             var result = await _chiTieuRepository.GetAll(name, pageNumber, pageSize);
