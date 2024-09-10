@@ -133,7 +133,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-        [HttpPut("UpdatingFunction")]
+        [HttpPost("UpdatingFunction")]
         [CustomAuthorize(4, "ManageUsers")]
         public async Task<IActionResult> Update([FromBody] SysFunctionModelUpdate function)
         {
@@ -182,7 +182,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-        [HttpDelete("DeleteFunction")]
+        [HttpPost("DeleteFunction")]
         [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int functionId)
         {

@@ -128,7 +128,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [CustomAuthorize(4, "ManageUnitofMeasure")]
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] CtgDonViTinhModelUpdate model)
         {
             var existingDonViTinh = await _donViTinhRepository.GetByID(model.DonViTinhID);
@@ -164,7 +164,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [CustomAuthorize(8, "ManageUnitofMeasure")]
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingDonViTinh = await _donViTinhRepository.GetByID(id);

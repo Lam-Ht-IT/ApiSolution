@@ -122,7 +122,7 @@ namespace QUANLYVANHOA.Controllers
             return StatusCode(500, new { Status = 0, Message = "Insertion failed" });
         }
 
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         [CustomAuthorize(4, "ManageTypeofMonument")]
         public async Task<IActionResult> Update([FromBody] CtgLoaiDiTichModelUpdate model)
         {
@@ -154,7 +154,7 @@ namespace QUANLYVANHOA.Controllers
             return StatusCode(500, new { Status = 0, Message = "Update failed" });
         }
 
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         [CustomAuthorize(8, "ManageTypeofMonument")]
         public async Task<IActionResult> Delete(int id)
         {

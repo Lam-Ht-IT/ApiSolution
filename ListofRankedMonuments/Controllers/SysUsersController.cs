@@ -173,7 +173,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
         [CustomAuthorize(4, "ManageUsers")]
-        [HttpPut("UpdatingUser")]
+        [HttpPost("UpdatingUser")]
         public async Task<IActionResult> Update([FromBody] SysUser user)
         {
             if (!string.IsNullOrWhiteSpace(user.UserName))
@@ -263,7 +263,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [CustomAuthorize(8, "ManageUsers")]
-        [HttpDelete("DeleteUser")]
+        [HttpPost("DeleteUser")]
         public async Task<IActionResult> Delete(int userId)
         {
             var existingUser = await _userRepository.GetByID(userId);

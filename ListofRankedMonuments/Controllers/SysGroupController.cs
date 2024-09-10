@@ -133,7 +133,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-        [HttpPut("UpdatingGroup")]
+        [HttpPost("UpdatingGroup")]
         [CustomAuthorize(4, "ManageUsers")]
         public async Task<IActionResult> Update([FromBody] SysGroup group)
         {
@@ -182,7 +182,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-        [HttpDelete("DeleteGroup")]
+        [HttpPost("DeleteGroup")]
         [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int groupId)
         {

@@ -120,7 +120,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [CustomAuthorize(4, "ManageMonumentRanking")]
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] CtgDiTichXepHangModelUpdate diTichXepHang)
         {
             var existingDiTich = await _ditichxephangrepository.GetByID(diTichXepHang.DiTichXepHangID);
@@ -150,7 +150,7 @@ namespace QUANLYVANHOA.Controllers
         }
 
         [CustomAuthorize(8, "ManageMonumentRanking")]
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var existingDiTich = await _ditichxephangrepository.GetByID(id);

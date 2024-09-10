@@ -30,6 +30,8 @@ namespace QUANLYVANHOA.Repositories
                 using (var command = new SqlCommand("CT_GetAll", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.CommandTimeout = 120; // Increase Connection Timeout 
+
                     command.Parameters.AddWithValue("@TenChiTieu", name ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@PageNumber", pageNumber);
                     command.Parameters.AddWithValue("@PageSize", pageSize);
