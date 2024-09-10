@@ -83,7 +83,7 @@ namespace QUANLYVANHOA.Controllers
             return CreatedAtAction(nameof(GetByID), new { id = newUserInGroupID }, new { Status = 1, Message = "Inserted data successfully" });
         }
 
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         [CustomAuthorize(4, "ManageUsers")]
         public async Task<IActionResult> Update([FromBody] SysUserInGroup model)
         {
@@ -97,7 +97,7 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Updated data successfully" });
         }
 
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         [CustomAuthorize(8, "ManageUsers")]
         public async Task<IActionResult> Delete(int id)
         {

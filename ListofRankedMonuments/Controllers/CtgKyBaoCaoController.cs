@@ -104,7 +104,7 @@ namespace QUANLYVANHOA.Controllers
             }
         }
 
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         [CustomAuthorize(4, "ManageReportingPeriod")]
         public async Task<IActionResult> Update(CtgKyBaoCaoModelUpdate kyBaoCao)
         {
@@ -128,7 +128,7 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Updated data successfully" });
         }
 
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         [CustomAuthorize(8, "ManageReportingPeriod")]
         public async Task<IActionResult> Delete(int id)
         {

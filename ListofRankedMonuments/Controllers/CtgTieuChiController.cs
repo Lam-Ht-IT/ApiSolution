@@ -115,7 +115,7 @@ namespace QUANLYVANHOA.Controllers
             return Ok( new { Status = 1, Message = "Inserted data successfully" });
         }
 
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         [CustomAuthorize(4, "ManageCriteria")]
         public async Task<IActionResult> Update([FromBody] CtgTieuChiModelUpdate tieuchi)
         {
@@ -164,7 +164,7 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Updated data Successfully" });
         }
 
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         [CustomAuthorize(8, "ManageCriteria")]
         public async Task<IActionResult> Delete(int id)
         {
