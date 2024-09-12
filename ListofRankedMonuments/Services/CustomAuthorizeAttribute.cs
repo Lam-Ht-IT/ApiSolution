@@ -76,7 +76,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
     {
         int permissions = 0;
         //string connectionString = "Server=DESKTOP-5EUAFCP\\MSSQLSERVER01;Database=QuanLyVanHoa;Trust Connection=True;Integated Security=True;Connection Timeout=6000;";
-        string connectionString = "Server=192.168.100.132;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;";
+        string connectionString = "Server=192.168.100.128;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;";
 
 
         using (SqlConnection conn = new SqlConnection(connectionString))
@@ -100,7 +100,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
     {
         var permissions = new Dictionary<string, int>();
 
-        using (SqlConnection conn = new SqlConnection("Server=192.168.100.132;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;"))
+        using (SqlConnection conn = new SqlConnection("Server=192.168.100.128;Database=QuanLyVanHoa;User Id=InternGo;Password=InternGo;"))
         {
             conn.Open();
             SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);
