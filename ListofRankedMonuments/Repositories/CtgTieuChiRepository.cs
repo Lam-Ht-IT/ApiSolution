@@ -112,7 +112,6 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@MaTieuChi", tieuChi.MaTieuChi);
                     command.Parameters.AddWithValue("@TenTieuChi", tieuChi.TenTieuChi);
                     command.Parameters.AddWithValue("@TieuChiChaID",tieuChi.TieuChiChaID ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@GhiChu", tieuChi.GhiChu ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@KieuDuLieuCot", tieuChi.KieuDuLieuCot ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@LoaiTieuChi", tieuChi.LoaiTieuChi ?? (object)DBNull.Value);
 

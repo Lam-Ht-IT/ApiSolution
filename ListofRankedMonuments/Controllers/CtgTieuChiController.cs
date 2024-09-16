@@ -101,11 +101,6 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "TieuChiChaID cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
             }
 
-            if (tieuchi.GhiChu.Length > 100)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
-            }
-
             if (tieuchi.LoaiTieuChi <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
