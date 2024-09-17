@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc;
 
 namespace QUANLYVANHOA.Repositories
 {
@@ -102,6 +103,48 @@ namespace QUANLYVANHOA.Repositories
             return chiTieu;
         }
 
+        public async Task<IEnumerable<CtgChiTieu>> GetByLoaiMauPhieuID(int loaiMauPhieuID)
+        {
+            var chiTieuList = new List<CtgChiTieu>();
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand("CT_GetByLoaiMauPhieuID", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandTimeout = 120; // Increase Connection Timeout 
+
+                    command.Parameters.AddWithValue("@LoaiMauPhieuID", loaiMauPhieuID);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            var chiTieu = new CtgChiTieu
+                            {
+                                ChiTieuID = reader.GetInt32(reader.GetOrdinal("ChiTieuID")),
+                                MaChiTieu = reader["MaChiTieu"].ToString(),
+                                TenChiTieu = reader["TenChiTieu"].ToString(),
+                                ChiTieuChaID = reader.IsDBNull(reader.GetOrdinal("ChiTieuChaID")) ? 0 : reader.GetInt32(reader.GetOrdinal("ChiTieuChaID")),
+                                GhiChu = reader["GhiChu"].ToString(),
+                                TrangThai = reader.GetBoolean(reader.GetOrdinal("TrangThai")),
+                                LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID"))
+                            };
+
+                            chiTieuList.Add(chiTieu);
+                        }
+                    }
+                }
+
+                // After fetching the data, build the hierarchy
+                var chiTieuHierarchy = BuildHierarchy(chiTieuList);
+
+                return (chiTieuHierarchy);
+            }
+        }
+
         public async Task<int> Insert(CtgChiTieuModelInsert chiTieu)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -115,11 +158,34 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@GhiChu", chiTieu.GhiChu ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", chiTieu.LoaiMauPhieuID); // Sửa lỗi kiểu dữ liệu
 
-                    await connection.OpenAsync();
+                    await connection.OpenAsync();   
                     return await command.ExecuteNonQueryAsync();
                 }
             }
         }
+
+        public async Task<int> InsertChildren(CtgChiTieuModelInsertChidren chiTieuModelInsertChidren)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand("CT_InsertChildren", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Thêm tham số vào stored procedure
+                    command.Parameters.AddWithValue("@ChiTieuChaID", chiTieuModelInsertChidren.ChiTieuChaID);
+                    command.Parameters.AddWithValue("@TenChiTieu", chiTieuModelInsertChidren.TenChiTieu);
+                    command.Parameters.AddWithValue("@MaChiTieu", chiTieuModelInsertChidren.MaChiTieu);
+                    command.Parameters.AddWithValue("@GhiChu", chiTieuModelInsertChidren.GhiChu);
+
+                    // Thực thi stored procedure
+                    return await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
 
         public async Task<int> Update(CtgChiTieuModelUpdate chiTieu)
         {
@@ -156,22 +222,49 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        private List<CtgChiTieu> BuildHierarchy(List<CtgChiTieu> chiTieuList)
-        {
-            var lookup = chiTieuList.ToLookup(c => c.ChiTieuChaID);
-            var rootItems = lookup[0].ToList();
+        //private List<CtgChiTieu> BuildHierarchy(List<CtgChiTieu> chiTieuList)
+        //{
+        //    var lookup = chiTieuList.ToLookup(c => c.ChiTieuChaID);
+        //    var rootItems = lookup[0].ToList();
 
-            // Để đảm bảo tất cả các cấp độ của cây đều được bao gồm
-            foreach (var item in chiTieuList)
+        //    // Để đảm bảo tất cả các cấp độ của cây đều được bao gồm
+        //    foreach (var item in chiTieuList)
+        //    {
+        //        var parent = chiTieuList.FirstOrDefault(c => c.ChiTieuID == item.ChiTieuChaID);
+        //        if (parent != null)
+        //        {
+        //            parent.Children.Add(item);
+        //        }
+        //    }
+
+        //    return rootItems;
+        //}
+
+
+        private IEnumerable<CtgChiTieu> BuildHierarchy(List<CtgChiTieu> chiTieuList)
+        {
+            var lookup = chiTieuList.ToLookup(ct => ct.ChiTieuChaID); // Tạo lookup từ ChiTieuChaID
+            List<CtgChiTieu> hierarchy = new List<CtgChiTieu>();
+
+            foreach (var chiTieu in chiTieuList.Where(ct => ct.ChiTieuChaID == 0))
             {
-                var parent = chiTieuList.FirstOrDefault(c => c.ChiTieuID == item.ChiTieuChaID);
-                if (parent != null)
-                {
-                    parent.Children.Add(item);
-                }
+                hierarchy.Add(BuildChiTieuWithChildren(chiTieu, lookup));
             }
 
-            return rootItems;
+            return hierarchy;
         }
+
+        private CtgChiTieu BuildChiTieuWithChildren(CtgChiTieu chiTieu, ILookup<int, CtgChiTieu> lookup)
+        {
+            var children = lookup[chiTieu.ChiTieuID].ToList();
+
+            foreach (var child in children)
+            {
+                chiTieu.Children.Add(BuildChiTieuWithChildren(child, lookup));
+            }
+
+            return chiTieu;
+        }
+
     }
 }

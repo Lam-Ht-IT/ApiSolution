@@ -46,6 +46,21 @@ namespace QUANLYVANHOA.Models
 
     }
 
+    public class CtgChiTieuModelInsertChidren
+    {
+        [JsonPropertyName("MaChiTieu")]
+        public string MaChiTieu { get; set; }
+
+        [JsonPropertyName("TenChiTieu")]
+        public string TenChiTieu { get; set; }
+
+        [JsonPropertyName("ChiTieuChaID")]
+        public int? ChiTieuChaID { get; set; }
+
+        [JsonPropertyName("GhiChu")]
+        public string? GhiChu { get; set; }
+    }
+
     public class CtgChiTieuModelUpdate
     {
         [JsonPropertyName("ChiTieuID")]

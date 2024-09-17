@@ -81,11 +81,37 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = chiTieu });
         }
 
+        [HttpGet("GetByLoaiMauPhieuID")]
+        [CustomAuthorize(2, "ManageTarget")]
+        public async Task<IActionResult> GetByLoaiMauPhieuID(int loaiMauPhieuID)
+        {
+            if (loaiMauPhieuID <= 0)
+            {
+                return BadRequest("Invalid LoaiMauPhieuID.");
+            }
+
+            try
+            {
+                var chiTieuHierarchy = await _chiTieuRepository.GetByLoaiMauPhieuID(loaiMauPhieuID);
+
+                if (chiTieuHierarchy == null)
+                {
+                    return NotFound($"No ChiTieu found for LoaiMauPhieuID: {loaiMauPhieuID}");
+                }
+
+                return Ok(chiTieuHierarchy);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [CustomAuthorize(2, "ManageTarget")]
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] CtgChiTieuModelInsert chiTieu)
         {
-            var existingChiTieuCha = await _loaiMauPhieuRepository.GetByID(chiTieu.LoaiMauPhieuID);
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
             {
                 chiTieu.TenChiTieu = chiTieu.TenChiTieu.Trim();
@@ -102,16 +128,16 @@ namespace QUANLYVANHOA.Controllers
 
             if (chiTieu.ChiTieuChaID.HasValue)
             {
-                var existingChiTieu = await _chiTieuRepository.GetByID(chiTieu.ChiTieuChaID.Value);
-                if (existingChiTieu != null || chiTieu.ChiTieuChaID <= 0)
+                var existingChiTieuCha = await _chiTieuRepository.GetByID(chiTieu.ChiTieuChaID.Value);
+                if (existingChiTieuCha != null || chiTieu.ChiTieuChaID <= 0)
                 {
                     return BadRequest(new { Status = 0, Message = "ChiTieuChaId not found or cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
                 }
             }
 
-            if (chiTieu.GhiChu.Length > 100)
+            if (chiTieu.GhiChu.Length > 300)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 100 characters" });
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 300 characters" });
             }
 
             var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetByID(chiTieu.LoaiMauPhieuID);
@@ -127,6 +153,50 @@ namespace QUANLYVANHOA.Controllers
             await _chiTieuRepository.Insert(chiTieu);
             return Ok(new { Status = 1, Message = "Inserted data successfully" });
         }
+
+        [HttpPost("InsertChildren")]
+        [CustomAuthorize(2, "ManageTarget")]
+        public async Task<IActionResult> InsertChiTieuCon([FromBody] CtgChiTieuModelInsertChidren chiTieuModelInsertChidren)
+        {
+            if (!string.IsNullOrWhiteSpace(chiTieuModelInsertChidren.TenChiTieu))
+            {
+                chiTieuModelInsertChidren.TenChiTieu = chiTieuModelInsertChidren.TenChiTieu.Trim();
+            }
+            if (string.IsNullOrWhiteSpace(chiTieuModelInsertChidren.TenChiTieu) || chiTieuModelInsertChidren.TenChiTieu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid TenChiTieu. The TenChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (string.IsNullOrWhiteSpace(chiTieuModelInsertChidren.MaChiTieu) || chiTieuModelInsertChidren.MaChiTieu.Length > 100)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid MaChiTieu. The MaChiTieu must be required and not exceed 50 characters" });
+            }
+
+            if (chiTieuModelInsertChidren.ChiTieuChaID.HasValue)
+            {
+                var existingChiTieuCha = await _chiTieuRepository.GetByID(chiTieuModelInsertChidren.ChiTieuChaID.Value);
+                if (existingChiTieuCha == null || chiTieuModelInsertChidren.ChiTieuChaID <= 0)
+                {
+                    return BadRequest(new { Status = 0, Message = "ChiTieuChaId not found or cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
+                }
+            }
+
+            if (chiTieuModelInsertChidren.GhiChu.Length > 300)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid GhiChu. The GhiChu must not exceed 300 characters" });
+            }
+            try
+            {
+                await _chiTieuRepository.InsertChildren(chiTieuModelInsertChidren);
+                return Ok(new { Status = 1, Message = "Inserted successfully." });
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi nếu cần
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
         [CustomAuthorize(4, "ManageTarget")]
         [HttpPost("Update")]

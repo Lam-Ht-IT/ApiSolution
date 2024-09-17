@@ -105,6 +105,7 @@ namespace QUANLYVANHOA.Controllers
                 }
             }
 
+
             if (tieuchi.LoaiTieuChi <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. The LoaiMauPhieuID must be greater than 0" });
