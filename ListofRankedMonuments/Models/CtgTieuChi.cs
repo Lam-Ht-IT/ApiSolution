@@ -46,9 +46,6 @@ namespace QUANLYVANHOA.Models
         [JsonPropertyName("TieuChiChaID")]
         public int? TieuChiChaID { get; set; }
 
-        [JsonPropertyName("GhiChu")]
-        public string GhiChu { get; set; }
-
         [JsonPropertyName("KieuDuLieuCot")]
         public int? KieuDuLieuCot { get; set; }
 

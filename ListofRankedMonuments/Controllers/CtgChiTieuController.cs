@@ -100,9 +100,13 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaChiTieu. The MaChiTieu must be required and not exceed 50 characters" });
             }
 
-            if (chiTieu.ChiTieuChaID <= 0)
+            if (chiTieu.ChiTieuChaID.HasValue)
             {
-                return BadRequest(new { Status = 0, Message = "ChiTieuChaID cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
+                var existingChiTieu = await _chiTieuRepository.GetByID(chiTieu.ChiTieuChaID.Value);
+                if (existingChiTieu != null || chiTieu.ChiTieuChaID <= 0)
+                {
+                    return BadRequest(new { Status = 0, Message = "ChiTieuChaId not found or cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
+                }
             }
 
             if (chiTieu.GhiChu.Length > 100)
@@ -119,8 +123,7 @@ namespace QUANLYVANHOA.Controllers
             {
                 return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. It must be greater than 0." });
             }
-
-
+   
             await _chiTieuRepository.Insert(chiTieu);
             return Ok(new { Status = 1, Message = "Inserted data successfully" });
         }

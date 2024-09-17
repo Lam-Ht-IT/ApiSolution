@@ -39,7 +39,7 @@ namespace QUANLYVANHOA.Models
         public int? ChiTieuChaID { get; set; }
 
         [JsonPropertyName("GhiChu")]
-        public string? GhiChu { get; set; }
+        public string? GhiChu { get; set; } 
 
         [JsonPropertyName("LoaiMauPhieuID")]
         public int LoaiMauPhieuID { get; set; }
