@@ -81,6 +81,33 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new { Status = 1, Message = "Get information successfully", Data = chiTieu });
         }
 
+        [HttpGet("GetByLoaiMauPhieuID")]
+        [CustomAuthorize(2, "ManageTarget")]
+        public async Task<IActionResult> GetByLoaiMauPhieuID(int loaiMauPhieuID)
+        {
+            if (loaiMauPhieuID <= 0)
+            {
+                return BadRequest("Invalid LoaiMauPhieuID.");
+            }
+
+            try
+            {
+                var chiTieuHierarchy = await _chiTieuRepository.GetByLoaiMauPhieuID(loaiMauPhieuID);
+
+                if (chiTieuHierarchy == null)
+                {
+                    return NotFound($"No ChiTieu found for LoaiMauPhieuID: {loaiMauPhieuID}");
+                }
+
+                return Ok(chiTieuHierarchy);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [CustomAuthorize(2, "ManageTarget")]
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] CtgChiTieuModelInsert chiTieu)
