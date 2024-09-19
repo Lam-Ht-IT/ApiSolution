@@ -129,7 +129,7 @@ namespace QUANLYVANHOA.Controllers
             if (chiTieu.ChiTieuChaID.HasValue)
             {
                 var existingChiTieuCha = await _chiTieuRepository.GetByID(chiTieu.ChiTieuChaID.Value);
-                if (existingChiTieuCha != null || chiTieu.ChiTieuChaID <= 0)
+                if (existingChiTieuCha == null || chiTieu.ChiTieuChaID <= 0)
                 {
                     return BadRequest(new { Status = 0, Message = "ChiTieuChaId not found or cannot set to 0. The ChiTieuChaId must set to 'NULL' or greater than 0" });
                 }
