@@ -19,7 +19,7 @@ namespace QUANLYVANHOA.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<(IEnumerable<CtgChiTieu>, int)> GetAll(string? name, int pageNumber, int pageSize)
+        public async Task<(IEnumerable<CtgChiTieu>, int)> GetAll(string? name/*, int pageNumber, int pageSize*/)
         {
             var chiTieuList = new List<CtgChiTieu>();
             int totalRecords = 0;
@@ -33,8 +33,8 @@ namespace QUANLYVANHOA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.CommandTimeout = 120;
                     command.Parameters.AddWithValue("@TenChiTieu", name ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@PageNumber", pageNumber);
-                    command.Parameters.AddWithValue("@PageSize", pageSize);
+                    //command.Parameters.AddWithValue("@PageNumber", pageNumber);
+                    //command.Parameters.AddWithValue("@PageSize", pageSize);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -54,11 +54,11 @@ namespace QUANLYVANHOA.Repositories
                             chiTieuList.Add(chiTieu);
                         }
 
-                        await reader.NextResultAsync();
-                        if (await reader.ReadAsync())
-                        {
-                            totalRecords = reader.GetInt32(reader.GetOrdinal("TotalRecords"));
-                        }
+                        //await reader.NextResultAsync();
+                        //if (await reader.ReadAsync())
+                        //{
+                        //    totalRecords = reader.GetInt32(reader.GetOrdinal("TotalRecords"));
+                        //}
                     }
                 }
             }
@@ -145,7 +145,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Insert(CtgChiTieuModelInsert chiTieu)
+        public async Task<int> Insert(CtgChiTieuInsertModel chiTieu)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -164,7 +164,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> InsertChildren(CtgChiTieuModelInsertChidren chiTieuModelInsertChidren)
+        public async Task<int> InsertChildren(CtgChiTieuInsertChidrenModel chiTieuModelInsertChidren)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -187,7 +187,7 @@ namespace QUANLYVANHOA.Repositories
         }
 
 
-        public async Task<int> Update(CtgChiTieuModelUpdate chiTieu)
+        public async Task<int> Update(CtgChiTieuUpdateModel chiTieu)
         {
             using (var connection = new SqlConnection(_connectionString))
             {

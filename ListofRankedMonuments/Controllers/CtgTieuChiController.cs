@@ -20,27 +20,27 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(1, "ManageCriteria")]
         [HttpGet("List")]
-        public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
+        public async Task<IActionResult> GetAll(string? name/*, int pageNumber = 1, int pageSize = 20*/)
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
                 name = name.Trim();
             }
 
-            if (pageNumber <= 0)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
-            }
+            //if (pageNumber <= 0)
+            //{
+            //    return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
+            //}
 
-            if (pageSize <= 0 || pageSize > 50)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 50." });
-            }
+            //if (pageSize <= 0 || pageSize > 50)
+            //{
+            //    return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 50." });
+            //}
 
-            var result = await _tieuchirepository.GetAll(name, pageNumber, pageSize);
+            var result = await _tieuchirepository.GetAll(name/*, pageNumber, pageSize*/);
             var tieuchiList = result.Item1;
             var totalRecords = result.Item2;
-            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            //var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
             if (tieuchiList.Count() == 0)
             {
@@ -52,10 +52,10 @@ namespace QUANLYVANHOA.Controllers
                 Status = 1,
                 Message = "Get information successfully",
                 Data = tieuchiList,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                TotalRecords = totalRecords
+                //PageNumber = pageNumber,
+                //PageSize = pageSize,
+                //TotalPages = totalPages,
+                //TotalRecords = totalRecords
             });
         }
 
