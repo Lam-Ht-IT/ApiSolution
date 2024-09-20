@@ -72,7 +72,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("Create")]
         [CustomAuthorize(2, "ManageUsers")]
-        public async Task<IActionResult> Create([FromBody] SysUserInGroup model)
+        public async Task<IActionResult> Create([FromBody] SysUserInGroupCreateModel model)
         {
             if (model.UserID <= 0 || model.GroupID <= 0)
             {
@@ -85,7 +85,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("Update")]
         [CustomAuthorize(4, "ManageUsers")]
-        public async Task<IActionResult> Update([FromBody] SysUserInGroup model)
+        public async Task<IActionResult> Update([FromBody] SysUserInGroupUpdateModel model)
         {
             var existingUserInGroup = await _sysUserInGroupRepository.GetByID(model.UserInGroupID);
             if (existingUserInGroup == null)
