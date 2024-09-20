@@ -174,7 +174,7 @@ namespace QUANLYVANHOA.Controllers
         }
         [CustomAuthorize(4, "ManageUsers")]
         [HttpPost("UpdatingUser")]
-        public async Task<IActionResult> Update([FromBody] SysUser user)
+        public async Task<IActionResult> Update([FromBody] SysUserUpdateModel user)
         {
             if (!string.IsNullOrWhiteSpace(user.UserName))
             {

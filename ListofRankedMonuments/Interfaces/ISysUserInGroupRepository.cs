@@ -8,8 +8,8 @@ namespace QUANLYVANHOA.Interfaces
         Task<IEnumerable<SysUserInGroup>> GetByGroupID(int groupID);
         Task<IEnumerable<SysUserInGroup>> GetByUserID(int userID);
         Task<SysUserInGroup> GetByID(int userInGroupID);
-        Task<int> Create(SysUserInGroup userInGroup);
-        Task<int> Update(SysUserInGroup userInGroup);
+        Task<int> Create(SysUserInGroupCreateModel userInGroup);
+        Task<int> Update(SysUserInGroupUpdateModel userInGroup);
         Task<int> Delete(int userInGroupID);
     }
 }

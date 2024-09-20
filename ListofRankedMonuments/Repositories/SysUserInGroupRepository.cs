@@ -135,7 +135,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
         return userInGroup;
     }
 
-    public async Task<int> Create(SysUserInGroup userInGroup)
+    public async Task<int> Create(SysUserInGroupCreateModel userInGroup)
     {
         using (var connection = new SqlConnection(_connectionString))
         {
@@ -153,7 +153,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
         }
     }
 
-    public async Task<int> Update(SysUserInGroup userInGroup)
+    public async Task<int> Update(SysUserInGroupUpdateModel userInGroup)
     {
         using (var connection = new SqlConnection(_connectionString))
         {

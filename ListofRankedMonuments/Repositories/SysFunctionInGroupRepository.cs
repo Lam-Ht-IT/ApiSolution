@@ -143,7 +143,7 @@ namespace QUANLYVANHOA.Repositories
             return functionInGroup;
         }
 
-        public async Task<int> Create(SysFunctionInGroup functionInGroup)
+        public async Task<int> Create(SysFunctionInGroupInsertModel functionInGroup)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -160,7 +160,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Update(SysFunctionInGroup functionInGroup)
+        public async Task<int> Update(SysFunctionInGroupUpdateModel functionInGroup)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
