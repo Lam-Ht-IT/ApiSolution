@@ -97,7 +97,7 @@ namespace QUANLYVANHOA.Repositories
             return user;
         }
 
-        public async Task<int> Create(SysUser user)
+        public async Task<int> Create(SysUserInsertModel user)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -115,7 +115,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> Update(SysUser user)
+        public async Task<int> Update(SysUserUpdateModel user)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -144,7 +144,6 @@ namespace QUANLYVANHOA.Repositories
                     cmd.Parameters.AddWithValue("@UserID", user.UserID);
                     cmd.Parameters.AddWithValue("@RefreshToken", user.RefreshToken);
                     cmd.Parameters.AddWithValue("@RefreshTokenExpiryTime", user.RefreshTokenExpiryTime);
-
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                 }

@@ -96,7 +96,7 @@ namespace QUANLYVANHOA.Controllers
         }
         [CustomAuthorize(2, "ManageUsers")]
         [HttpPost("CreatingUser")]
-        public async Task<IActionResult> Create([FromBody] SysUser user)
+        public async Task<IActionResult> Create([FromBody] SysUserInsertModel user)
         {
             if (!string.IsNullOrWhiteSpace(user.UserName))
             {
@@ -166,7 +166,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            return CreatedAtAction(nameof(GetByID), new { userId = user.UserID }, new Response
+            return Ok(new Response
             {
                 Status = 1,
                 Message = "User created successfully."

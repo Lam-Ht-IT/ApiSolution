@@ -112,7 +112,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
         {
             await connection.OpenAsync();
 
-            using (var command = new SqlCommand("UIG_ByID", connection))
+            using (var command = new SqlCommand("UIG_GetByID", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@UserInGroupID", userInGroupID);

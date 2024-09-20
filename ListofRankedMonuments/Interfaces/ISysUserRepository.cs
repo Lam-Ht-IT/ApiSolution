@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using QUANLYVANHOA.Controllers;
-using QUANLYVANHOA.Controllers;
 
 namespace QUANLYVANHOA.Interfaces
 {
@@ -9,8 +8,8 @@ namespace QUANLYVANHOA.Interfaces
     {
         Task<(IEnumerable<SysUser>, int)> GetAll(string? userName, int pageNumber, int pageSize);
         Task<SysUser> GetByID(int userId);
-        Task<int> Create(SysUser user);
-        Task<int> Update(SysUser user);
+        Task<int> Create(SysUserInsertModel user);
+        Task<int> Update(SysUserUpdateModel user);
         Task<int> UpdateRefreshToken(SysUser user);
         Task<int> Delete(int userId);
         Task<SysUser> GetByRefreshToken(string refreshToken);
