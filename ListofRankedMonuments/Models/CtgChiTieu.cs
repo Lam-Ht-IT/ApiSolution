@@ -27,7 +27,7 @@ namespace QUANLYVANHOA.Models
         public List<CtgChiTieu>? Children { get; set; } = new List<CtgChiTieu>();
     }
 
-    public class CtgChiTieuModelInsert
+    public class CtgChiTieuInsertModel
     {
         [JsonPropertyName("MaChiTieu")]
         public string MaChiTieu { get; set; }
@@ -46,7 +46,7 @@ namespace QUANLYVANHOA.Models
 
     }
 
-    public class CtgChiTieuModelInsertChidren
+    public class CtgChiTieuInsertChidrenModel
     {
         [JsonPropertyName("MaChiTieu")]
         public string MaChiTieu { get; set; }
@@ -61,7 +61,7 @@ namespace QUANLYVANHOA.Models
         public string? GhiChu { get; set; }
     }
 
-    public class CtgChiTieuModelUpdate
+    public class CtgChiTieuUpdateModel
     {
         [JsonPropertyName("ChiTieuID")]
         public int ChiTieuID { get; set; }

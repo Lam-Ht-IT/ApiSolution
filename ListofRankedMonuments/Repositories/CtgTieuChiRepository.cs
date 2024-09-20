@@ -17,7 +17,7 @@ namespace QUANLYVANHOA.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<(IEnumerable<CtgTieuChi>, int)> GetAll(string? name, int pageNumber, int pageSize)
+        public async Task<(IEnumerable<CtgTieuChi>, int)> GetAll(string? name/*, int pageNumber, int pageSize*/)
         {
             var tieuChiList = new List<CtgTieuChi>();
             int totalRecords = 0;
@@ -30,8 +30,8 @@ namespace QUANLYVANHOA.Repositories
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@TenTieuChi", name ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@PageNumber", pageNumber);
-                    command.Parameters.AddWithValue("@PageSize", pageSize);
+                    //command.Parameters.AddWithValue("@PageNumber", pageNumber);
+                    //command.Parameters.AddWithValue("@PageSize", pageSize);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -51,11 +51,11 @@ namespace QUANLYVANHOA.Repositories
                             });
                         }
 
-                        await reader.NextResultAsync();
-                        if (await reader.ReadAsync())
-                        {
-                            totalRecords = reader.GetInt32(reader.GetOrdinal("TotalRecords"));
-                        }
+                        //await reader.NextResultAsync();
+                        //if (await reader.ReadAsync())
+                        //{
+                        //    totalRecords = reader.GetInt32(reader.GetOrdinal("TotalRecords"));
+                        //}
                     }
                 }
             }

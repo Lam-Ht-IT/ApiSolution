@@ -24,27 +24,27 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(1, "ManageTarget")]
         [HttpGet("List")]
-        public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 100)
+        public async Task<IActionResult> GetAll(string? name/*, int pageNumber = 1, int pageSize = 100*/)
         {
             if (!string.IsNullOrWhiteSpace(name))
             {
                 name = name.Trim();
             }
 
-            if (pageNumber <= 0)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
-            }
+            //if (pageNumber <= 0)
+            //{
+            //    return BadRequest(new { Status = 0, Message = "Invalid page number. Page number must be greater than 0." });
+            //}
 
-            if (pageSize <= 0 || pageSize > 100)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 100." });
-            }
+            //if (pageSize <= 0 || pageSize > 100)
+            //{
+            //    return BadRequest(new { Status = 0, Message = "Invalid page size. Page size must be between 1 and 100." });
+            //}
 
-            var result = await _chiTieuRepository.GetAll(name, pageNumber, pageSize);
+            var result = await _chiTieuRepository.GetAll(name/*, pageNumber, pageSize*/);
             var chiTieuList = result.Item1;
-            var totalRecords = result.Item2;
-            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+            //var totalRecords = result.Item2;
+            //var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
             if (chiTieuList.Count() == 0)
             {
@@ -56,10 +56,10 @@ namespace QUANLYVANHOA.Controllers
                 Status = 1,
                 Message = "Get information successfully",
                 Data = chiTieuList,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                TotalRecords = totalRecords
+                //PageNumber = pageNumber,
+                //PageSize = pageSize,
+                //TotalPages = totalPages,
+                //TotalRecords = totalRecords
             });
         }
 
@@ -110,7 +110,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(2, "ManageTarget")]
         [HttpPost("Insert")]
-        public async Task<IActionResult> Insert([FromBody] CtgChiTieuModelInsert chiTieu)
+        public async Task<IActionResult> Insert([FromBody] CtgChiTieuInsertModel chiTieu)
         {
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
             {
@@ -156,7 +156,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("InsertChildren")]
         [CustomAuthorize(2, "ManageTarget")]
-        public async Task<IActionResult> InsertChiTieuCon([FromBody] CtgChiTieuModelInsertChidren chiTieuModelInsertChidren)
+        public async Task<IActionResult> InsertChiTieuCon([FromBody] CtgChiTieuInsertChidrenModel chiTieuModelInsertChidren)
         {
             if (!string.IsNullOrWhiteSpace(chiTieuModelInsertChidren.TenChiTieu))
             {
@@ -200,7 +200,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(4, "ManageTarget")]
         [HttpPost("Update")]
-        public async Task<IActionResult> Update(CtgChiTieuModelUpdate chiTieu)
+        public async Task<IActionResult> Update(CtgChiTieuUpdateModel chiTieu)
         {
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
             {
