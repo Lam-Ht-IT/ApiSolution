@@ -73,7 +73,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("Create")]
         [CustomAuthorize(2, "ManageUsers")]
-        public async Task<IActionResult> Create([FromBody] SysFunctionInGroup model)
+        public async Task<IActionResult> Create([FromBody] SysFunctionInGroupInsertModel model)
         {
             if (model.GroupID <= 0 || model.FunctionID <= 0)
             {
@@ -86,7 +86,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("Update")]
         [CustomAuthorize(4, "ManageUsers")]
-        public async Task<IActionResult> Update([FromBody] SysFunctionInGroup model)
+        public async Task<IActionResult> Update([FromBody] SysFunctionInGroupUpdateModel model)
         {
             var existingFunctionInGroup = await _sysFunctionInGroupRepository.GetByID(model.FunctionInGroupID);
             if (existingFunctionInGroup == null)

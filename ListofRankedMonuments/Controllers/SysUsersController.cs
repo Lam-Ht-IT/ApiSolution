@@ -245,16 +245,6 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            int rowsAffected = await _userRepository.UpdateRefreshToken(user);
-            if (rowsAffected == 0)
-            {
-                return StatusCode(500, new Response
-                {
-                    Status = 0,
-                    Message = "An error occurred while updating the user."
-                });
-            }
-
             return Ok(new Response
             {
                 Status = 1,
