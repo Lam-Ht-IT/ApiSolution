@@ -10,7 +10,7 @@ namespace QUANLYVANHOA.Interfaces
         Task<SysUser> GetByID(int userId);
         Task<int> Create(SysUserInsertModel user);
         Task<int> Update(SysUserUpdateModel user);
-        Task<int> UpdateRefreshToken(SysUser user);
+        Task<int> UpdateRefreshToken(SysUserUpdateModel user);
         Task<int> Delete(int userId);
         Task<SysUser> GetByRefreshToken(string refreshToken);
         Task<SysUser> VerifyLogin(string userName, string password);
