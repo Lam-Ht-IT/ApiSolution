@@ -45,6 +45,13 @@ namespace QUANLYVANHOA.Controllers
         public string UserName { get; set; }
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
-
     }
+
+    public class UpdateRefreshTokenModel
+    {
+        public int UserID { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
+    }
+
 }

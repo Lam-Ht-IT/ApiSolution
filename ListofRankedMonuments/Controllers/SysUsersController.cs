@@ -252,6 +252,34 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+
+        [HttpPost("UpdateRefreshToken")]
+        public async Task<IActionResult> UpdateRefreshToken([FromBody] UpdateRefreshTokenModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var result = await _userRepository.UpdateRefreshToken(model);
+
+                if (result > 0)
+                {
+                    return Ok(new { message = "Refresh token updated successfully." });
+                }
+                else
+                {
+                    return StatusCode(500, new { message = "Failed to update refresh token." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the refresh token.", error = ex.Message });
+            }
+        }
+
         [CustomAuthorize(8, "ManageUsers")]
         [HttpPost("DeleteUser")]
         public async Task<IActionResult> Delete(int userId)

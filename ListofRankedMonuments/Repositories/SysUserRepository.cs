@@ -134,16 +134,16 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> UpdateRefreshToken(SysUser user)
+        public async Task<int> UpdateRefreshToken(UpdateRefreshTokenModel obj)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("UMS_UpdateToken", connection))
+                using (var cmd = new SqlCommand("UMS_UpdateRefreshToken", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserID", user.UserID);
-                    cmd.Parameters.AddWithValue("@RefreshToken", user.RefreshToken);
-                    cmd.Parameters.AddWithValue("@RefreshTokenExpiryTime", user.RefreshTokenExpiryTime);
+                    cmd.Parameters.AddWithValue("@UserID", obj.UserID);
+                    cmd.Parameters.AddWithValue("@RefreshToken", obj.RefreshToken);
+                    cmd.Parameters.AddWithValue("@RefreshTokenExpiryTime", obj.RefreshTokenExpiryTime);
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                 }
