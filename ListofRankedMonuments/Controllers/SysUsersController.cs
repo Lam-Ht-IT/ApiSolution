@@ -254,7 +254,7 @@ namespace QUANLYVANHOA.Controllers
 
 
         [HttpPost("UpdateRefreshToken")]
-        public async Task<IActionResult> UpdateRefreshToken([FromBody] UpdateRefreshTokenModel model)
+        public async Task<IActionResult> UpdateRefreshToken([FromBody] SysUser model)
         {
             if (!ModelState.IsValid)
             {

@@ -134,7 +134,7 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> UpdateRefreshToken(UpdateRefreshTokenModel obj)
+        public async Task<int> UpdateRefreshToken(SysUser obj)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
