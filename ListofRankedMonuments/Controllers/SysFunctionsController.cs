@@ -96,7 +96,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(2, "ManageUsers")]
         [HttpPost("CreatingFunction")]
-        public async Task<IActionResult> Create([FromBody] SysFunctionModelInsert function)
+        public async Task<IActionResult> Create([FromBody] SysFunctionInsertModel function)
         {
             if (string.IsNullOrWhiteSpace(function.FunctionName) || function.FunctionName.Contains(" "))
             {
@@ -135,7 +135,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("UpdatingFunction")]
         [CustomAuthorize(4, "ManageUsers")]
-        public async Task<IActionResult> Update([FromBody] SysFunctionModelUpdate function)
+        public async Task<IActionResult> Update([FromBody] SysFunctionUpdateModel function)
         {
             var existingFunction = await _functionRepository.GetByID(function.FunctionID);
             if (existingFunction == null)

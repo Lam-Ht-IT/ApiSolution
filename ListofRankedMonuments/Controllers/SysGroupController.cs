@@ -96,7 +96,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(2, "ManageUsers")]
         [HttpPost("CreatingGroup")]
-        public async Task<IActionResult> Create([FromBody] SysGroup group)
+        public async Task<IActionResult> Create([FromBody] SysGroupInsertModel group)
         {
             if (string.IsNullOrWhiteSpace(group.GroupName) || group.GroupName.Contains(" "))
             {
@@ -126,7 +126,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            return CreatedAtAction(nameof(GetByID), new { groupId = group.GroupID }, new Response
+            return CreatedAtAction(nameof(GetByID), new Response
             {
                 Status = 1,
                 Message = "Group created successfully."
@@ -135,7 +135,7 @@ namespace QUANLYVANHOA.Controllers
 
         [HttpPost("UpdatingGroup")]
         [CustomAuthorize(4, "ManageUsers")]
-        public async Task<IActionResult> Update([FromBody] SysGroup group)
+        public async Task<IActionResult> Update([FromBody] SysGroupUpdateModel group)
         {
             var existingGroup = await _groupRepository.GetByID(group.GroupID);
             if (existingGroup == null)
