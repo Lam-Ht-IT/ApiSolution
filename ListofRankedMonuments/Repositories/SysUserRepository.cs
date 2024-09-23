@@ -42,6 +42,7 @@ namespace QUANLYVANHOA.Repositories
                             {
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
                                 UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                FullName = !reader.IsDBNull(reader.GetOrdinal("FullName"))? reader.GetString(reader.GetOrdinal("FullName")) : null,
                                 Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Password = reader.GetString(reader.GetOrdinal("Password")),
                                 Status = reader.GetBoolean(reader.GetOrdinal("Status")),
@@ -65,6 +66,36 @@ namespace QUANLYVANHOA.Repositories
 
             return (userList, totalRecords);
         }
+        public async Task<SysUser> GetByUserName(string userName)
+        {
+            SysUser user = null;
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("UMS_GetByUserName", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserName", userName);
+
+                    await connection.OpenAsync();
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            user = new SysUser
+                            {
+                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
+                                UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                Email = reader.GetString(reader.GetOrdinal("Email"))
+                            };
+                        }
+                    }
+                }
+            }
+
+            return user;
+        }
+
 
         public async Task<SysUser> GetByID(int userId)
         {
@@ -84,6 +115,7 @@ namespace QUANLYVANHOA.Repositories
                             {
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
                                 UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                FullName = reader.GetString(reader.GetOrdinal("FullName")),
                                 Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Password = reader.GetString(reader.GetOrdinal("Password")),
                                 Status = reader.GetBoolean(reader.GetOrdinal("Status")),
@@ -105,6 +137,7 @@ namespace QUANLYVANHOA.Repositories
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@UserName", user.UserName);
+                    cmd.Parameters.AddWithValue("@FullName", user.FullName);
                     cmd.Parameters.AddWithValue("@Email", user.Email);
                     cmd.Parameters.AddWithValue("@Password", user.Password);
                     cmd.Parameters.AddWithValue("@Status", user.Status);
@@ -124,6 +157,7 @@ namespace QUANLYVANHOA.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@UserID", user.UserID);
                     cmd.Parameters.AddWithValue("@UserName", user.UserName);
+                    cmd.Parameters.AddWithValue("@FullName", user.FullName);
                     cmd.Parameters.AddWithValue("@Email", user.Email);
                     cmd.Parameters.AddWithValue("@Password", user.Password);
                     cmd.Parameters.AddWithValue("@Status", user.Status);

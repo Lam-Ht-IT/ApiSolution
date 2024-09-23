@@ -146,8 +146,6 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@UserID", userInGroup.UserID);
                 command.Parameters.AddWithValue("@GroupID", userInGroup.GroupID);
-
-                await connection.OpenAsync();
                 return await command.ExecuteNonQueryAsync();
             }
         }

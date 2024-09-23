@@ -8,6 +8,7 @@ namespace QUANLYVANHOA.Interfaces
     {
         Task<(IEnumerable<SysUser>, int)> GetAll(string? userName, int pageNumber, int pageSize);
         Task<SysUser> GetByID(int userId);
+        Task<SysUser> GetByUserName(string userName);
         Task<int> Create(SysUserInsertModel user);
         Task<int> Update(SysUserUpdateModel user);
         Task<int> UpdateRefreshToken(SysUser obj);

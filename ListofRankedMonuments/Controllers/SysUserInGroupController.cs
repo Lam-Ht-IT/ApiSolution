@@ -74,6 +74,9 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(2, "ManageUsers")]
         public async Task<IActionResult> Create([FromBody] SysUserInGroupCreateModel model)
         {
+            var existingUserInGroup = await _sysUserInGroupRepository.GetByID(model.UserID);
+
+
             if (model.UserID <= 0 || model.GroupID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid data. UserID and GroupID must be greater than 0." });

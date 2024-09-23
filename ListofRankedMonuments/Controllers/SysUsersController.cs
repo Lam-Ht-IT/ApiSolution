@@ -156,6 +156,16 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
+            var existingUser = await _userRepository.GetByUserName(user.UserName);
+            if (existingUser != null)
+            {
+                return BadRequest(new Response
+                {
+                    Status = 0,
+                    Message = "Username already exists. Please choose a different username."
+                });
+            }
+
             int rowsAffected = await _userRepository.Create(user);
             if (rowsAffected == 0)
             {
@@ -242,6 +252,16 @@ namespace QUANLYVANHOA.Controllers
                 {
                     Status = 0,
                     Message = "Note cannot exceed 100 characters."
+                });
+            }
+
+            int rowsAffected = await _userRepository.Update(user);
+            if (rowsAffected == 0)
+            {
+                return StatusCode(500, new Response
+                {
+                    Status = 0,
+                    Message = "An error occurred while creating the user."
                 });
             }
 
