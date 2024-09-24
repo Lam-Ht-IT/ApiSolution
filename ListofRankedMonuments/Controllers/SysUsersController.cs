@@ -76,6 +76,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+
         [CustomAuthorize(1, "ManageUsers")]
         [HttpGet("FindingUser")]
         public async Task<IActionResult> GetByID(int userId)
@@ -98,6 +99,8 @@ namespace QUANLYVANHOA.Controllers
                 Data = user
             });
         }
+
+
         [CustomAuthorize(2, "ManageUsers")]
         [HttpPost("CreatingUser")]
         public async Task<IActionResult> Create([FromBody] SysUserInsertModel user)
@@ -186,6 +189,8 @@ namespace QUANLYVANHOA.Controllers
                 Message = "User created successfully."
             });
         }
+
+
         [CustomAuthorize(4, "ManageUsers")]
         [HttpPost("UpdatingUser")]
         public async Task<IActionResult> Update([FromBody] SysUserUpdateModel user)
@@ -363,6 +368,8 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
@@ -431,12 +438,20 @@ namespace QUANLYVANHOA.Controllers
             return Ok(new Response { Status = 1, Message = "User registered and added to default group successfully." });
         }
 
+
+
         // Helper method to validate email format using regex
         private bool IsValidEmail(string email)
         {
-            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            // Biểu thức chính quy phức tạp hơn
+            var emailRegex = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$";
+
+            // Kiểm tra xem email có khớp với biểu thức chính quy hay không
             return Regex.IsMatch(email, emailRegex);
         }
+
+
+
 
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest model)

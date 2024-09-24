@@ -117,13 +117,14 @@ builder.Services.AddAuthorization(options =>
 // Thêm dịch vụ CORS vào DI container
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost3000",
+    options.AddPolicy("AllowLocalhost3001",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // Thay thế bằng địa chỉ frontend
+            policy.WithOrigins("http://localhost:3001") // Thay thế bằng địa chỉ frontend
                   .AllowAnyHeader()
                   .AllowAnyMethod();
-        });
+        }
+    );
 });
 
 
@@ -137,7 +138,7 @@ if (app.Environment.IsDevelopment())
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-app.UseCors("AllowLocalhost3000");
+app.UseCors("AllowLocalhost3001");
 app.UseAuthentication();
 app.UseAuthorization();
 
