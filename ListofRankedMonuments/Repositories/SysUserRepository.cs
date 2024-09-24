@@ -46,7 +46,7 @@ namespace QUANLYVANHOA.Repositories
                                 Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Password = reader.GetString(reader.GetOrdinal("Password")),
                                 Status = reader.GetBoolean(reader.GetOrdinal("Status")),
-                                Note = reader.GetString(reader.GetOrdinal("Note")),
+                                Note = !reader.IsDBNull(reader.GetOrdinal("Note")) ? reader.GetString(reader.GetOrdinal("Note")) : null,
                                 RefreshToken = !reader.IsDBNull(reader.GetOrdinal("RefreshToken")) ? reader.GetString(reader.GetOrdinal("RefreshToken")) : null,
                                 RefreshTokenExpiryTime = !reader.IsDBNull(reader.GetOrdinal("RefreshTokenExpiryTime"))
                                                         ? reader.GetDateTime(reader.GetOrdinal("RefreshTokenExpiryTime"))
@@ -115,11 +115,11 @@ namespace QUANLYVANHOA.Repositories
                             {
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
                                 UserName = reader.GetString(reader.GetOrdinal("UserName")),
-                                FullName = reader.GetString(reader.GetOrdinal("FullName")),
+                                FullName = !reader.IsDBNull(reader.GetOrdinal("FullName")) ? reader.GetString(reader.GetOrdinal("FullName")) : null,
                                 Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Password = reader.GetString(reader.GetOrdinal("Password")),
                                 Status = reader.GetBoolean(reader.GetOrdinal("Status")),
-                                Note = reader.GetString(reader.GetOrdinal("Note"))
+                                Note = !reader.IsDBNull(reader.GetOrdinal("Note")) ? reader.GetString(reader.GetOrdinal("Note")) : null
                             };
                         }
                     }
@@ -144,6 +144,23 @@ namespace QUANLYVANHOA.Repositories
                     cmd.Parameters.AddWithValue("@Note", user.Note);
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public async Task<int> Register(RegisterModel user)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var cmd = new SqlCommand("UMS_Register", connection))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@UserName", user.UserName);
+                    cmd.Parameters.AddWithValue("@password", user.Password);
+                    cmd.Parameters.AddWithValue("@email", user.Email);
+                    await connection.OpenAsync();
+                    return await cmd.ExecuteNonQueryAsync();
+                    
                 }
             }
         }
@@ -249,10 +266,11 @@ namespace QUANLYVANHOA.Repositories
                             {
                                 UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
                                 UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                FullName = !reader.IsDBNull(reader.GetOrdinal("FullName")) ? reader.GetString(reader.GetOrdinal("FullName")) : null,
                                 Email = reader.GetString(reader.GetOrdinal("Email")),
                                 Password = reader.GetString(reader.GetOrdinal("Password")),
                                 Status = reader.GetBoolean(reader.GetOrdinal("Status")),
-                                Note = reader.GetString(reader.GetOrdinal("Note"))
+                                Note = !reader.IsDBNull(reader.GetOrdinal("Note")) ? reader.GetString(reader.GetOrdinal("Note")) : null
                             };
                         }
                     }
@@ -261,5 +279,7 @@ namespace QUANLYVANHOA.Repositories
 
             return user;
         }
+
+
     }
 }

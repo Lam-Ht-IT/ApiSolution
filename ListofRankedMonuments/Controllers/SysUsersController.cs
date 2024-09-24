@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using QUANLYVANHOA.Interfaces;
 using QUANLYVANHOA.Models;
+using QUANLYVANHOA.Repositories;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace QUANLYVANHOA.Controllers
@@ -12,12 +14,14 @@ namespace QUANLYVANHOA.Controllers
     public class SysUsersController : ControllerBase
     {
         private readonly ISysUserRepository _userRepository;
+        private readonly ISysUserInGroupRepository _userInGroupRepository;
         private readonly IUserService _userService;
 
-        public SysUsersController(ISysUserRepository userRepository, IUserService userService)
+        public SysUsersController(ISysUserRepository userRepository, ISysUserInGroupRepository userInGroupRepository, IUserService userService)
         {
             _userRepository = userRepository;
             _userService = userService;
+            _userInGroupRepository = userInGroupRepository;
         }
 
         [CustomAuthorize(1, "ManageUsers")]
@@ -71,7 +75,7 @@ namespace QUANLYVANHOA.Controllers
                 TotalRecords = totalRecords
             });
         }
-        
+
         [CustomAuthorize(1, "ManageUsers")]
         [HttpGet("FindingUser")]
         public async Task<IActionResult> GetByID(int userId)
@@ -137,7 +141,7 @@ namespace QUANLYVANHOA.Controllers
                     Status = 0,
                     Message = "Password cannot exceed 64 characters."
                 });
-            }   
+            }
             if (string.IsNullOrWhiteSpace(user.Email))
             {
                 return BadRequest(new Response
@@ -331,7 +335,7 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
-            
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -350,7 +354,7 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Trả về token nếu xác thực thành công
-            return Ok(new 
+            return Ok(new
             {
                 Status = 1,
                 Message = message,
@@ -359,6 +363,80 @@ namespace QUANLYVANHOA.Controllers
             });
         }
 
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        {
+            // Validate the incoming model
+            if (model == null || string.IsNullOrWhiteSpace(model.UserName) || string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.ConfirmPassword))
+            {
+                return BadRequest(new Response { Status = 0, Message = "Username, password, and confirm password are required." });
+            }
+
+            if (model.Password != model.ConfirmPassword)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Password and confirm password do not match." });
+            }
+
+            if (model.Password.Contains(" ") || model.Password.Length > 100)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Invalid password. Password must not contain spaces and must be less than 100 characters." });
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+            {
+                return BadRequest(new Response { Status = 0, Message = "Email is required." });
+            }
+
+            // Validate email format
+            if (!IsValidEmail(model.Email))
+            {
+                return BadRequest(new Response { Status = 0, Message = "Invalid email format." });
+            }
+
+            // Check if the username already exists
+            var existingUser = await _userRepository.GetByUserName(model.UserName);
+            if (existingUser != null)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Username already exists. Please choose a different username." });
+            }
+
+            // Call stored procedure to register the user
+            int rowsAffected = await _userRepository.Register(model);
+            if (rowsAffected == 0)
+            {
+                return StatusCode(500, new Response { Status = 0, Message = "An error occurred while registering the user." });
+            }
+
+            // Retrieve the newly created user by username
+            var newUser = await _userRepository.GetByUserName(model.UserName);
+            if (newUser == null)
+            {
+                return StatusCode(500, new Response { Status = 0, Message = "User was registered, but unable to retrieve new user details." });
+            }
+
+            // Add the new user to the default group (Group ID: 2)
+            var userInGroupModel = new SysUserInGroupCreateModel
+            {
+                UserID = newUser.UserID,  // Use the ID of the newly created user
+                GroupID = 2               // Default group ID
+            };
+
+            int groupRowsAffected = await _userInGroupRepository.Create(userInGroupModel);
+            if (groupRowsAffected == 0)
+            {
+                return StatusCode(500, new Response { Status = 0, Message = "User registered but could not be added to the default group." });
+            }
+
+            // Success response
+            return Ok(new Response { Status = 1, Message = "User registered and added to default group successfully." });
+        }
+
+        // Helper method to validate email format using regex
+        private bool IsValidEmail(string email)
+        {
+            var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, emailRegex);
+        }
 
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest model)

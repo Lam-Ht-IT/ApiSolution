@@ -15,6 +15,7 @@ namespace QUANLYVANHOA.Interfaces
         Task<int> Delete(int userId);
         Task<SysUser> GetByRefreshToken(string refreshToken);
         Task<SysUser> VerifyLogin(string userName, string password);
+        Task<int> Register(RegisterModel model);
 
     }
 }
