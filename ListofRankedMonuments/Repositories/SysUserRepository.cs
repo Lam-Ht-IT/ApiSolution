@@ -185,11 +185,11 @@ namespace QUANLYVANHOA.Repositories
             }
         }
 
-        public async Task<int> UpdateRefreshToken(SysUser obj)
+        public async Task<int> UpdateToken(SysUser obj)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("UMS_UpdateRefreshToken", connection))
+                using (var cmd = new SqlCommand("UMS_UpdateToken", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@UserID", obj.UserID);

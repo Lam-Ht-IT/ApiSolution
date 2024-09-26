@@ -55,7 +55,7 @@ public class UserService : IUserService
         var refreshToken = GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); // Refresh token có thời hạn 7 ngày
-        await _userRepository.UpdateRefreshToken(user);
+        await _userRepository.UpdateToken(user);
 
         return (true, token, refreshToken, "Login successful.");
     }
@@ -91,7 +91,7 @@ public class UserService : IUserService
         var newRefreshToken = GenerateRefreshToken();
         user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-        await _userRepository.UpdateRefreshToken(user);
+        await _userRepository.UpdateToken(user);
 
         return (newToken, newRefreshToken);
     }

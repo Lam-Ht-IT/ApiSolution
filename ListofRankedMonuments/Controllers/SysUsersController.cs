@@ -292,7 +292,7 @@ namespace QUANLYVANHOA.Controllers
 
             try
             {
-                var result = await _userRepository.UpdateRefreshToken(model);
+                var result = await _userRepository.UpdateToken(model);
 
                 if (result > 0)
                 {
