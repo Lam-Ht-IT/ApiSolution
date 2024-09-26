@@ -31,6 +31,7 @@ public class ResponseRefreshToken : Response
 }
 public class RefreshTokenRequest
 {
+    [JsonPropertyName("RefreshToken")]
     public string RefreshToken { get; set; }
 }
 
