@@ -40,7 +40,7 @@ namespace QUANLYVANHOA.Repositories
                                 ChiTietMauPhieuId = reader.GetInt32(reader.GetOrdinal("ChiTietMauPhieuId")),
                                 MauPhieuId = reader.GetInt32(reader.GetOrdinal("MauPhieuId")),
                                 TieuChiIDs = reader.GetString(reader.GetOrdinal("TieuChiIDs")),
-                                ChitieuIDs = reader.GetInt32(reader.GetOrdinal("ChitieuIDs")),
+                                ChitieuID = reader.GetInt32(reader.GetOrdinal("ChitieuIDs")),
                                 NoiDung = reader.GetString(reader.GetOrdinal("NoiDung")),
                                 GopCot = reader.GetInt32(reader.GetOrdinal("GopCot")),
                                 GoptuCot = reader.GetInt32(reader.GetOrdinal("GoptuCot")),
@@ -84,7 +84,7 @@ namespace QUANLYVANHOA.Repositories
                                 ChiTietMauPhieuId = reader.GetInt32(reader.GetOrdinal("ChiTietMauPhieuId")),
                                 MauPhieuId = reader.GetInt32(reader.GetOrdinal("MauPhieuId")),
                                 TieuChiIDs = reader.GetString(reader.GetOrdinal("TieuChiIDs")),
-                                ChitieuIDs = reader.GetInt32(reader.GetOrdinal("ChitieuIDs")),
+                                ChitieuID = reader.GetInt32(reader.GetOrdinal("ChitieuIDs")),
                                 NoiDung = reader.GetString(reader.GetOrdinal("NoiDung")),
                                 GopCot = reader.GetInt32(reader.GetOrdinal("GopCot")),
                                 GoptuCot = reader.GetInt32(reader.GetOrdinal("GoptuCot")),
@@ -111,7 +111,7 @@ namespace QUANLYVANHOA.Repositories
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@MauPhieuId", obj.MauPhieuId);
                     command.Parameters.AddWithValue("@TieuChiIDs", obj.TieuChiIDs);
-                    command.Parameters.AddWithValue("@ChitieuIDs", obj.ChitieuIDs);
+                    command.Parameters.AddWithValue("@ChitieuIDs", obj.ChitieuID);
                     command.Parameters.AddWithValue("@NoiDung", obj.NoiDung);
                     command.Parameters.AddWithValue("@GopCot", obj.GopCot);
                     command.Parameters.AddWithValue("@GoptuCot", obj.GoptuCot);
@@ -136,7 +136,7 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@ChiTietMauPhieuId", obj.ChiTietMauPhieuId);
                     command.Parameters.AddWithValue("@MauPhieuId", obj.MauPhieuId);
                     command.Parameters.AddWithValue("@TieuChiIDs", obj.TieuChiIDs);
-                    command.Parameters.AddWithValue("@ChitieuIDs", obj.ChitieuIDs);
+                    command.Parameters.AddWithValue("@ChitieuIDs", obj.ChitieuID);
                     command.Parameters.AddWithValue("@NoiDung", obj.NoiDung);
                     command.Parameters.AddWithValue("@GopCot", obj.GopCot);
                     command.Parameters.AddWithValue("@GoptuCot", obj.GoptuCot);

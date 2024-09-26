@@ -138,7 +138,7 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Validate numeric fields
-            if (model.ChitieuIDs <= 0)
+            if (model.ChitieuID <= 0)
             {
                 validationErrors.Add("ChitieuIDs must be greater than 0.");
             }
@@ -234,7 +234,7 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Validate numeric fields
-            if (model.ChitieuIDs <= 0)
+            if (model.ChitieuID <= 0)
             {
                 validationErrors.Add("ChitieuIDs must be greater than 0.");
             }

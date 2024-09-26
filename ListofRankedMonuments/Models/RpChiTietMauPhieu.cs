@@ -10,8 +10,8 @@ namespace QUANLYVANHOA.Models
         [JsonPropertyName("MauPhieuId")]
         public int MauPhieuId { get; set; }
 
-        [JsonPropertyName("ChitieuIDs")]
-        public int ChitieuIDs { get; set; }
+        [JsonPropertyName("ChitieuID")]
+        public int ChitieuID { get; set; }
 
         [JsonPropertyName("TieuChiIDs")]
         public List<int> TieuChiIDs { get; set; }
