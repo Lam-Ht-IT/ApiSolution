@@ -12,7 +12,7 @@ namespace QUANLYVANHOA.Controllers
     [ApiController]
     public class RpChiTietMauPhieuController : ControllerBase
     {
-        private readonly IRpChiTietMauPhieu _chiTietMauPhieuRepository;
+        private readonly IRpChiTietMauPhieu _chiTietMauPhieuRepository; 
 
         public RpChiTietMauPhieuController(IRpChiTietMauPhieu chiTietMauPhieuRepository)
         {
