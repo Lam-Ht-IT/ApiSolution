@@ -344,13 +344,31 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            // Kiểm tra tính hợp lệ của model
-            if (model == null || string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
+            // Check if the model is null
+            if (model == null)
             {
-                return BadRequest(new Response { Status = 0, Message = "Username and password are required to log in." });
+                return BadRequest(new Response { Status = 0, Message = "Invalid request. Login data is missing." });
             }
 
-            // Xác thực người dùng và tạo token
+            // Check for null or empty username and password
+            if (string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.Password))
+            {
+                return BadRequest(new Response { Status = 0, Message = "Username and password are required." });
+            }
+
+            // Check for spaces within username
+            if (model.UserName.Contains(" "))
+            {
+                return BadRequest(new Response { Status = 0, Message = "Username cannot contain spaces." });
+            }
+
+            // Check for leading or trailing spaces in password
+            if (model.Password.Contains(" "))
+            {
+                return BadRequest(new Response { Status = 0, Message = "Invalid username or password" });
+            }
+
+            // Authenticate user
             var (isValid, token, refreshToken, message) = await _userService.AuthenticateUser(model.UserName, model.Password);
 
             if (!isValid)
@@ -358,7 +376,7 @@ namespace QUANLYVANHOA.Controllers
                 return Unauthorized(new Response { Status = 0, Message = message });
             }
 
-            // Trả về token nếu xác thực thành công
+            // Return token if authentication is successful
             return Ok(new
             {
                 Status = 1,
@@ -385,6 +403,11 @@ namespace QUANLYVANHOA.Controllers
             }
 
             if (model.Password.Contains(" ") || model.Password.Length > 100)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Invalid password. Password must not contain spaces and must be less than 100 characters." });
+            }
+
+            if (model.UserName.Contains(" ") || model.UserName.Length > 50)
             {
                 return BadRequest(new Response { Status = 0, Message = "Invalid password. Password must not contain spaces and must be less than 100 characters." });
             }
