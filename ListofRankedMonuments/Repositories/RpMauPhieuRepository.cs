@@ -6,6 +6,7 @@ using System.Data;
 using QUANLYVANHOA.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 namespace QUANLYVANHOA.Repositories
 {
@@ -18,59 +19,61 @@ namespace QUANLYVANHOA.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<(IEnumerable<RpMauPhieu>, int)> GetAll(string name)
+        public async Task<(IEnumerable<RpMauPhieu>, int)> GetAll(string? name, int pageNumber, int pageSize)
         {
-            var mauPhieuList = new List<RpMauPhieu>();
-            int totalRecords = 0;
-
             using (var connection = new SqlConnection(_connectionString))
             {
-                await connection.OpenAsync();
-
                 using (var command = new SqlCommand("MP_GetAll", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@TenMauPhieu", name ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@TenMauPhieu", pageNumber);
+                    command.Parameters.AddWithValue("@PageNumber", pageNumber);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    await connection.OpenAsync();
+                    var result = new List<RpMauPhieu>();
+                    int totalRecords = 0;
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
-                            mauPhieuList.Add(new RpMauPhieu
+                            var mauPhieu = new RpMauPhieu
                             {
-                                MauPhieuId = reader.GetInt32(reader.GetOrdinal("MauPhieuId")),
-                                TenMauPhieu = reader.GetString(reader.GetOrdinal("TenMauPhieu")),
-                                MaMauPhieu = reader.GetString(reader.GetOrdinal("MaMauPhieu")),
-                                LoaiMauPhieuId = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuId")),
-                                NguoiTao = reader.IsDBNull(reader.GetOrdinal("NguoiTao")) ? null : reader.GetString(reader.GetOrdinal("NguoiTao"))
-                            });
-                        }
+                                MauPhieuID = reader.GetInt32(0),
+                                TenMauPhieu = reader.GetString(1),
+                                LoaiMauPhieuID = reader.GetInt32(2),
+                                MaMauPhieu = reader.GetString(3)
+                            };
 
+                            // Lấy danh sách chỉ tiêu và tiêu chí theo phân cấp
+                            mauPhieu.ChiTieus = await GetChiTieusHierarchyByMauPhieuID(mauPhieu.MauPhieuID);
+                            mauPhieu.TieuChis = await GetTieuChisHierarchyByMauPhieuID(mauPhieu.MauPhieuID);
+                            result.Add(mauPhieu);
+                        }
                         await reader.NextResultAsync();
                         if (await reader.ReadAsync())
                         {
                             totalRecords = reader.GetInt32(reader.GetOrdinal("TotalRecords"));
                         }
                     }
+                    return (result, totalRecords);
                 }
             }
-
-            return (mauPhieuList, totalRecords);
         }
 
 
         public async Task<RpMauPhieu> GetByID(int id)
         {
-            RpMauPhieu mauPhieu = null;
-
             using (var connection = new SqlConnection(_connectionString))
             {
-                await connection.OpenAsync();
-
                 using (var command = new SqlCommand("MP_GetByID", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@MauPhieuID", id);
+
+                    await connection.OpenAsync();
+                    RpMauPhieu mauPhieu = null;
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -78,35 +81,86 @@ namespace QUANLYVANHOA.Repositories
                         {
                             mauPhieu = new RpMauPhieu
                             {
-                                MauPhieuId = reader.GetInt32(reader.GetOrdinal("MauPhieuID")),
-                                TenMauPhieu = reader.GetString(reader.GetOrdinal("TenMauPhieu")),
-                                MaMauPhieu = reader.GetString(reader.GetOrdinal("MaMauPhieu")),
-                                LoaiMauPhieuId = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuId")),
-                                // can read null
-                                NguoiTao = reader.IsDBNull(reader.GetOrdinal("NguoiTao")) ? null : reader.GetString(reader.GetOrdinal("NguoiTao"))
+                                MauPhieuID = reader.GetInt32(0),
+                                TenMauPhieu = reader.GetString(1),
+                                LoaiMauPhieuID = reader.GetInt32(2),
+                                MaMauPhieu =reader.GetString(3)
                             };
                         }
                     }
+
+                    if (mauPhieu != null)
+                    {
+                        mauPhieu.ChiTieus = await GetChiTieusHierarchyByMauPhieuID(id);
+                        mauPhieu.TieuChis = await GetTieuChisHierarchyByMauPhieuID(id);
+                        mauPhieu.ChiTietMauPhieus = await GetChiTietMauPhieuByMauPhieuID(id);
+                    }
+
+                    return mauPhieu;
                 }
             }
-
-            return mauPhieu;
         }
 
+
         // Thêm mới mẫu phiếu
-        public async Task<int> Insert(RpMauPhieuInsertModel mauPhieu)
+        public async Task<int> InsertMauPhieu(RpMauPhieuInsertModel mauPhieu)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var command = new SqlCommand("MP_Insert", connection))
+                await connection.OpenAsync();
+                using (var transaction = connection.BeginTransaction())
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@TenMauPhieu", mauPhieu.TenMauPhieu);
-                    command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
-                    command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
-                    await connection.OpenAsync();
-                    var id = (int)await command.ExecuteScalarAsync(); // Lấy ID mẫu phiếu vừa được thêm
-                    return id;
+                    try
+                    {
+                        // 1. Thêm Mẫu Phiếu
+                        using (var command = new SqlCommand("MP_Insert", connection, transaction))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@TenMauPhieu", mauPhieu.TenMauPhieu);
+                            command.Parameters.AddWithValue("@LoaiMauPhieu", mauPhieu.LoaiMauPhieuID);
+                            command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
+                            command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
+
+                            var id = (int)await command.ExecuteScalarAsync(); // Lấy ID mẫu phiếu vừa được thêm
+
+                            // 2. Thêm Chỉ Tiêu nếu có
+                            if (mauPhieu.ChiTieus != null && mauPhieu.ChiTieus.Count > 0)
+                            {
+                                foreach (var chiTieu in mauPhieu.ChiTieus)
+                                {
+                                    await AddChiTieuMauPhieu(mauPhieu.MauPhieuID,chiTieu.ChiTieuID);
+                                }
+                            }
+
+                            // 3. Thêm Tiêu Chí nếu có
+                            if (mauPhieu.TieuChis != null && mauPhieu.TieuChis.Count > 0)
+                            {
+                                foreach (var tieuChi in mauPhieu.TieuChis)
+                                {
+                                    await AddTieuChiMauPhieu(mauPhieu.MauPhieuID,tieuChi.TieuChiID);
+                                }
+                            }
+
+                            // 4. Thêm Chi Tiết Mẫu Phiếu nếu có
+                            if (mauPhieu.ChiTietMauPhieus != null && mauPhieu.ChiTietMauPhieus.Count > 0)
+                            {
+                                foreach (var chiTiet in mauPhieu.ChiTietMauPhieus)
+                                {
+                                    await AddChiTietMauPhieu(chiTiet);
+                                }
+                            }
+
+                            // Commit transaction
+                            transaction.Commit();
+                            return id; // Trả về ID mẫu phiếu vừa được thêm
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Rollback transaction nếu có lỗi
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
             }
         }
@@ -122,10 +176,10 @@ namespace QUANLYVANHOA.Repositories
                 using (var command = new SqlCommand("MP_Update", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@MauPhieuID", obj.MauPhieuId);
+                    command.Parameters.AddWithValue("@MauPhieuID", obj.MauPhieuID);
                     command.Parameters.AddWithValue("@TenMauPhieu", obj.TenMauPhieu);
                     command.Parameters.AddWithValue("@MaMauPhieu", obj.MaMauPhieu);
-                    command.Parameters.AddWithValue("@LoaiMauPhieuId", obj.LoaiMauPhieuId);
+                    command.Parameters.AddWithValue("@LoaiMauPhieuId", obj.LoaiMauPhieuID);
                     command.Parameters.AddWithValue("@NguoiTao", obj.NguoiTao);
 
                     result = await command.ExecuteNonQueryAsync();
@@ -157,7 +211,7 @@ namespace QUANLYVANHOA.Repositories
 
         // Lấy thông tin mẫu phiếu
         // Lấy các chỉ tiêu liên quan đến mẫu phiếu
-        public async Task<IEnumerable<CtgChiTieu>> GetChiTieusByMauPhieuID(int mauPhieuId)
+        public async Task<List<CtgChiTieu>> GetChiTieusHierarchyByMauPhieuID(int mauPhieuId)
         {
             var chiTieus = new List<CtgChiTieu>();
 
@@ -192,7 +246,7 @@ namespace QUANLYVANHOA.Repositories
         }
 
         // Lấy các tiêu chí liên quan đến mẫu phiếu
-        public async Task<IEnumerable<CtgTieuChi>> GetTieuChisByMauPhieuID(int mauPhieuId)
+        public async Task<List<CtgTieuChi>> GetTieuChisHierarchyByMauPhieuID(int mauPhieuId)
         {
             var tieuChis = new List<CtgTieuChi>();
 
@@ -229,7 +283,7 @@ namespace QUANLYVANHOA.Repositories
         }
 
         // Lấy chi tiết mẫu phiếu (bao gồm thông tin gộp cột và nội dung)
-        public async Task<IEnumerable<RpChiTietMauPhieu>> GetChiTietMauPhieuByID(int mauPhieuId)
+        public async Task<List<RpChiTietMauPhieu>> GetChiTietMauPhieuByMauPhieuID(int mauPhieuId)
         {
             var chiTietMauPhieus = new List<RpChiTietMauPhieu>();
 
@@ -349,7 +403,7 @@ namespace QUANLYVANHOA.Repositories
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@MauPhieuID", chiTietMauPhieu.MauPhieuID);
-                    command.Parameters.AddWithValue("@TieuChiIDs", chiTietMauPhieu.TieuChiIDs);
+                    command.Parameters.AddWithValue("@TieuChiIDs", JsonConvert.SerializeObject(chiTietMauPhieu.TieuChiIDs));
                     command.Parameters.AddWithValue("@ChiTieuID", chiTietMauPhieu.ChiTieuID);
                     command.Parameters.AddWithValue("@NoiDung", chiTietMauPhieu.NoiDung ?? string.Empty);
                     command.Parameters.AddWithValue("@GopCot", chiTietMauPhieu.GopCot != null ? (object)chiTietMauPhieu.GopCot : DBNull.Value);

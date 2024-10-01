@@ -6,14 +6,14 @@ namespace QUANLYVANHOA.Interfaces
 {
     public interface IRpMauPhieuRepository
     {
-        Task<(IEnumerable<RpMauPhieu>, int)> GetAll(string? name);
+        Task<(IEnumerable<RpMauPhieu>, int)> GetAll(string? name, int pageNumber, int pageSize);
         Task<RpMauPhieu> GetByID(int id);
-        Task<int> Insert(RpMauPhieuInsertModel obj);
+        Task<int> InsertMauPhieu(RpMauPhieuInsertModel obj);
         Task<int> Update(RpMauPhieuUpdateModel obj);
         Task<int> Delete(int id);
-        Task<IEnumerable<CtgChiTieu>> GetChiTieusByMauPhieuID(int mauPhieuId);
-        Task<IEnumerable<CtgTieuChi>> GetTieuChisByMauPhieuID(int mauPhieuId);
-        Task<IEnumerable<RpChiTietMauPhieu>> GetChiTietMauPhieuByID(int mauPhieuId);
+        Task<List<CtgChiTieu>> GetChiTieusHierarchyByMauPhieuID(int mauPhieuId);
+        Task<List<CtgTieuChi>> GetTieuChisHierarchyByMauPhieuID(int mauPhieuId);
+        Task<List<RpChiTietMauPhieu>> GetChiTietMauPhieuByMauPhieuID(int mauPhieuId);
 
         // Thêm và xóa tiêu chí
         Task AddTieuChiMauPhieu(int mauPhieuId, int tieuChiId);

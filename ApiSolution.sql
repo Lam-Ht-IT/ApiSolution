@@ -1336,7 +1336,7 @@ CREATE TABLE BC_ChiTietMauPhieu(
 	ChiTietMauPhieuID int PRIMARY KEY IDENTITY(1,1),
 	MauPhieuID INT FOREIGN KEY (MauPhieuID) REFERENCES BC_MauPhieu(MauPhieuID),
 	TieuChiIDs NVARCHAR(MAX),
-	ChitieuID INT FOREIGN KEY (ChitieuID) REFERENCES DM_ChiTieu (ChiTieuID),
+	ChiTieuID INT FOREIGN KEY (ChiTieuID) REFERENCES DM_ChiTieu (ChiTieuID),
 	NoiDung NVARCHAR (300),
 	GopCot BIT NULL,
     GopTuCot INT NULL,

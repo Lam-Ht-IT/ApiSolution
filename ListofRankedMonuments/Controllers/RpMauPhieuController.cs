@@ -46,7 +46,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var result = await _mauPhieuRepository.GetAll(name);
+            var result = await _mauPhieuRepository.GetAll(name,pageNumber,pageSize);
             var mauPhieuList = result.Item1;
             var totalRecords = result.Item2;
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -72,6 +72,8 @@ namespace QUANLYVANHOA.Controllers
                 TotalRecords = totalRecords
             });
         }
+
+
         [CustomAuthorize(1, "ManageReportForm")]
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
@@ -110,7 +112,7 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
             }
 
-            var result = await _mauPhieuRepository.Insert(model);
+            var result = await _mauPhieuRepository.InsertMauPhieu(model);
             if (result > 0)
             {
                 return Ok(new { Status = 1, Message = "Inserted data successfully" });
@@ -122,12 +124,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] RpMauPhieuUpdateModel model)
         {
-            if (model.MauPhieuId <= 0)
+            if (model.MauPhieuID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
             }
 
-            var existingMauPhieu = await _mauPhieuRepository.GetByID(model.MauPhieuId);
+            var existingMauPhieu = await _mauPhieuRepository.GetByID(model.MauPhieuID);
             if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
