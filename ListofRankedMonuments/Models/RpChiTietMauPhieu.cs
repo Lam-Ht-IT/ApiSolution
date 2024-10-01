@@ -4,23 +4,23 @@ namespace QUANLYVANHOA.Models
 {
     public class RpChiTietMauPhieu
     {
-        [JsonPropertyName("ChiTietMauPhieuId")]
-        public int ChiTietMauPhieuId { get; set; }
+        [JsonPropertyName("ChiTietMauPhieuID")]
+        public int ChiTietMauPhieuID { get; set; }
 
-        [JsonPropertyName("MauPhieuId")]
-        public int MauPhieuId { get; set; }
+        [JsonPropertyName("MauPhieuID")]
+        public int MauPhieuID { get; set; }
 
         [JsonPropertyName("ChitieuID")]
-        public int ChitieuID { get; set; }
+        public int ChiTieuID { get; set; }
 
         [JsonPropertyName("TieuChiIDs")]
         public List<int> TieuChiIDs { get; set; }
 
         [JsonPropertyName("GopCot")]
-        public int GopCot { get; set; }
+        public bool GopCot { get; set; }
 
         [JsonPropertyName("GoptuCot")]
-        public int GoptuCot { get; set; }
+        public int GopTuCot { get; set; }
 
         [JsonPropertyName("GopDenCot")]
         public int GopDenCot { get; set; }
@@ -38,20 +38,20 @@ namespace QUANLYVANHOA.Models
 
     public class RpChiTietMauPhieuInsertModel
     {
-        [JsonPropertyName("MauPhieuId")]
-        public int MauPhieuId { get; set; }
+        [JsonPropertyName("MauPhieuID")]
+        public int MauPhieuID { get; set; }
 
         [JsonPropertyName("ChitieuID")]
-        public int ChitieuID { get; set; }
+        public int ChiTieuID { get; set; }
 
         [JsonPropertyName("TieuChiIDs")]
         public List<int> TieuChiIDs { get; set; }
 
         [JsonPropertyName("GopCot")]
-        public int GopCot { get; set; }
+        public bool GopCot { get; set; }
 
         [JsonPropertyName("GoptuCot")]
-        public int GoptuCot { get; set; }
+        public bool GopTuCot { get; set; }
 
         [JsonPropertyName("GopDenCot")]
         public int GopDenCot { get; set; }
@@ -68,23 +68,23 @@ namespace QUANLYVANHOA.Models
 
     public class RpChiTietMauPhieuUpdateModel
     {
-        [JsonPropertyName("ChiTietMauPhieuId")]
-        public int ChiTietMauPhieuId { get; set; }
+        [JsonPropertyName("ChiTietMauPhieuID")]
+        public int ChiTietMauPhieuID { get; set; }
 
-        [JsonPropertyName("MauPhieuId")]
-        public int MauPhieuId { get; set; }
+        [JsonPropertyName("MauPhieuID")]
+        public int MauPhieuID { get; set; }
 
         [JsonPropertyName("ChitieuID")]
-        public int ChitieuID { get; set; }
+        public int ChiTieuID { get; set; }
 
         [JsonPropertyName("TieuChiIDs")]
         public List<int> TieuChiIDs { get; set; }
 
         [JsonPropertyName("GopCot")]
-        public int GopCot { get; set; }
+        public bool GopCot { get; set; }
 
         [JsonPropertyName("GoptuCot")]
-        public int GoptuCot { get; set; }
+        public bool GopTuCot { get; set; }
 
         [JsonPropertyName("GopDenCot")]
         public int GopDenCot { get; set; }
