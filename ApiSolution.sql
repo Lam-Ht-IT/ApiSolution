@@ -1,23 +1,37 @@
-﻿--region Handles Database
-ALTER DATABASE DB_QuanLyVanHoa
-SET SINGLE_USER
-WITH ROLLBACK IMMEDIATE;
-
-DROP DATABASE DB_QuanLyVanHoa 
-
-
-CREATE DATABASE DB_QuanLyVanHoa
-USE DB_QuanLyVanHoa
-GO
---endregion 
-
---region Rename Database
+﻿--region Rename Database
 ALTER DATABASE [QuanLyVanHoa] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 ALTER DATABASE [QuanLyVanHoa] MODIFY NAME = DB_QuanLyVanHoa;
 
 ALTER DATABASE QuanLyVanHoa
 ALTER DATABASE DB_QuanLyVanHoa SET MULTI_USER;
 --endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --region Authorization Mangement System
 --region Stored procedures of Users
@@ -536,6 +550,33 @@ GO
 --endregion
 --endregion
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --region Category Mangement System
 --region Stored procedures of DonViTinh
 CREATE TABLE DM_DonViTinh
@@ -898,6 +939,33 @@ GO
 --endregion
 --endregion
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --region Comprehensive Management Of Report Templates
 --region Stored Procedure of Report Form Management
 CREATE TABLE BC_MauPhieu(
@@ -935,22 +1003,53 @@ BEGIN
 END
 GO
 
-CREATE PROC MP_GetByID 
-	@MauPhieuID INT
+ALTER PROCEDURE MP_GetByID
+    @MauPhieuID INT
 AS
 BEGIN
-	SELECT * FROM BC_MauPhieu 
-END
+    -- Lấy dữ liệu mẫu phiếu
+    SELECT mp.MauPhieuID, mp.TenMauPhieu, mp.MaMauPhieu, mp.NgayTao, mp.NguoiTao
+    FROM BC_MauPhieu mp
+    WHERE mp.MauPhieuID = @MauPhieuID;
+
+    -- Lấy các chỉ tiêu của mẫu phiếu
+    SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu
+    FROM BC_ChiTietMauPhieu ctmp
+    JOIN DM_ChiTieu ct ON ctmp.ChiTieuID = ct.ChiTieuID
+    WHERE ctmp.MauPhieuID = @MauPhieuID;
+
+    -- Lấy các tiêu chí của mẫu phiếu
+    SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot
+    FROM BC_TieuChi mptc
+    JOIN DM_TieuChi tc ON mptc.TieuChiID = tc.TieuChiID
+    WHERE mptc.MauPhieuID = @MauPhieuID;
+
+    -- Lấy chi tiết mẫu phiếu (phần này sẽ bao gồm cả các tiêu chí được gộp cột và thông tin nội dung)
+    SELECT 
+        ctmp.ChiTietMauPhieuID,
+        ctmp.MauPhieuID,
+        ctmp.TieuChiIDs, -- Danh sách các tiêu chí liên quan
+        ctmp.ChiTieuID,  -- Chỉ tiêu ứng với dòng
+        ctmp.NoiDung,
+        ctmp.GopCot,
+        ctmp.GopTuCot,
+        ctmp.GopDenCot,
+        ctmp.SoCotGop,
+        ctmp.GhiChu
+    FROM BC_ChiTietMauPhieu ctmp
+    WHERE ctmp.MauPhieuID = @MauPhieuID;
+END;
 GO
 
 CREATE PROC MP_Insert
 	@TenMauPhieu NVARCHAR (100),
 	@MaMauPhieu  NVARCHAR (100),
-	@LoaiMauPhieuID INT
+	@LoaiMauPhieuID INT,
+	@NguoiTao NVARCHAR(100) NULL
 AS
 BEGIN
-	INSERT INTO BC_MauPhieu (TenMauPhieu, MaMauPhieu, LoaiMauPhieuID)
-	VALUES (@TenMauPhieu, @MaMauPhieu, @LoaiMauPhieuID);
+	INSERT INTO BC_MauPhieu (TenMauPhieu, MaMauPhieu, LoaiMauPhieuID, NguoiTao)
+	VALUES (@TenMauPhieu, @MaMauPhieu, @LoaiMauPhieuID,@NguoiTao);
 END
 GO
 
@@ -974,6 +1073,7 @@ BEGIN
 	DELETE FROM BC_MauPhieu  WHERE MauPhieuID = @MauPhieuID
 END
 GO	
+
 
 --endregion	
 
@@ -1131,11 +1231,12 @@ END;
 GO
 
 -- Xóa BC_TieuChi
-CREATE PROCEDURE BCTC_Delete 
-    @TieuChiBaoCaoID INT
+CREATE PROCEDURE BCTC_Delete
+    @MauPhieuID INT,
+	@TieuChiID INT
 AS
 BEGIN
-    DELETE FROM BC_TieuChi WHERE TieuChiBaoCaoID = @TieuChiBaoCaoID;
+    DELETE FROM BC_TieuChi WHERE MauPhieuID = @MauPhieuID AND TieuChiID = @TieuChiID;
 END;
 GO
 
@@ -1215,16 +1316,17 @@ END;
 GO
 
 -- Xóa Chỉ tiêu báo cáo
-CREATE PROCEDURE BCCT_DeleteChiTieuBaoCao
+CREATE PROCEDURE BCCT_Delete
     @MauPhieuID INT,
-    @ChiTieuID INT
+	@ChiTieuID INT
 AS
 BEGIN
     -- Xóa chỉ tiêu khỏi mẫu báo cáo
     DELETE FROM BC_ChiTieu
-    WHERE MauPhieuID = @MauPhieuID AND ChiTieuID = @ChiTieuID;
-END;
+    WHERE MauPhieuID = @MauPhieuID AND	 ChiTieuID = @ChiTieuID
+END
 GO
+
 
 
 --endregion
@@ -1240,6 +1342,7 @@ CREATE TABLE BC_ChiTietMauPhieu(
     GopTuCot INT NULL,
     GopDenCot INT NULL,
     SoCotGop INT NULL,
+	ThangBaoCao INT NULL,
 	GhiChu NVARCHAR (300) DEFAULT NULL	
 );
 GO
@@ -1261,48 +1364,32 @@ END
 GO
 
 -- Thêm mới BC_ChiTietMauPhieu
-CREATE PROCEDURE BCCTMP_Insert (
+ALTER PROCEDURE BCCTMP_Insert (
     @MauPhieuID INT,
-    @TieuChiID INT,
+    @TieuChiIDs NVARCHAR(MAX),
     @ChiTieuID INT,
-    @NoiDung NVARCHAR(MAX),
+    @NoiDung NVARCHAR(MAX) NULL,
     @GhiChu NVARCHAR(MAX) = NULL
 )
 AS
 BEGIN
-    INSERT INTO BC_ChiTietMauPhieu (MauPhieuID, TieuChiID, ChiTieuID, NoiDung, GhiChu)
-    VALUES (@MauPhieuID, @TieuChiID, @ChiTieuID, @NoiDung, @GhiChu);
+    INSERT INTO BC_ChiTietMauPhieu (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GhiChu)
+    VALUES (@MauPhieuID, @TieuChiIDs, @ChiTieuID, @NoiDung, @GhiChu);
 END;
 GO
 
 -- Cập nhật BC_ChiTietMauPhieu
-CREATE PROCEDURE BCCTMP_Update (
-    @ChiTietMauPhieuID INT,
-    @MauPhieuID INT,
-    @TieuChiID INT,
-    @ChiTieuID INT,
-    @NoiDung NVARCHAR(MAX),
-    @GhiChu NVARCHAR(MAX) = NULL
-)
-AS
-BEGIN
-    UPDATE BC_ChiTietMauPhieu
-    SET MauPhieuID = @MauPhieuID, TieuChiID = @TieuChiID, ChiTieuID = @ChiTieuID, NoiDung = @NoiDung, GhiChu = @GhiChu
-    WHERE ChiTietMauPhieuID = @ChiTietMauPhieuID;
-END;
-GO
-
--- Cập nhật chi tiết mẫu phiếu
-CREATE PROCEDURE BCCTMP_UpdateChiTietMauPhieu
+ALTER PROCEDURE BCCTMP_UpdateChiTietMauPhieu
     @ChiTietMauPhieuID INT,
     @ChiTieuID INT,
     @TieuChiIDs NVARCHAR(MAX),
-    @NoiDung NVARCHAR(MAX),
+    @NoiDung NVARCHAR(300),
     @GopCot INT,
     @GopTuCot INT,
     @GopDenCot INT,
     @SoCotGop INT,
-    @GhiChu NVARCHAR(255)
+	@ThangBaoCao int,
+    @GhiChu NVARCHAR(300)
 AS
 BEGIN
     -- Cập nhật chi tiết mẫu phiếu
@@ -1314,13 +1401,25 @@ BEGIN
         GopTuCot = @GopTuCot,
         GopDenCot = @GopDenCot,
         SoCotGop = @SoCotGop,
+		ThangBaoCao = @ThangBaoCao,
         GhiChu = @GhiChu
     WHERE ChiTietMauPhieuID = @ChiTietMauPhieuID;
 END;
+GO
 
+ALTER PROC BCCTMP_UpdateNoiDung
+	@TieuChiIDs NVARCHAR(MAX),
+	@ChiTieuID INT,
+	@NoiDung NVARCHAR (300),
+	@ThangBaoCao INT NULL
+AS	
+BEGIN
+	UPDATE BC_ChiTietMauPhieu SET NoiDung = @NoiDung WHERE TieuChiIDs = @TieuChiIDs AND ChitieuID  = @ChiTieuID
+END
+GO
 
 -- Xóa BC_ChiTietMauPhieu
-CREATE PROCEDURE BCCTMP_Delete (
+ALTER PROCEDURE BCCTMP_Delete (
     @ChiTietMauPhieuID INT
 )
 AS
@@ -1467,122 +1566,6 @@ BEGIN
        ChiTieuID, Hierarchy
     --OFFSET (@PageNumber - 1) * @PageSize ROWS 
     --FETCH NEXT @PageSize ROWS ONLY
-    OPTION (MAXRECURSION 0);
-END;
-GO
-
-CREATE PROCEDURE CT_GetAll 
-    @TenChiTieu NVARCHAR(100) = NULL
-AS
-BEGIN
-    -- CTE để xử lý phân cấp và tìm kiếm
-    WITH RecursiveCTE AS (
-        -- Anchor member: Bắt đầu với các node gốc (nơi ChiTieuChaID là NULL)
-        SELECT 
-            ChiTieuID,
-			ChiTieuChaID,
-            MaChiTieu,
-            TenChiTieu,
-            GhiChu,
-            TrangThai,
-            LoaiMauPhieuID,
-            0 AS Level,
-            CAST('/' + CONVERT(NVARCHAR(50), ChiTieuID) AS NVARCHAR(50)) AS Hierarchy
-        FROM 
-            DM_ChiTieu
-        WHERE 
-            ChiTieuChaID IS NULL
-
-        UNION ALL
-
-        -- Recursive member: Join the table with itself to find children
-        SELECT 
-            c.ChiTieuID,
-			c.ChiTieuChaID,
-            c.MaChiTieu,
-            c.TenChiTieu,
-            c.GhiChu,
-            c.TrangThai,
-            c.LoaiMauPhieuID,
-            cte.Level + 1 AS Level,
-            CAST(cte.Hierarchy + '/' + CONVERT(NVARCHAR(50), c.ChiTieuID) AS NVARCHAR(50)) AS Hierarchy
-        FROM 
-            DM_ChiTieu c
-        INNER JOIN 
-            RecursiveCTE cte ON c.ChiTieuChaID = cte.ChiTieuID
-    ),
-    -- CTE phụ để lọc các phần tử khớp với từ khóa tìm kiếm
-    FilteredCTE AS (
-        SELECT 
-            ChiTieuID,
-			ChiTieuChaID,
-            MaChiTieu,
-            TenChiTieu,
-            GhiChu,
-            TrangThai,
-            LoaiMauPhieuID,
-            Level,
-            Hierarchy
-        FROM 
-            RecursiveCTE
-        WHERE 
-            @TenChiTieu IS NULL
-            OR LOWER(TenChiTieu) LIKE '%' + LOWER(@TenChiTieu) + '%'
-    ),
-    -- CTE phụ để xác định các phần tử cha và phần tử con của các phần tử cần thiết
-    AllParentsCTE AS (
-        SELECT 
-            c.*
-        FROM 
-            FilteredCTE fc
-        INNER JOIN 
-            RecursiveCTE c ON c.ChiTieuID = fc.ChiTieuChaID
-        UNION ALL
-        SELECT 
-            c.*
-        FROM 
-            AllParentsCTE p
-        INNER JOIN 
-            RecursiveCTE c ON c.ChiTieuID = p.ChiTieuChaID
-    ),
-    AllChildrenCTE AS (
-        SELECT 
-            c.*
-        FROM 
-            FilteredCTE fc
-        INNER JOIN 
-            RecursiveCTE c ON c.ChiTieuChaID = fc.ChiTieuID
-        UNION ALL
-        SELECT 
-            c.*
-        FROM 
-            AllChildrenCTE p
-        INNER JOIN 
-            RecursiveCTE c ON c.ChiTieuChaID = p.ChiTieuID
-    ),
-    -- Kết hợp tất cả các phần tử cần thiết và loại bỏ các bản ghi trùng lặp
-    CombinedCTE AS (
-        SELECT DISTINCT * FROM FilteredCTE
-        UNION
-        SELECT DISTINCT * FROM AllParentsCTE
-        UNION
-        SELECT DISTINCT * FROM AllChildrenCTE
-    )
-    -- Truy vấn phân cấp với tổng số bản ghi
-    SELECT 
-        ChiTieuID,
-		ChiTieuChaID,
-        MaChiTieu,
-        TenChiTieu,
-        GhiChu,
-        TrangThai,
-        LoaiMauPhieuID,
-        Level,
-        Hierarchy
-    FROM 
-        CombinedCTE
-    ORDER BY 
-       ChiTieuID, Hierarchy
     OPTION (MAXRECURSION 0);
 END;
 GO
@@ -1748,8 +1731,139 @@ CREATE TABLE DM_TieuChi (
 );
 GO 
 
--- Procedure to retrieve all criteria with paging and hierarchical data
-CREATE PROCEDURE TC_GetAll
+--region Procedure to retrieve all criteria with paging and hierarchical data
+--ALTER PROCEDURE TC_GetAll
+--    @TenTieuChi NVARCHAR(100) = NULL
+--    --,@PageNumber INT = 1,
+--    --@PageSize INT = 20
+--AS
+--BEGIN
+--    -- Validate input parameters
+--    --IF @PageNumber < 1 SET @PageNumber = 1;
+--    --IF @PageSize < 1 SET @PageSize = 20;
+
+--    -- Recursive Common Table Expression (CTE) to build the hierarchy
+--    WITH RecursiveCTE AS (
+--        -- Anchor member: Start with root nodes (where TieuChiChaID is NULL)
+--        SELECT 
+--            TieuChiID,
+--            TieuChiChaID,
+--            MaTieuChi,
+--            TenTieuChi,
+--            GhiChu,
+--            KieuDuLieuCot,
+--            TrangThai,
+--            LoaiTieuChi,
+--            1 AS CapDo,  -- Set level to 1 for root nodes
+--            CAST('/' + CONVERT(NVARCHAR(50), TieuChiID) AS NVARCHAR(50)) AS Hierarchy  -- Build hierarchy path
+--        FROM 
+--            DM_TieuChi
+--        WHERE 
+--            TieuChiChaID IS NULL
+
+--        UNION ALL
+
+--        -- Recursive member: Join to find child nodes
+--        SELECT 
+--            c.TieuChiID,
+--            c.TieuChiChaID,
+--            c.MaTieuChi,
+--            c.TenTieuChi,
+--            c.GhiChu,
+--            c.KieuDuLieuCot,
+--            c.TrangThai,
+--            c.LoaiTieuChi,
+--            p.CapDo + 1 AS CapDo,  -- Increase level for child nodes
+--            CAST(p.Hierarchy + '/' + CONVERT(NVARCHAR(50), c.TieuChiID) AS NVARCHAR(50)) AS Hierarchy  -- Extend hierarchy path
+--        FROM 
+--            DM_TieuChi c
+--        INNER JOIN 
+--            RecursiveCTE p ON c.TieuChiChaID = p.TieuChiID
+--    ),
+--    -- Filter results based on search criteria
+--    FilteredCTE AS (
+--        SELECT 
+--            TieuChiID,
+--            TieuChiChaID,
+--            MaTieuChi,
+--            TenTieuChi,
+--            GhiChu,
+--            KieuDuLieuCot,
+--            TrangThai,
+--            LoaiTieuChi,
+--            CapDo,
+--            Hierarchy
+--        FROM 
+--            RecursiveCTE
+--        WHERE 
+--            @TenTieuChi IS NULL
+--            OR LOWER(TenTieuChi) LIKE '%' + LOWER(@TenTieuChi) + '%'  -- Case-insensitive search
+--    ),
+--    -- CTE to identify parent elements of the filtered results
+--    AllParentsCTE AS (
+--        SELECT 
+--            c.*
+--        FROM 
+--            FilteredCTE fc
+--        INNER JOIN 
+--            RecursiveCTE c ON c.TieuChiID = fc.TieuChiChaID
+--        UNION ALL
+--        SELECT 
+--            c.*
+--        FROM 
+--            AllParentsCTE p
+--        INNER JOIN 
+--            RecursiveCTE c ON c.TieuChiChaID = p.TieuChiChaID
+--    ),
+--    -- CTE to identify child elements of the filtered results
+--    AllChildrenCTE AS (
+--        SELECT 
+--            c.*
+--        FROM 
+--            FilteredCTE fc
+--        INNER JOIN 
+--            RecursiveCTE c ON c.TieuChiChaID = fc.TieuChiID
+--        UNION ALL
+--        SELECT 
+--            c.*
+--        FROM 
+--            AllChildrenCTE p
+--        INNER JOIN 
+--            RecursiveCTE c ON c.TieuChiChaID = p.TieuChiID
+--    ),
+--    -- Combine all relevant elements (filtered, parents, and children) and remove duplicates
+--    CombinedCTE AS (
+--        SELECT DISTINCT * FROM FilteredCTE
+--        UNION
+--        SELECT DISTINCT * FROM AllParentsCTE
+--        UNION
+--        SELECT DISTINCT * FROM AllChildrenCTE
+--    )
+--    -- Final query with pagination and total records count
+--    SELECT 
+--        TieuChiID,
+--        TieuChiChaID,
+--        MaTieuChi,
+--        TenTieuChi,
+--        GhiChu,
+--        KieuDuLieuCot,
+--        TrangThai,
+--        LoaiTieuChi,
+--        CapDo,
+--        Hierarchy
+--        --,TotalRecords = (SELECT COUNT(*) FROM CombinedCTE)  -- Total record count
+--    FROM 
+--        CombinedCTE
+--    ORDER BY 
+--        Hierarchy  -- Order by hierarchy path
+--    --OFFSET (@PageNumber - 1) * @PageSize ROWS 
+--    --FETCH NEXT @PageSize ROWS ONLY  -- Pagination
+--    OPTION (MAXRECURSION 0);  -- Prevent recursion depth limit
+--END;
+--endregion
+GO
+
+ALTER PROCEDURE TC_GetAll
     @TenTieuChi NVARCHAR(100) = NULL
     --,@PageNumber INT = 1,
     --@PageSize INT = 20
@@ -1771,7 +1885,7 @@ BEGIN
             KieuDuLieuCot,
             TrangThai,
             LoaiTieuChi,
-            1 AS CapDo,  -- Set level to 1 for root nodes
+            CapDo,  -- CapDo is read directly from the table instead of being calculated
             CAST('/' + CONVERT(NVARCHAR(50), TieuChiID) AS NVARCHAR(50)) AS Hierarchy  -- Build hierarchy path
         FROM 
             DM_TieuChi
@@ -1790,7 +1904,7 @@ BEGIN
             c.KieuDuLieuCot,
             c.TrangThai,
             c.LoaiTieuChi,
-            p.CapDo + 1 AS CapDo,  -- Increase level for child nodes
+            c.CapDo,  -- Use CapDo from the table
             CAST(p.Hierarchy + '/' + CONVERT(NVARCHAR(50), c.TieuChiID) AS NVARCHAR(50)) AS Hierarchy  -- Extend hierarchy path
         FROM 
             DM_TieuChi c
@@ -1815,46 +1929,6 @@ BEGIN
         WHERE 
             @TenTieuChi IS NULL
             OR LOWER(TenTieuChi) LIKE '%' + LOWER(@TenTieuChi) + '%'  -- Case-insensitive search
-    ),
-    -- CTE to identify parent elements of the filtered results
-    AllParentsCTE AS (
-        SELECT 
-            c.*
-        FROM 
-            FilteredCTE fc
-        INNER JOIN 
-            RecursiveCTE c ON c.TieuChiID = fc.TieuChiChaID
-        UNION ALL
-        SELECT 
-            c.*
-        FROM 
-            AllParentsCTE p
-        INNER JOIN 
-            RecursiveCTE c ON c.TieuChiChaID = p.TieuChiChaID
-    ),
-    -- CTE to identify child elements of the filtered results
-    AllChildrenCTE AS (
-        SELECT 
-            c.*
-        FROM 
-            FilteredCTE fc
-        INNER JOIN 
-            RecursiveCTE c ON c.TieuChiChaID = fc.TieuChiID
-        UNION ALL
-        SELECT 
-            c.*
-        FROM 
-            AllChildrenCTE p
-        INNER JOIN 
-            RecursiveCTE c ON c.TieuChiChaID = p.TieuChiID
-    ),
-    -- Combine all relevant elements (filtered, parents, and children) and remove duplicates
-    CombinedCTE AS (
-        SELECT DISTINCT * FROM FilteredCTE
-        UNION
-        SELECT DISTINCT * FROM AllParentsCTE
-        UNION
-        SELECT DISTINCT * FROM AllChildrenCTE
     )
     -- Final query with pagination and total records count
     SELECT 
@@ -1868,9 +1942,9 @@ BEGIN
         LoaiTieuChi,
         CapDo,
         Hierarchy
-        --,TotalRecords = (SELECT COUNT(*) FROM CombinedCTE)  -- Total record count
+        --,TotalRecords = (SELECT COUNT(*) FROM FilteredCTE)  -- Total record count
     FROM 
-        CombinedCTE
+        FilteredCTE
     ORDER BY 
         Hierarchy  -- Order by hierarchy path
     --OFFSET (@PageNumber - 1) * @PageSize ROWS 
@@ -1878,6 +1952,7 @@ BEGIN
     OPTION (MAXRECURSION 0);  -- Prevent recursion depth limit
 END;
 GO
+
 
 CREATE PROC TC_GetByID
 	@TieuChiID INT
@@ -1987,6 +2062,33 @@ END;
 GO
 --endregion
 --endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 --region Insert Table
 --region Insert records into Categories
@@ -2424,6 +2526,34 @@ GO
 --endregion
 --endregion
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --region Query
 	DELETE FROM Sys_User;
 	DBCC CHECKIDENT ('Sys_User', RESEED, 0);
@@ -2542,6 +2672,35 @@ ALTER TABLE BC_ChiTietMauPhieu
 DROP COLUMN TieuChiID;
 
 --endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 SELECT *
