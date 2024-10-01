@@ -935,12 +935,42 @@ BEGIN
 END
 GO
 
-CREATE PROC MP_GetByID 
-	@MauPhieuID INT
+ALTER PROCEDURE MP_GetByID
+    @MauPhieuID INT
 AS
 BEGIN
-	SELECT * FROM BC_MauPhieu 
-END
+    -- Lấy dữ liệu mẫu phiếu
+    SELECT mp.MauPhieuID, mp.TenMauPhieu, mp.MaMauPhieu, mp.NgayTao, mp.NguoiTao
+    FROM BC_MauPhieu mp
+    WHERE mp.MauPhieuID = @MauPhieuID;
+
+    -- Lấy các chỉ tiêu của mẫu phiếu
+    SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu
+    FROM BC_ChiTietMauPhieu ctmp
+    JOIN DM_ChiTieu ct ON ctmp.ChiTieuID = ct.ChiTieuID
+    WHERE ctmp.MauPhieuID = @MauPhieuID;
+
+    -- Lấy các tiêu chí của mẫu phiếu
+    SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot
+    FROM BC_TieuChi mptc
+    JOIN DM_TieuChi tc ON mptc.TieuChiID = tc.TieuChiID
+    WHERE mptc.MauPhieuID = @MauPhieuID;
+
+    -- Lấy chi tiết mẫu phiếu (phần này sẽ bao gồm cả các tiêu chí được gộp cột và thông tin nội dung)
+    SELECT 
+        ctmp.ChiTietMauPhieuID,
+        ctmp.MauPhieuID,
+        ctmp.TieuChiIDs, -- Danh sách các tiêu chí liên quan
+        ctmp.ChiTieuID,  -- Chỉ tiêu ứng với dòng
+        ctmp.NoiDung,
+        ctmp.GopCot,
+        ctmp.GopTuCot,
+        ctmp.GopDenCot,
+        ctmp.SoCotGop,
+        ctmp.GhiChu
+    FROM BC_ChiTietMauPhieu ctmp
+    WHERE ctmp.MauPhieuID = @MauPhieuID;
+END;
 GO
 
 CREATE PROC MP_Insert
@@ -974,6 +1004,7 @@ BEGIN
 	DELETE FROM BC_MauPhieu  WHERE MauPhieuID = @MauPhieuID
 END
 GO	
+
 
 --endregion	
 
@@ -1131,13 +1162,22 @@ END;
 GO
 
 -- Xóa BC_TieuChi
-CREATE PROCEDURE BCTC_Delete 
-    @TieuChiBaoCaoID INT
+CREATE PROCEDURE BCTC_DeleteByMauPhieuID
+    @MauPhieuID INT
 AS
 BEGIN
-    DELETE FROM BC_TieuChi WHERE TieuChiBaoCaoID = @TieuChiBaoCaoID;
+    DELETE FROM BC_TieuChi WHERE MauPhieuID = @MauPhieuID;
 END;
 GO
+
+CREATE PROCEDURE BCTC_DeleteByTieuChiID
+    @TieuChiID INT
+AS
+BEGIN
+    DELETE FROM BC_TieuChi WHERE TieuChiID = @TieuChiID;
+END;
+GO
+
 
 --endregion
 
@@ -1215,18 +1255,25 @@ END;
 GO
 
 -- Xóa Chỉ tiêu báo cáo
-CREATE PROCEDURE BCCT_DeleteChiTieuBaoCao
-    @MauPhieuID INT,
+CREATE PROCEDURE BCCT_DeleteByMauPhieuID
+    @MauPhieuID INT
+AS
+BEGIN
+    -- Xóa chỉ tiêu khỏi mẫu báo cáo
+    DELETE FROM BC_ChiTieu
+    WHERE MauPhieuID = @MauPhieuID;
+END
+GO
+
+CREATE PROCEDURE BCCT_DeleteByChiTieuID
     @ChiTieuID INT
 AS
 BEGIN
     -- Xóa chỉ tiêu khỏi mẫu báo cáo
     DELETE FROM BC_ChiTieu
-    WHERE MauPhieuID = @MauPhieuID AND ChiTieuID = @ChiTieuID;
-END;
+    WHERE ChiTieuID = @ChiTieuID;
+END
 GO
-
-
 --endregion
 
 --region Stored Procedure of BC_ChiTietMauPhieu
