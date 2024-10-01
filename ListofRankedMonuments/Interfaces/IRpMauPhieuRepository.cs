@@ -8,8 +8,8 @@ namespace QUANLYVANHOA.Interfaces
     {
         Task<(IEnumerable<RpMauPhieu>, int)> GetAll(string? name);
         Task<RpMauPhieu> GetByID(int id);
-        Task<int> Insert(RpMauPhieu obj);
-        Task<int> Update(RpMauPhieu obj);
+        Task<int> Insert(RpMauPhieuInsertModel obj);
+        Task<int> Update(RpMauPhieuUpdateModel obj);
         Task<int> Delete(int id);
     }
 }

@@ -22,6 +22,7 @@ namespace QUANLYVANHOA.Repositories
             var tieuChiList = new List<CtgTieuChi>();
             int totalRecords = 0;
 
+
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
@@ -29,6 +30,7 @@ namespace QUANLYVANHOA.Repositories
                 using (var command = new SqlCommand("TC_GetAll", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.CommandTimeout = 120;
                     command.Parameters.AddWithValue("@TenTieuChi", name ?? (object)DBNull.Value);
                     //command.Parameters.AddWithValue("@PageNumber", pageNumber);
                     //command.Parameters.AddWithValue("@PageSize", pageSize);

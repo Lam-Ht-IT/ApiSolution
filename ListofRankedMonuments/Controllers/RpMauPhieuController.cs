@@ -92,7 +92,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(2, "ManageReportForm")]
         [HttpPost("Insert")]
-        public async Task<IActionResult> Insert([FromBody] RpMauPhieu model)
+        public async Task<IActionResult> Insert([FromBody] RpMauPhieuInsertModel model)
         {
             if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
             {
@@ -120,7 +120,7 @@ namespace QUANLYVANHOA.Controllers
 
         [CustomAuthorize(4, "ManageReportForm")]
         [HttpPost("Update")]
-        public async Task<IActionResult> Update([FromBody] RpMauPhieu model)
+        public async Task<IActionResult> Update([FromBody] RpMauPhieuUpdateModel model)
         {
             if (model.MauPhieuId <= 0)
             {
