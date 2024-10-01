@@ -6,26 +6,26 @@ namespace QUANLYVANHOA.Interfaces
 {
     public interface IRpMauPhieuRepository
     {
-        Task<(IEnumerable<RpMauPhieu>, int)> GetAll(string? name, int pageNumber, int pageSize);
-        Task<RpMauPhieu> GetByID(int id);
+        Task<(IEnumerable<RpMauPhieu>, int)> GetAllMauPhieu(string? name, int pageNumber, int pageSize);
+        Task<RpMauPhieu> GetMauPhieuByID(int id);
         Task<int> InsertMauPhieu(RpMauPhieuInsertModel obj);
-        Task<int> Update(RpMauPhieuUpdateModel obj);
-        Task<int> Delete(int id);
+        Task<int> UpdateMauPhieu(RpMauPhieuUpdateModel obj);
+        Task<int> DeleteMauPhieu(int id);
         Task<List<CtgChiTieu>> GetChiTieusHierarchyByMauPhieuID(int mauPhieuId);
         Task<List<CtgTieuChi>> GetTieuChisHierarchyByMauPhieuID(int mauPhieuId);
         Task<List<RpChiTietMauPhieu>> GetChiTietMauPhieuByMauPhieuID(int mauPhieuId);
 
         // Thêm và xóa tiêu chí
-        Task AddTieuChiMauPhieu(int mauPhieuId, int tieuChiId);
-        Task DeleteTieuChiMauPhieu(int mauPhieuId, int tieuChiId);
+        Task AddTieuChiBaoCao(int mauPhieuId, int tieuChiId);
+        Task DeleteTieuChiBaoCao(int mauPhieuId, int tieuChiId);
 
         // Thêm và xóa chỉ tiêu
-        Task AddChiTieuMauPhieu(int mauPhieuId, int chiTieuId);
-        Task DeleteChiTieuMauPhieu(int mauPhieuId, int chiTieuId);
+        Task AddChiTieuBaoCao(int mauPhieuId, int chiTieuId);
+        Task DeleteChiTieuBaoCao(int mauPhieuId, int chiTieuId);
 
         // Thêm, sửa, xóa ChiTietMauPhieu
-        Task AddChiTietMauPhieu(RpChiTietMauPhieu chiTietMauPhieu);
-        Task UpdateChiTietMauPhieu(RpChiTietMauPhieuUpdateModel chiTietMauPhieu);
-        Task DeleteChiTietMauPhieu(int chiTietMauPhieuId);
+        Task AddChiTietBaoCao(RpChiTietMauPhieu chiTietMauPhieu);
+        Task UpdateChiTietBaoCao(RpChiTietMauPhieuUpdateModel chiTietMauPhieu);
+        Task DeleteChiTietBaoCao(int chiTietMauPhieuId);
     }
 }

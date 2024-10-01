@@ -46,7 +46,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var result = await _mauPhieuRepository.GetAll(name,pageNumber,pageSize);
+            var result = await _mauPhieuRepository.GetAllMauPhieu(name,pageNumber,pageSize);
             var mauPhieuList = result.Item1;
             var totalRecords = result.Item2;
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
@@ -83,7 +83,7 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
             }
 
-            var mauPhieu = await _mauPhieuRepository.GetByID(id);
+            var mauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
             if (mauPhieu == null)
             {
                 return Ok(new { Status = 0, Message = "ID not found" });
@@ -129,7 +129,7 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
             }
 
-            var existingMauPhieu = await _mauPhieuRepository.GetByID(model.MauPhieuID);
+            var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(model.MauPhieuID);
             if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
 
             if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
@@ -147,7 +147,7 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
             }
 
-            var result = await _mauPhieuRepository.Update(model);
+            var result = await _mauPhieuRepository.UpdateMauPhieu(model);
             if (result > 0)
             {
                 return Ok(new { Status = 1, Message = "Updated data successfully" });
@@ -159,10 +159,10 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existingMauPhieu = await _mauPhieuRepository.GetByID(id);
+            var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
             if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
 
-            var result = await _mauPhieuRepository.Delete(id);
+            var result = await _mauPhieuRepository.DeleteMauPhieu(id);
             if (result > 0)
             {
                 return Ok(new { Status = 1, Message = "Deleted data successfully" });
