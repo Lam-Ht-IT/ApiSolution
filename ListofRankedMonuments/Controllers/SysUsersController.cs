@@ -114,8 +114,8 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var existingUserName = await _userRepository.GetByUserName(user.UserName);
-            if (existingUserName != null)
+            var existingUserName = await _userRepository.GetAll(user.UserName,1,20);
+            if (existingUserName.Item1.Any())
             {
                 return BadRequest(new Response { Status = 0, Message = "Username already exists. Please choose a different username." });
             }
@@ -164,16 +164,6 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var existingUser = await _userRepository.GetByUserName(user.UserName);
-            if (existingUser != null)
-            {
-                return BadRequest(new Response
-                {
-                    Status = 0,
-                    Message = "Username already exists. Please choose a different username."
-                });
-            }
-
             int rowsAffected = await _userRepository.Create(user);
             if (rowsAffected == 0)
             {
@@ -207,8 +197,8 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var existingUserName = await _userRepository.GetByUserName(user.UserName);
-            if (existingUserName != null)
+            var existingUserName = await _userRepository.GetAll(user.UserName,1,20);
+            if (existingUserName.Item1.Any())
             {
                 return BadRequest(new Response { Status = 0, Message = "Username already exists. Please choose a different username." });
             }
@@ -439,8 +429,8 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Check if the username already exists
-            var existingUser = await _userRepository.GetByUserName(model.UserName);
-            if (existingUser != null)
+            var existingUser = await _userRepository.GetAll(model.UserName,1,20);
+            if (existingUser.Item1.Any())
             {
                 return BadRequest(new Response { Status = 0, Message = "Username already exists. Please choose a different username." });
             }
@@ -453,23 +443,19 @@ namespace QUANLYVANHOA.Controllers
             }
 
             // Retrieve the newly created user by username
-            var newUser = await _userRepository.GetByUserName(model.UserName);
-            if (newUser == null)
+            var newUser = await _userRepository.GetAll(model.UserName, 1, 20);
+            if (newUser.Item1.Any())
             {
-                return StatusCode(500, new Response { Status = 0, Message = "User was registered, but unable to retrieve new user details." });
-            }
-
-            // Add the new user to the default group (Group ID: 2)
-            var userInGroupModel = new SysUserInGroupCreateModel
-            {
-                UserID = newUser.UserID,  // Use the ID of the newly created user
-                GroupID = 2               // Default group ID
-            };
-
-            int groupRowsAffected = await _userInGroupRepository.Create(userInGroupModel);
-            if (groupRowsAffected == 0)
-            {
-                return StatusCode(500, new Response { Status = 0, Message = "User registered but could not be added to the default group." });
+                var userInGroupModel = new SysUserInGroupCreateModel
+                {
+                    UserID = newUser.Item1.First().UserID,  // Use the ID of the newly created user
+                    GroupID = 2               // Default group ID
+                };
+                int groupRowsAffected = await _userInGroupRepository.Create(userInGroupModel);
+                if (groupRowsAffected == 0)
+                {
+                    return StatusCode(500, new Response { Status = 0, Message = "User registered but could not be added to the default group." });
+                }
             }
 
             // Success response

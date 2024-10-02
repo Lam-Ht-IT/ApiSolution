@@ -550,8 +550,6 @@ GO
 
 
 
-xxxxxxxxxxxxxxxxxx
-
 
 
 
@@ -2886,7 +2884,7 @@ SET FunctionName = 'ManageMonumentRanking'  WHERE FunctionID = 2
 
 
 EXEC TC_Delete @TieuChiID = 1
-EXEC CT_GetAll @TenChiTieu = ''
+EXEC CT_GetAll @TenChiTieu = 'DI TÍCH'
 EXEC TC_GetAll @TenTieuChi = ''
 EXEC FIG_GetUserPermissions @UserName = 'admin', @FunctionName = 'ManageTargets' 
 EXEC UMS_GetByRefreshToken @RefreshToken = ''

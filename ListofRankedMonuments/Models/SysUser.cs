@@ -91,6 +91,10 @@ namespace QUANLYVANHOA.Controllers
 
     public class RegisterModel
     {
+
+        [JsonPropertyName("FullName")]
+        public string FullName { get; set; }
+
         [JsonPropertyName("UserName")]
         public string UserName { get; set; }
 
@@ -102,6 +106,12 @@ namespace QUANLYVANHOA.Controllers
 
         [JsonPropertyName("Email")]
         public string Email { get; set; }
+
+        [JsonPropertyName("Status")]
+        public bool Status { get; set; }
+
+        [JsonPropertyName("Note")]
+        public string? Note { get; set; }
     }
 
     public class UpdateRefreshTokenModel
