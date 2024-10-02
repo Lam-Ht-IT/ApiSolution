@@ -104,7 +104,7 @@ namespace QUANLYVANHOA.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand("InsertMauPhieu", connection))
+                using (var command = new SqlCommand("MP_Insert", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@TenMauPhieu", mauPhieu.TenMauPhieu);

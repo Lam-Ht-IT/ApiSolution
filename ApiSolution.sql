@@ -65,16 +65,6 @@ BEGIN
 END
 GO
 
---Get by UserName
-CREATE PROC UMS_GetByUserName
-	@UserName NVARCHAR(50)
-AS
-BEGIN
-	SELECT * FROM Sys_User su WHERE su.UserName = @UserName
-END	
-
-
-GO
 -- Get User By Refresh Token
 CREATE PROC UMS_GetByRefreshToken
 	@RefreshToken NVARCHAR(500)
@@ -87,16 +77,16 @@ GO
 -- Create User
 ALTER PROCEDURE UMS_Create
     @UserName NVARCHAR(50),
-	@FullName NVARCHAR (100),
+	@FullName NVARCHAR (100) null,
     @Email NVARCHAR(50),
     @Password NVARCHAR(100),
-    @Status BIT,
-    @Note NVARCHAR(100)
+    @Status BIT NULL,
+    @Note NVARCHAR(100) NULL
 AS
 BEGIN
     -- Insert new user record
-    INSERT INTO Sys_User (UserName, Email, Password, Status, Note)
-    VALUES (@UserName, @Email, @Password, @Status, @Note);
+    INSERT INTO Sys_User (UserName, Email, FullName, Password, Status, Note)
+    VALUES (@UserName, @Email,@FullName, @Password, @Status, @Note);
 END
 GO
 
@@ -142,32 +132,15 @@ ALTER PROCEDURE [dbo].[UMS_Delete]
     @UserID INT
 AS
 BEGIN
-    BEGIN TRY
-        BEGIN TRANSACTION
-            -- 1. Delete user group associations
-            DELETE FROM Sys_UserInGroup
-            WHERE UserId = @UserID;
-            DELETE FROM Sys_User
-            WHERE UserID = @UserID;
-
-        COMMIT TRANSACTION
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-        
-        -- Throw the error
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-        DECLARE @ErrorState INT = ERROR_STATE();
-        
-        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
-    END CATCH
+    DELETE FROM Sys_UserInGroup
+    WHERE UserId = @UserID;
+    DELETE FROM Sys_User
+	WHERE UserID = @UserID;
 END
 GO
 
 -- Veryfy Login
-create PROCEDURE VerifyLogin
+ALTER PROCEDURE VerifyLogin
     @UserName NVARCHAR(50),
     @Password NVARCHAR(100)
 AS
@@ -544,46 +517,6 @@ GO
 --endregion
 --endregion
 
-
-
-
-
-
-
-xxxxxxxxxxxxxxxxxx
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --region Category Mangement System
 --region Stored procedures of DonViTinh
 CREATE TABLE DM_DonViTinh
@@ -946,48 +879,6 @@ GO
 --endregion
 --endregion
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --region Comprehensive Management Of Report Templates
 --region Stored Procedure of Report Form Management
 CREATE TABLE BC_MauPhieu(
@@ -1034,17 +925,45 @@ BEGIN
     FROM BC_MauPhieu mp
     WHERE mp.MauPhieuID = @MauPhieuID;
 
-    -- Lấy các chỉ tiêu của mẫu phiếu
-    SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu
-    FROM BC_ChiTietMauPhieu ctmp
-    JOIN DM_ChiTieu ct ON ctmp.ChiTieuID = ct.ChiTieuID
-    WHERE ctmp.MauPhieuID = @MauPhieuID;
+    -- Lấy các chỉ tiêu của mẫu phiếu dưới dạng phân cấp cha con
+    WITH CTE_ChiTieus AS 
+    (
+        -- Cấp đầu tiên là các chỉ tiêu gốc
+        SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu, 0 AS Level
+        FROM DM_ChiTieu ct
+        JOIN BC_ChiTietMauPhieu ctmp ON ct.ChiTieuID = ctmp.ChiTieuID
+        WHERE ctmp.MauPhieuID = @MauPhieuID
+          AND ct.ChiTieuChaID IS NULL
+        
+        UNION ALL
+        
+        -- Cấp tiếp theo là các chỉ tiêu con
+        SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu, c.Level + 1
+        FROM DM_ChiTieu ct
+        JOIN CTE_ChiTieus c ON ct.ChiTieuChaID = c.ChiTieuID
+    )
+    SELECT * FROM CTE_ChiTieus
+    ORDER BY Level, ChiTieuChaID;
 
-    -- Lấy các tiêu chí của mẫu phiếu
-    SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot
-    FROM BC_TieuChi mptc
-    JOIN DM_TieuChi tc ON mptc.TieuChiID = tc.TieuChiID
-    WHERE mptc.MauPhieuID = @MauPhieuID;
+    -- Lấy các tiêu chí của mẫu phiếu dưới dạng phân cấp cha con
+    WITH CTE_TieuChis AS 
+    (
+        -- Cấp đầu tiên là các tiêu chí gốc
+        SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot, 0 AS Level
+        FROM DM_TieuChi tc
+        JOIN BC_TieuChi mptc ON tc.TieuChiID = mptc.TieuChiID
+        WHERE mptc.MauPhieuID = @MauPhieuID
+          AND tc.TieuChiChaID IS NULL
+        
+        UNION ALL
+        
+        -- Cấp tiếp theo là các tiêu chí con
+        SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot, c.Level + 1
+        FROM DM_TieuChi tc
+        JOIN CTE_TieuChis c ON tc.TieuChiChaID = c.TieuChiID
+    )
+    SELECT * FROM CTE_TieuChis
+    ORDER BY Level, TieuChiChaID;
 
     -- Lấy chi tiết mẫu phiếu (phần này sẽ bao gồm cả các tiêu chí được gộp cột và thông tin nội dung)
     SELECT 
@@ -1062,6 +981,7 @@ BEGIN
     WHERE ctmp.MauPhieuID = @MauPhieuID;
 END;
 GO
+
 
 ALTER PROCEDURE MP_Insert
     @TenMauPhieu NVARCHAR(100),
@@ -2182,7 +2102,7 @@ BEGIN
     FROM 
         FilteredCTE
     ORDER BY 
-        Hierarchy  -- Order by hierarchy path
+         TieuChiID ,Hierarchy -- Order by hierarchy path
     --OFFSET (@PageNumber - 1) * @PageSize ROWS 
     --FETCH NEXT @PageSize ROWS ONLY  -- Pagination
     OPTION (MAXRECURSION 0);  -- Prevent recursion depth limit
@@ -2299,41 +2219,6 @@ GO
 --endregion
 --endregion
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --region Insert Table
 --region Insert records into Categories
 INSERT INTO DM_DITICHXEPHANG ( TenDiTich,GhiChu ) VALUES
@@ -2348,6 +2233,30 @@ VALUES (N'Kilogram', N'KG', 1, N'Đơn vị đo khối lượng'),
 (N'Lit', N'L', 1, N'Đơn vị đo thể tích'),
 (N'Cái', N'CAI', 1, N'Đơn vị đếm số lượng');
 GO
+
+-- Các tiêu chí gốc (CapDo = 1)
+EXEC TC_Insert 'TOP_QHTN', N'Quốc hiệu tiêu ngữ', NULL, 3, 1;
+EXEC TC_Insert 'TOP_DVCQ', N'Đơn vị chủ quản', NULL, 3, 1;
+EXEC TC_Insert 'TOP_DVTHBC', N'Đơn vị thực hiện báo cáo', NULL, 3, 1;
+EXEC TC_Insert 'TOP_TDBC', N'Tiêu đê báo cáo', NULL, 3, 1;
+EXEC TC_Insert 'TOP_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 1;
+EXEC TC_Insert 'TOP_DVT', N'Đơn vị tính', NULL, 3, 1;
+EXEC TC_Insert 'TOP_PHULUC', N'Phụ lục', NULL, 3, 1;
+EXEC TC_Insert 'BODY_STT', N'STT', NULL, 1, 2;
+EXEC TC_Insert 'BODY_ND', N'Nội dung', NULL, 3, 2;
+EXEC TC_Insert 'BODY_GHICHU', N'Ghi chú', NULL, 3, 2;
+EXEC TC_Insert 'BODY_THANGNAM', N'Tháng/năm', NULL, 3, 2;
+EXEC TC_Insert 'BOT_LUUNHAN', N'Lưu nhận', NULL, 3, 3;
+EXEC TC_Insert 'BOT_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 3;
+EXEC TC_Insert 'BOT_CHUCDANH', N'Chức danh', NULL, 3, 3;
+EXEC TC_Insert 'BOT_NGUOIKY', N'Người ký', NULL, 3, 3;
+
+-- Các tiêu chí con của BODY_ND (CapDo = 2 vì có TieuChiChaID là 11)
+EXEC TC_Insert 'BODY_T', N'Tỉnh', 11,  1, 2;
+EXEC TC_Insert 'BODY_H', N'Huyện', 11,  1, 2;
+EXEC TC_Insert 'BODY_X', N'Xã', 11,  1, 2;
+
+
 INSERT INTO DM_TieuChi (MaTieuChi, TenTieuChi, TieuChiChaID, KieuDuLieuCot, LoaiTieuChi)
 VALUES
 ('TOP_QHTN', N'Quốc hiệu tiêu ngữ', NULL, 3, 1),
@@ -2770,45 +2679,6 @@ GO
 --endregion
 --endregion
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --region Query
 	DELETE FROM Sys_User;
 	DBCC CHECKIDENT ('Sys_User', RESEED, 0);
@@ -2866,7 +2736,7 @@ SELECT * FROM DM_DonViTinh
 SELECT * FROM DM_LoaiDiTich
 SELECT * FROM DM_LoaiMauPhieu 
 
-SELECT *FROM BC_ChiTietMauPhieu bctmp
+SELECT *FROM BC_ChiTietMauPhieu 
 SELECT * FROM BC_MauPhieu
 SELECT * FROM BC_TieuChi
 SELECT * FROM BC_ChiTieu
@@ -2894,27 +2764,6 @@ SELECT * FROM	Sys_User su
 EXEC CT_Delete @ChiTieuID = 2
 EXEC CT_Delete 113
 
--- Các tiêu chí gốc (CapDo = 1)
-EXEC TC_Insert 'TOP_QHTN', N'Quốc hiệu tiêu ngữ', NULL, 3, 1;
-EXEC TC_Insert 'TOP_DVCQ', N'Đơn vị chủ quản', NULL, 3, 1;
-EXEC TC_Insert 'TOP_DVTHBC', N'Đơn vị thực hiện báo cáo', NULL, 3, 1;
-EXEC TC_Insert 'TOP_TDBC', N'Tiêu đê báo cáo', NULL, 3, 1;
-EXEC TC_Insert 'TOP_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 1;
-EXEC TC_Insert 'TOP_DVT', N'Đơn vị tính', NULL, 3, 1;
-EXEC TC_Insert 'TOP_PHULUC', N'Phụ lục', NULL, 3, 1;
-EXEC TC_Insert 'BODY_STT', N'STT', NULL, 1, 2;
-EXEC TC_Insert 'BODY_ND', N'Nội dung', NULL, 3, 2;
-EXEC TC_Insert 'BODY_GHICHU', N'Ghi chú', NULL, 3, 2;
-EXEC TC_Insert 'BODY_THANGNAM', N'Tháng/năm', NULL, 3, 2;
-EXEC TC_Insert 'BOT_LUUNHAN', N'Lưu nhận', NULL, 3, 3;
-EXEC TC_Insert 'BOT_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 3;
-EXEC TC_Insert 'BOT_CHUCDANH', N'Chức danh', NULL, 3, 3;
-EXEC TC_Insert 'BOT_NGUOIKY', N'Người ký', NULL, 3, 3;
-
--- Các tiêu chí con của BODY_ND (CapDo = 2 vì có TieuChiChaID là 11)
-EXEC TC_Insert 'BODY_T', N'Tỉnh', 11,  1, 2;
-EXEC TC_Insert 'BODY_H', N'Huyện', 11,  1, 2;
-EXEC TC_Insert 'BODY_X', N'Xã', 11,  1, 2;
 
 
 
@@ -2927,36 +2776,6 @@ ALTER TABLE BC_ChiTietMauPhieu
 DROP COLUMN TieuChiID;
 
 --endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 SELECT *
 FROM BC_ChiTietMauPhieu

@@ -51,7 +51,7 @@ namespace QUANLYVANHOA.Models
         public bool? GopCot { get; set; }
 
         [JsonPropertyName("GoptuCot")]
-        public bool? GopTuCot { get; set; }
+        public int? GopTuCot { get; set; }
 
         [JsonPropertyName("GopDenCot")]
         public int? GopDenCot { get; set; }
