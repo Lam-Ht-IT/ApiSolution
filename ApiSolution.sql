@@ -6,43 +6,6 @@ ALTER DATABASE QuanLyVanHoa
 ALTER DATABASE DB_QuanLyVanHoa SET MULTI_USER;
 --endregion
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 --region Authorization Mangement System
 --region Stored procedures of Users
 CREATE TABLE Sys_User (
@@ -373,11 +336,14 @@ END
 GO
 
 -- Delete Function
-CREATE PROCEDURE FMS_Delete
+-- Delete Function
+ALTER PROCEDURE [dbo].[FMS_Delete]
     @FunctionID INT
 AS
 BEGIN
     -- Delete the record from Sys_Function
+	DELETE FROM Sys_FunctionInGroup
+	WHERE FunctionId = @FunctionID;
     DELETE FROM Sys_Function
     WHERE FunctionID = @FunctionID;
 END
@@ -584,7 +550,7 @@ GO
 
 
 
-
+xxxxxxxxxxxxxxxxxx
 
 
 
@@ -1383,47 +1349,6 @@ BEGIN
 END;
 GO
 --endregion	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 --region Stored procedures of DM_LoaiMauPieu
 CREATE TABLE DM_LoaiMauPhieu
@@ -3039,5 +2964,3 @@ CROSS APPLY OPENJSON(TieuChiIDs)
 WITH (
     TieuChiID INT '$.TieuChiID'
 ) AS jsonResult;
-
-

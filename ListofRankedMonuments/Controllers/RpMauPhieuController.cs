@@ -99,7 +99,7 @@ namespace QUANLYVANHOA.Controllers
             var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu,1,20);
             if (existingMauPhieu.Item1.Any())
             {
-                return Ok(new { Status = 0, Message = "Mã mẫu phiếu đã tồn tại" });
+                return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });
             }
 
             if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
@@ -134,7 +134,7 @@ namespace QUANLYVANHOA.Controllers
             var existingTenMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
             if (existingTenMauPhieu.Item1.Any())
             {
-                return Ok(new { Status = 0, Message = "Mã mẫu phiếu đã tồn tại" });
+                return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });
             }
 
             if (model.MauPhieuID <= 0)
