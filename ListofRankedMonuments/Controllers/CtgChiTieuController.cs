@@ -112,6 +112,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] CtgChiTieuInsertModel chiTieu)
         {
+            var existingChiTieu = await _chiTieuRepository.GetAll(chiTieu.TenChiTieu);
+            if (existingChiTieu.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenChiTieu already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(chiTieu.TenChiTieu))
             {
                 chiTieu.TenChiTieu = chiTieu.TenChiTieu.Trim();
@@ -158,6 +164,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(2, "ManageTarget")]
         public async Task<IActionResult> InsertChiTieuCon([FromBody] CtgChiTieuInsertChidrenModel chiTieuModelInsertChidren)
         {
+            var existingChiTieu = await _chiTieuRepository.GetAll(chiTieuModelInsertChidren.TenChiTieu);
+            if (existingChiTieu.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenChiTieu already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(chiTieuModelInsertChidren.TenChiTieu))
             {
                 chiTieuModelInsertChidren.TenChiTieu = chiTieuModelInsertChidren.TenChiTieu.Trim();

@@ -80,6 +80,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(2, "ManageReportingPeriod")]
         public async Task<IActionResult> Insert([FromBody] CtgKyBaoCaoModelInsert model)
         {
+            var existingKyBaoCaoName = await _kyBaoCaoRepository.GetAll(model.TenKyBaoCao, 1, 20);
+            if (existingKyBaoCaoName.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "Report period name already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(model.TenKyBaoCao))
             {
                 model.TenKyBaoCao = model.TenKyBaoCao.Trim();
@@ -108,6 +114,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(4, "ManageReportingPeriod")]
         public async Task<IActionResult> Update(CtgKyBaoCaoModelUpdate kyBaoCao)
         {
+            var existingKyBaoCaoName = await _kyBaoCaoRepository.GetAll(kyBaoCao.TenKyBaoCao, 1, 20);
+            if (existingKyBaoCaoName.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "Report period name already exists" });
+            }
+
             if (kyBaoCao.KyBaoCaoID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });

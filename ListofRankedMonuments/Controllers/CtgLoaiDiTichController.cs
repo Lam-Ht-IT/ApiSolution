@@ -89,6 +89,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(2, "ManageTypeofMonument")]
         public async Task<IActionResult> Insert([FromBody] CtgLoaiDiTichModelInsert model)
         {
+            var existingLoaiDiTichName = await _loaiDiTichRepository.GetAll(model.TenLoaiDiTich,1,20);
+            if (existingLoaiDiTichName.Item1.Any())
+            {
+                return Ok(new { Status = 0, Message = "Data already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(model.TenLoaiDiTich))
             {
                 model.TenLoaiDiTich = model.TenLoaiDiTich.Trim();
@@ -126,6 +132,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(4, "ManageTypeofMonument")]
         public async Task<IActionResult> Update([FromBody] CtgLoaiDiTichModelUpdate model)
         {
+            var existingLoaiDiTichName = await _loaiDiTichRepository.GetAll(model.TenLoaiDiTich, 1, 20);
+            if (existingLoaiDiTichName.Item1.Any())
+            {
+                return Ok(new { Status = 0, Message = "Data already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(model.TenLoaiDiTich))
             {
                 model.TenLoaiDiTich = model.TenLoaiDiTich.Trim();

@@ -94,6 +94,13 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(2, "ManageFormType")]
         public async Task<IActionResult> Insert([FromBody] CtgLoaiMauPhieuModelInsert model)
         {
+
+            var existingLoaiMauPhieu = await _loaiMauPhieuRepository.GetAll(model.TenLoaiMauPhieu, 1,20);
+            if (existingLoaiMauPhieu.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenLoaiMauPhieu already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(model.TenLoaiMauPhieu))
             {
                 model.TenLoaiMauPhieu = model.TenLoaiMauPhieu.Trim();
@@ -137,6 +144,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(4, "ManageFormType")]
         public async Task<IActionResult> Update([FromBody] CtgLoaiMauPhieuModelUpdate model)
         {
+            var existingLoaiMauPhieuName = await _loaiMauPhieuRepository.GetAll(model.TenLoaiMauPhieu, 1, 20);
+            if (existingLoaiMauPhieuName.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenLoaiMauPhieu already exists" });
+            }
+
             if (model.LoaiMauPhieuID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
