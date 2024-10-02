@@ -89,6 +89,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] CtgDonViTinhModelInsert model)
         {
+            var existingTenDonViTinh = await _donViTinhRepository.GetAll(model.TenDonViTinh,1,20);
+            if (existingTenDonViTinh.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenDonViTinh already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(model.TenDonViTinh))
             {
                 model.TenDonViTinh = model.TenDonViTinh.Trim();
@@ -131,6 +137,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] CtgDonViTinhModelUpdate model)
         {
+            var existingTenDonViTinh = await _donViTinhRepository.GetAll(model.TenDonViTinh, 1, 20);
+            if (existingTenDonViTinh.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenDonViTinh already exists" });
+            }
+
             var existingDonViTinh = await _donViTinhRepository.GetByID(model.DonViTinhID);
             if (existingDonViTinh == null) return Ok(new { Status = 0, Message = "ID not found" });
 

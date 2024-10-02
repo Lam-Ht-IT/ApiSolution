@@ -96,6 +96,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] RpMauPhieuInsertModel model)
         {
+            var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu,1,20);
+            if (existingMauPhieu.Item1.Any())
+            {
+                return Ok(new { Status = 0, Message = "Mã mẫu phiếu đã tồn tại" });
+            }
+
             if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
             {
                 model.TenMauPhieu = model.TenMauPhieu.Trim();
@@ -124,6 +130,13 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] RpMauPhieuUpdateModel model)
         {
+
+            var existingTenMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
+            if (existingTenMauPhieu.Item1.Any())
+            {
+                return Ok(new { Status = 0, Message = "Mã mẫu phiếu đã tồn tại" });
+            }
+
             if (model.MauPhieuID <= 0)
             {
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });

@@ -105,11 +105,6 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("CreatingUser")]
         public async Task<IActionResult> Create([FromBody] SysUserInsertModel user)
         {
-            if (!string.IsNullOrWhiteSpace(user.UserName))
-            {
-                user.UserName = user.UserName.Trim();
-            }
-
             if (string.IsNullOrWhiteSpace(user.UserName))
             {
                 return BadRequest(new Response
@@ -117,6 +112,12 @@ namespace QUANLYVANHOA.Controllers
                     Status = 0,
                     Message = "Invalid username. The username username is required."
                 });
+            }
+
+            var existingUserName = await _userRepository.GetByUserName(user.UserName);
+            if (existingUserName != null)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Username already exists. Please choose a different username." });
             }
 
             if (string.IsNullOrWhiteSpace(user.Password) || user.Password.Contains(" "))
@@ -195,10 +196,7 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("UpdatingUser")]
         public async Task<IActionResult> Update([FromBody] SysUserUpdateModel user)
         {
-            if (!string.IsNullOrWhiteSpace(user.UserName))
-            {
-                user.UserName = user.UserName.Trim();
-            }
+
             var existingUser = await _userRepository.GetByID(user.UserID);
             if (existingUser == null)
             {
@@ -207,6 +205,22 @@ namespace QUANLYVANHOA.Controllers
                     Status = 0,
                     Message = "User not found."
                 });
+            }
+
+            var existingUserName = await _userRepository.GetByUserName(user.UserName);
+            if (existingUserName != null)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Username already exists. Please choose a different username." });
+            }
+
+            if (user.UserName.Contains(" ") || user.UserName.Length > 50)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Invalid password. Password must not contain spaces and must be less than 100 characters." });
+            }
+
+            if (user.Password.Contains(" ") || user.Password.Length > 100)
+            {
+                return BadRequest(new Response { Status = 0, Message = "Invalid password. Password must not contain spaces and must be less than 100 characters." });
             }
 
             if (string.IsNullOrWhiteSpace(user.UserName) || user.UserName.Contains(" "))
@@ -391,6 +405,7 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
+
             // Validate the incoming model
             if (model == null || string.IsNullOrWhiteSpace(model.UserName) || string.IsNullOrWhiteSpace(model.Password) || string.IsNullOrWhiteSpace(model.ConfirmPassword))
             {

@@ -19,6 +19,7 @@ namespace QUANLYVANHOA.Controllers
             _functionRepository = functionRepository;
         }
 
+
         [HttpGet("FunctionsList")]
         [CustomAuthorize(1, "ManageUsers")]
         public async Task<IActionResult> GetAll(string? functionName, int pageNumber = 1, int pageSize = 20)
@@ -98,6 +99,19 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("CreatingFunction")]
         public async Task<IActionResult> Create([FromBody] SysFunctionInsertModel function)
         {
+
+            var existingFunction = await _functionRepository.GetAll(function.FunctionName, 1, 20);
+            {
+                if (existingFunction.Item1.Any())
+                {
+                    return BadRequest(new Response
+                    {
+                        Status = 0,
+                        Message = "Function name already exists."
+                    });
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(function.FunctionName) || function.FunctionName.Contains(" "))
             {
                 return BadRequest(new Response
@@ -145,6 +159,19 @@ namespace QUANLYVANHOA.Controllers
                     Status = 0,
                     Message = "Function not found."
                 });
+            }
+
+
+            var existingFunctionName = await _functionRepository.GetAll(function.FunctionName, 1, 20);
+            {
+                if (existingFunctionName.Item1.Any())
+                {
+                    return BadRequest(new Response
+                    {
+                        Status = 0,
+                        Message = "Function name already exists."
+                    });
+                }
             }
 
             if (string.IsNullOrWhiteSpace(function.FunctionName) || function.FunctionName.Contains(" "))

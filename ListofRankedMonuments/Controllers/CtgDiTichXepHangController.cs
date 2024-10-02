@@ -91,6 +91,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] CtgDiTichXepHangModelInsert model)
         {
+            var existingTenDiTich = await _ditichxephangrepository.GetAll(model.TenDiTich, 1, 20);
+            if (existingTenDiTich.Item1.Any())
+            {
+                return Ok(new { Status = 0, Message = "TenDiTich already exists" });
+            }
+
             // Kiểm tra dữ liệu đầu vào
             if (string.IsNullOrWhiteSpace(model.TenDiTich) || model.TenDiTich.Length > 50)
             {
@@ -123,6 +129,12 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] CtgDiTichXepHangModelUpdate diTichXepHang)
         {
+            var existingTenDiTich = await _ditichxephangrepository.GetAll(diTichXepHang.TenDiTich, 1, 20);
+            if (existingTenDiTich.Item1.Any())
+            {
+                return Ok(new { Status = 0, Message = "TenDiTich already exists" });
+            }
+
             var existingDiTich = await _ditichxephangrepository.GetByID(diTichXepHang.DiTichXepHangID);
             if (existingDiTich == null) return Ok(new { Status = 0, Message = "ID not found" });
             if (!string.IsNullOrWhiteSpace(diTichXepHang.TenDiTich))

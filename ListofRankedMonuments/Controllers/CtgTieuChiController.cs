@@ -82,6 +82,12 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(2, "ManageCriteria")]
         public async Task<IActionResult> Insert([FromBody] CtgTieuChiModelInsert tieuchi)
         {
+            var existingTieuChi = await _tieuchirepository.GetAll(tieuchi.TenTieuChi);
+            if (existingTieuChi.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenTieuChi already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
             {
                 tieuchi.TenTieuChi = tieuchi.TenTieuChi.Trim();
@@ -119,6 +125,13 @@ namespace QUANLYVANHOA.Controllers
         [CustomAuthorize(4, "ManageCriteria")]
         public async Task<IActionResult> Update([FromBody] CtgTieuChiModelUpdate tieuchi)
         {
+
+            var existingTieuChi = await _tieuchirepository.GetAll(tieuchi.TenTieuChi);
+            if (existingTieuChi.Item1.Any())
+            {
+                return BadRequest(new { Status = 0, Message = "TenTieuChi already exists" });
+            }
+
             if (!string.IsNullOrWhiteSpace(tieuchi.TenTieuChi))
             {
                 tieuchi.TenTieuChi = tieuchi.TenTieuChi.Trim();
