@@ -66,35 +66,6 @@ namespace QUANLYVANHOA.Repositories
 
             return (userList, totalRecords);
         }
-        public async Task<SysUser> GetByUserName(string userName)
-        {
-            SysUser user = null;
-
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                using (var command = new SqlCommand("UMS_GetByUserName", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserName", userName);
-
-                    await connection.OpenAsync();
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                        if (await reader.ReadAsync())
-                        {
-                            user = new SysUser
-                            {
-                                UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
-                                UserName = reader.GetString(reader.GetOrdinal("UserName")),
-                                Email = reader.GetString(reader.GetOrdinal("Email"))
-                            };
-                        }
-                    }
-                }
-            }
-
-            return user;
-        }
 
 
         public async Task<SysUser> GetByID(int userId)
@@ -152,12 +123,15 @@ namespace QUANLYVANHOA.Repositories
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                using (var cmd = new SqlCommand("UMS_Register", connection))
+                using (var cmd = new SqlCommand("UMS_Create", connection))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@UserName", user.UserName);
-                    cmd.Parameters.AddWithValue("@password", user.Password);
-                    cmd.Parameters.AddWithValue("@email", user.Email);
+                    cmd.Parameters.AddWithValue("@FullName", user.FullName);
+                    cmd.Parameters.AddWithValue("@Email", user.Email);
+                    cmd.Parameters.AddWithValue("@Password", user.Password);
+                    cmd.Parameters.AddWithValue("@Status", user.Status);
+                    cmd.Parameters.AddWithValue("@Note", user.Note);
                     await connection.OpenAsync();
                     return await cmd.ExecuteNonQueryAsync();
                     
