@@ -55,6 +55,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
             return;
         }
     }
+
     //public void OnAuthorization(AuthorizationFilterContext context)
     //{
     //    if (!context.HttpContext.User.Identity.IsAuthenticated)
@@ -75,7 +76,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
     private int GetUserPermissions(string userName, string functionName)
     {
         int permissions = 0;
-        string connectionString = "Server=192.168.100.126;Database=DB_QuanLyVanHoa;User Id=The Debuggers;Password=ifyouwanttoconnectyouneedtobecomeaprofessionalprogrammer;Trusted_Connection=False;MultipleActiveResultSets=True;Encrypt=False";
+        string connectionString = "Server=192.168.100.105;Database=DB_QuanLyVanHoa;User Id=The Debuggers;Password=ifyouwanttoconnectyouneedtobecomeaprofessionalprogrammer;";
 
         using (SqlConnection conn = new SqlConnection(connectionString))
         {
@@ -98,7 +99,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
     {
         var permissions = new Dictionary<string, int>();
 
-        using (SqlConnection conn = new SqlConnection("Server=192.168.100.126;Database=DB_QuanLyVanHoa;User Id=The Debuggers;Password=ifyouwanttoconnectyouneedtobecomeaprofessionalprogrammer;Trusted_Connection=False;MultipleActiveResultSets=True;Encrypt=False"))
+        using (SqlConnection conn = new SqlConnection("Server=192.168.100.105;Database=DB_QuanLyVanHoa;User Id=The Debuggers;Password=ifyouwanttoconnectyouneedtobecomeaprofessionalprogrammer;"))
         {
             conn.Open();
             SqlCommand cmd = new SqlCommand("FIG_GetAllUserFunctionsAndPermissions", conn);

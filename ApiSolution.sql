@@ -1422,11 +1422,11 @@ GO
 --region Stored Procedure of Report Target
 CREATE TABLE BC_ChiTieu(
 	ChiTieuBaoCaoID INT PRIMARY KEY IDENTITY (1,1),
-	MauPhieuID INT FOREIGN KEY REFERENCES BC_MauPhieu(MauPhieuID),
-    ChiTieuID INT FOREIGN KEY REFERENCES DM_ChiTieu(ChiTieuID),
+	MauPhieuID INT FOREIGN KEY REFERENCES BC_MauPhieu(MauPhieuID) NOT NULL,
+    ChiTieuID INT FOREIGN KEY REFERENCES DM_ChiTieu(ChiTieuID) NOT NULL,
 	TrangThai BIT NOT NULL DEFAULT 1
 );
-GO
+GO 
 
 
 -- Lấy tất cả BC_ChiTieu
@@ -2705,8 +2705,17 @@ GO
 	DELETE FROM DM_KyBaoCao
 	DBCC CHECKIDENT ('DM_KyBaoCao', RESEED, 0);
 	
-	DELETE FROM DM_TieuChi WHERE TieuChiID = 20
-	DELETE FROM Sys_User WHERE UserID = 38
+
+
+
+	DELETE FROM BC_ChiTietMauPhieu;
+	DBCC CHECKIDENT ('BC_ChiTietMauPhieu', RESEED, 0);
+	DELETE FROM BC_ChiTieu;
+	DBCC CHECKIDENT ('BC_ChiTieu', RESEED, 0);
+	DELETE FROM BC_TieuChi;
+	DBCC CHECKIDENT ('BC_TieuChi', RESEED, 0);
+	DELETE FROM BC_MauPhieu
+	DBCC CHECKIDENT ('BC_MauPhieu',RESEED,0)
 
 	-- Reset giá trị IDENTITY về giá trị mặc định (1)
 GO
@@ -2716,7 +2725,8 @@ GO
 
 
 DROP TABLE BC_MauPhieu
-DROP TABLE BC_CauHinhGop
+
+
 DROP TABLE BC_ChiTietMauPhieu
 DROP TABLE BC_TieuChi
 DROP TABLE BC_ChiTieu
@@ -2736,7 +2746,8 @@ SELECT * FROM DM_DonViTinh
 SELECT * FROM DM_LoaiDiTich
 SELECT * FROM DM_LoaiMauPhieu 
 
-SELECT *FROM BC_ChiTietMauPhieu 
+
+SELECT * FROM BC_ChiTietMauPhieu 
 SELECT * FROM BC_MauPhieu
 SELECT * FROM BC_TieuChi
 SELECT * FROM BC_ChiTieu
@@ -2756,7 +2767,7 @@ SET FunctionName = 'ManageMonumentRanking'  WHERE FunctionID = 2
 
 
 EXEC TC_Delete @TieuChiID = 1
-EXEC CT_GetAll @TenChiTieu = ''
+EXEC CT_GetAll @TenChiTieu = 'DI TÍCH'
 EXEC TC_GetAll @TenTieuChi = ''
 EXEC FIG_GetUserPermissions @UserName = 'admin', @FunctionName = 'ManageTargets' 
 EXEC UMS_GetByRefreshToken @RefreshToken = ''

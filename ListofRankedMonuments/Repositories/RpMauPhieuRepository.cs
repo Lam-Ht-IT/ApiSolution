@@ -111,11 +111,11 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", mauPhieu.LoaiMauPhieuID);
                     command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
                     command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
-                    command.Parameters.AddWithValue("@ChiTieus", JsonConvert.SerializeObject(mauPhieu.ChiTieus));
-                    command.Parameters.AddWithValue("@TieuChis", JsonConvert.SerializeObject(mauPhieu.TieuChis));
-                    command.Parameters.AddWithValue("@ChiTietMauPhieus", JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus));
+                    command.Parameters.AddWithValue("@ChiTieus", mauPhieu.ChiTieus != null ? JsonConvert.SerializeObject(mauPhieu.ChiTieus) : DBNull.Value);
+                    command.Parameters.AddWithValue("@TieuChis", mauPhieu.TieuChis != null ? JsonConvert.SerializeObject(mauPhieu.TieuChis) : DBNull.Value);
+                    command.Parameters.AddWithValue("@ChiTietMauPhieus", mauPhieu.ChiTietMauPhieus != null ? JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus) : DBNull.Value);
 
-                    return (int)await command.ExecuteScalarAsync();
+                    return await command.ExecuteNonQueryAsync();
                 }
             }
         }
