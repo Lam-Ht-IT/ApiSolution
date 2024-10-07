@@ -1,5 +1,5 @@
 ﻿--region Rename Database
-ALTER DATABASE [QuanLyVanHoa] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+ALTER DATABASE [QuanLyVanHoa] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;  
 ALTER DATABASE [QuanLyVanHoa] MODIFY NAME = DB_QuanLyVanHoa;
 
 ALTER DATABASE QuanLyVanHoa
@@ -22,7 +22,7 @@ CREATE TABLE Sys_User (
 GO
 
 -- Get All Users
-ALTER PROCEDURE UMS_GetListPaging
+CREATE PROCEDURE UMS_GetListPaging
     @UserName NVARCHAR(50) = NULL, -- Updated to match the column size
     @PageNumber INT = 1,
     @PageSize INT = 20
@@ -75,7 +75,7 @@ END
 GO
 
 -- Create User
-ALTER PROCEDURE UMS_Create
+CREATE PROCEDURE UMS_Create
     @UserName NVARCHAR(50),
 	@FullName NVARCHAR (100) null,
     @Email NVARCHAR(50),
@@ -91,7 +91,7 @@ END
 GO
 
 -- Update User
-ALTER PROCEDURE UMS_Update
+CREATE PROCEDURE UMS_Update
     @UserID INT,
     @UserName NVARCHAR(50),
 	@FullName NVARCHAR(100),
@@ -128,7 +128,7 @@ END
 GO
 
 -- Delete User
-ALTER PROCEDURE [dbo].[UMS_Delete]
+CREATE PROCEDURE [dbo].[UMS_Delete]
     @UserID INT
 AS
 BEGIN
@@ -140,7 +140,7 @@ END
 GO
 
 -- Veryfy Login
-ALTER PROCEDURE VerifyLogin
+CREATE PROCEDURE VerifyLogin
     @UserName NVARCHAR(50),
     @Password NVARCHAR(100)
 AS
@@ -310,7 +310,7 @@ GO
 
 -- Delete Function
 -- Delete Function
-ALTER PROCEDURE [dbo].[FMS_Delete]
+CREATE PROCEDURE [dbo].[FMS_Delete]
     @FunctionID INT
 AS
 BEGIN
@@ -886,13 +886,15 @@ CREATE TABLE NV_MauPhieu(
 	TenMauPhieu NVARCHAR (100),
 	MaMauPhieu NVARCHAR (100),
 	LoaiMauPhieuID INT FOREIGN KEY (LoaiMauPhieuID) REFERENCES DM_LoaiMauPhieu (LoaiMauPhieuID),
+	ChiTieuS NVARCHAR(MAX) NOT null,
+	TieuChiS NVARCHAR(MAX) NOT NULL,
 	NgayTao DATETIME DEFAULT CURRENT_TIMESTAMP,
 	NguoiTao NVARCHAR (100) DEFAULT NULL
 )
 GO
 
 -- GetAll MauPhieu
-ALTER PROC MP_GetAll
+CREATE PROC MP_GetAll
 	@TenMauPhieu NVARCHAR(100) = Null,
 	@PageNumber INT = 1,
 	@PageSize INT = 20
@@ -916,7 +918,7 @@ BEGIN
 END
 GO
 
-ALTER PROCEDURE MP_GetByID
+CREATE PROCEDURE MP_GetByID
     @MauPhieuID INT
 AS
 BEGIN
@@ -948,13 +950,13 @@ END;
 GO
 
 
-ALTER PROCEDURE MP_Create
+CREATE PROCEDURE MP_Create
     @TenMauPhieu NVARCHAR(100),
     @LoaiMauPhieuID INT,
     @MaMauPhieu NVARCHAR(50),
     @NguoiTao NVARCHAR(100),
-    @ChiTieus NVARCHAR(MAX),  -- JSON dữ liệu chỉ tiêu
-    @TieuChis NVARCHAR(MAX),  -- JSON dữ liệu tiêu chí
+    @ChiTieuS NVARCHAR(MAX),  -- JSON dữ liệu chỉ tiêu
+    @TieuChiS NVARCHAR(MAX),  -- JSON dữ liệu tiêu chí
     @ChiTietMauPhieus NVARCHAR(MAX) -- JSON danh sách các chi tiết mẫu phiếu
 AS
 BEGIN
@@ -964,7 +966,7 @@ BEGIN
         -- 1. Thêm Mẫu Phiếu
         DECLARE @MauPhieuID INT;
         INSERT INTO NV_MauPhieu (TenMauPhieu, LoaiMauPhieuID, MaMauPhieu, NguoiTao, ChiTieuS, TieuChiS)
-        VALUES (@TenMauPhieu, @LoaiMauPhieuID, @MaMauPhieu, @NguoiTao, @ChiTieus, @TieuChis);
+        VALUES (@TenMauPhieu, @LoaiMauPhieuID, @MaMauPhieu, @NguoiTao, @ChiTieuS, @TieuChiS);
 
         SET @MauPhieuID = SCOPE_IDENTITY(); -- Lấy ID mẫu phiếu vừa thêm
 
@@ -994,7 +996,7 @@ BEGIN
 END;
 GO
 
-ALTER PROCEDURE MP_Update
+CREATE PROCEDURE MP_Update
     @MauPhieuID INT,
     @TenMauPhieu NVARCHAR(255),
     @MaMauPhieu NVARCHAR(50),
@@ -1180,7 +1182,7 @@ BEGIN
 END;
 GO
 
-ALTER PROCEDURE MP_Delete
+CREATE PROCEDURE MP_Delete
     @MauPhieuID INT
 AS
 BEGIN
@@ -1245,12 +1247,6 @@ CREATE TABLE DM_LoaiMauPhieu
 	Loai INT DEFAULT 3
 );
 GO 
-
-ALTER TABLE DM_ChiTieu
-ADD CONSTRAINT FK_DM_ChiTieu_DM_LoaiMauPhieu
-FOREIGN KEY (LoaiMauPhieuID) REFERENCES DM_LoaiMauPhieu(LoaiMauPhieuID)
-ON DELETE CASCADE;
-GO
 
 CREATE PROC LMP_GetAll
 @TenLoaiMauPhieu NVARCHAR(100) = NULL,
@@ -1326,7 +1322,7 @@ GO
 --region Stored Procedure of BC_ChiTietMauPhieu
 CREATE TABLE NV_ChiTietMauPhieu(
 	ChiTietMauPhieuID int PRIMARY KEY IDENTITY(1,1),
-	MauPhieuID INT FOREIGN KEY (MauPhieuID) REFERENCES BC_MauPhieu(MauPhieuID),
+	MauPhieuID INT FOREIGN KEY (MauPhieuID) REFERENCES NV_MauPhieu(MauPhieuID),
 	TieuChiIDs NVARCHAR(MAX),
 	ChiTieuID INT FOREIGN KEY (ChiTieuID) REFERENCES DM_ChiTieu (ChiTieuID),
 	NoiDung NVARCHAR (300),
@@ -1346,7 +1342,7 @@ BEGIN
 END;
 GO
 
-ALTER PROC CTMP_GetByID
+CREATE PROC CTMP_GetByID
 	@ChiTietMauPhieuID INT
 AS
 BEGIN
@@ -1355,7 +1351,7 @@ END
 GO
 
 -- Thêm mới BC_ChiTietMauPhieu
-ALTER PROCEDURE CTMP_Insert (
+CREATE PROCEDURE CTMP_Insert (
     @MauPhieuID INT,
     @TieuChiIDs NVARCHAR(MAX),
     @ChiTieuID INT,
@@ -1407,7 +1403,7 @@ END
 GO
 
 -- Xóa NV_ChiTietMauPhieu
-ALTER PROCEDURE CTMP_Delete (
+CREATE PROCEDURE CTMP_Delete (
     @ChiTietMauPhieuID INT
 )
 AS
@@ -1720,7 +1716,7 @@ CREATE TABLE DM_TieuChi (
 GO 
 
 --region Procedure to retrieve all criteria with paging and hierarchical data
---ALTER PROCEDURE TC_GetAll
+--CREATE PROCEDURE TC_GetAll
 --    @TenTieuChi NVARCHAR(100) = NULL
 --    --,@PageNumber INT = 1,
 --    --@PageSize INT = 20
@@ -1851,7 +1847,7 @@ GO
 --endregion
 GO
 
-ALTER PROCEDURE TC_GetAll
+CREATE PROCEDURE TC_GetAll
     @TenTieuChi NVARCHAR(100) = NULL
     --,@PageNumber INT = 1,
     --@PageSize INT = 20
@@ -2089,26 +2085,26 @@ EXEC TC_Insert 'BODY_H', N'Huyện', 11,  1, 2;
 EXEC TC_Insert 'BODY_X', N'Xã', 11,  1, 2;
 
 
-INSERT INTO DM_TieuChi (MaTieuChi, TenTieuChi, TieuChiChaID, KieuDuLieuCot, LoaiTieuChi)
-VALUES
-('TOP_QHTN', N'Quốc hiệu tiêu ngữ', NULL, 3, 1),
-('TOP_DVCQ', N'Đơn vị chủ quản', NULL, 3, 1),
-('TOP_DVTHBC', N'Đơn vị thực hiện báo cáo',NULL, 3, 1),
-('TOP_TDBC', N'Tiêu đê báo cáo', NULL, 3, 1),
-('TOP_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 1),
-('TOP_DVT', N'Đơn vị tính', NULL, 3, 1),
-('TOP_PHULUC', N'Phụ lục', NULL, 3, 1),
-('BODY_STT', N'STT', NULL, 3, 2),
-('BODY_ND', N'Nội dung', NULL, 3, 2),
-('BODY_GHICHU', N'Ghi chú', NULL, 3, 2),
-('BODY_THANGNAM', N'Tháng/năm', NULL, 3, 2),
-('BOT_LUUNHAN', N'Lưu nhận', NULL, 3, 3),
-('BOT_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 3),
-('BOT_CHUCDANH', N'Chức danh', NULL, 3, 3),
-('BOT_NGUOIKY', N'Người ký', NULL, 3, 3),
-('BODY_T', N'Tỉnh', 11, 3, 2),
-('BODY_H', N'Huyện', 11, 3, 2),
-('BODY_X', N'Xã', 11, 3, 2);
+--INSERT INTO DM_TieuChi (MaTieuChi, TenTieuChi, TieuChiChaID, KieuDuLieuCot, LoaiTieuChi)
+--VALUES
+--('TOP_QHTN', N'Quốc hiệu tiêu ngữ', NULL, 3, 1),
+--('TOP_DVCQ', N'Đơn vị chủ quản', NULL, 3, 1),
+--('TOP_DVTHBC', N'Đơn vị thực hiện báo cáo',NULL, 3, 1),
+--('TOP_TDBC', N'Tiêu đê báo cáo', NULL, 3, 1),
+--('TOP_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 1),
+--('TOP_DVT', N'Đơn vị tính', NULL, 3, 1),
+--('TOP_PHULUC', N'Phụ lục', NULL, 3, 1),
+--('BODY_STT', N'STT', NULL, 3, 2),
+--('BODY_ND', N'Nội dung', NULL, 3, 2),
+--('BODY_GHICHU', N'Ghi chú', NULL, 3, 2),
+--('BODY_THANGNAM', N'Tháng/năm', NULL, 3, 2),
+--('BOT_LUUNHAN', N'Lưu nhận', NULL, 3, 3),
+--('BOT_PHANNGAYTHANG', N'Phần ngày tháng', NULL, 3, 3),
+--('BOT_CHUCDANH', N'Chức danh', NULL, 3, 3),
+--('BOT_NGUOIKY', N'Người ký', NULL, 3, 3),
+--('BODY_T', N'Tỉnh', 11, 3, 2),
+--('BODY_H', N'Huyện', 11, 3, 2),
+--('BODY_X', N'Xã', 11, 3, 2);
 GO
 INSERT INTO DM_LoaiMauPhieu (LoaiMauPhieuChaID, TenLoaiMauPhieu, MaLoaiMauPhieu, TrangThai, GhiChu, Loai)
 VALUES (0, N'BIỂU MẪU SỐ LIỆU SỐ 001-DSVH DỮ LIỆU CƠ BẢN VỀ DI SẢN VĂN HÓA', '001-DSVH', 0, '', 3);
@@ -2512,6 +2508,7 @@ GO
 --endregion
 
 --region Query
+--region Delete Data
 	DELETE FROM Sys_User;
 	DBCC CHECKIDENT ('Sys_User', RESEED, 0);
 	DELETE FROM Sys_Function;
@@ -2536,32 +2533,14 @@ GO
 	DBCC CHECKIDENT ('DM_DonViTinh', RESEED, 0);
 	DELETE FROM DM_KyBaoCao
 	DBCC CHECKIDENT ('DM_KyBaoCao', RESEED, 0);
-	
-
-
-
-	DELETE FROM BC_ChiTietMauPhieu;
+	DELETE FROM NV_ChiTietMauPhieu;
 	DBCC CHECKIDENT ('NV_ChiTietMauPhieu', RESEED, 0);
-	DELETE FROM BC_ChiTieu;
-	DBCC CHECKIDENT ('DM_ChiTieu', RESEED, 0);
-	DELETE FROM BC_TieuChi;
-	DBCC CHECKIDENT ('DM_TieuChi', RESEED, 0);
-	DELETE FROM BC_MauPhieu
+	DELETE FROM NV_MauPhieu
 	DBCC CHECKIDENT ('NV_MauPhieu',RESEED,0)
-
-	-- Reset giá trị IDENTITY về giá trị mặc định (1)
+	--endregion
 GO
 
 
-
-
-
-DROP TABLE BC_MauPhieu
-
-
-DROP TABLE BC_ChiTietMauPhieu
-DROP TABLE BC_TieuChi
-DROP TABLE BC_ChiTieu
 
 
 
@@ -2579,12 +2558,11 @@ SELECT * FROM DM_LoaiDiTich
 SELECT * FROM DM_LoaiMauPhieu 
 
 
-SELECT * FROM BC_ChiTietMauPhieu 
-SELECT * FROM BC_MauPhieu
-SELECT * FROM BC_TieuChi
-SELECT * FROM BC_ChiTieu
+SELECT * FROM NV_ChiTietMauPhieu 
+SELECT * FROM NV_MauPhieu
 SELECT * FROM DM_TieuChi dtc
-SELECT * FROM DM_ChiTieu dtc
+SELECT * FROM DM_ChiTieu dct
+
 
 
 
@@ -2606,16 +2584,20 @@ EXEC UMS_GetByRefreshToken @RefreshToken = ''
 SELECT * FROM	Sys_User su
 EXEC CT_Delete @ChiTieuID = 2
 EXEC CT_Delete 113
-
-
-
-
-
-ALTER TABLE BC_ChiTietMauPhieu
-ADD TieuChiIDs NVARCHAR(MAX);
-
-
-ALTER TABLE BC_ChiTietMauPhieu
-DROP COLUMN TieuChiID;
-
 --endregion
+
+DROP TABLE DM_DiTichXepHang
+DROP TABLE DM_DonViTinh
+DROP TABLE DM_KyBaoCao
+DROP TABLE DM_LoaiDiTich
+DROP TABLE DM_TieuChi
+DROP TABLE NV_ChiTietMauPhieu
+DROP TABLE NV_MauPhieu
+DROP TABLE DM_ChiTieu
+DROP TABLE DM_LoaiMauPhieu
+DROP TABLE Sys_UserInGroup
+DROP TABLE Sys_FunctionInGroup
+DROP TABLE Sys_Function
+DROP TABLE Sys_User
+DROP TABLE Sys_Group
+

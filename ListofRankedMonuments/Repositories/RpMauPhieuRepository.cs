@@ -1,12 +1,8 @@
 ﻿using QUANLYVANHOA.Interfaces;
 using Newtonsoft.Json;
-using QUANLYVANHOA.Controllers;
 using System.Data.SqlClient;
 using System.Data;
 using QUANLYVANHOA.Models;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
 
 namespace QUANLYVANHOA.Repositories
 {
@@ -125,18 +121,19 @@ namespace QUANLYVANHOA.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new SqlCommand("MP_Insert", connection))
+                using (var command = new SqlCommand("MP_Create", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@TenMauPhieu", mauPhieu.TenMauPhieu);
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", mauPhieu.LoaiMauPhieuID);
                     command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
-                    command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
+                    command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NgayTao);
+                    command.Parameters.AddWithValue("@NgayTao", mauPhieu.NgayTao);
 
                     // Truyền xuống dữ liệu JSON string
-                    command.Parameters.AddWithValue("@ChiTieus", mauPhieu.ChiTieuS);
-                    command.Parameters.AddWithValue("@TieuChis", mauPhieu.TieuChiS);
-
+                    command.Parameters.AddWithValue("@ChiTieus", JsonConvert.SerializeObject(mauPhieu.ChiTieuS));
+                    command.Parameters.AddWithValue("@TieuChis", JsonConvert.SerializeObject(mauPhieu.TieuChiS));
+                    command.Parameters.AddWithValue("@ChiTietMauPhieuS", JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus));
                     return await command.ExecuteNonQueryAsync();
                 }
             }

@@ -16,9 +16,18 @@ namespace QUANLYVANHOA.Models
         [JsonPropertyName("LoaiMauPhieuID")]
         public int LoaiMauPhieuID { get; set; }
 
+        [JsonPropertyName("ChiTieuS")]
+
         public string? ChiTieuS { get; set; }  // Chứa danh sách các chỉ tiêu
-        public string TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
+
+        [JsonPropertyName("TieuChiS")]
+
+        public string? TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
+
+        [JsonPropertyName("ChiTietMauPhieus")]
+
         public List<RpChiTietMauPhieu> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
+
 
         [JsonPropertyName("NgayTao")]
         public DateTime? NgayTao { get; set; }
@@ -37,13 +46,21 @@ namespace QUANLYVANHOA.Models
 
         [JsonPropertyName("LoaiMauPhieuID")]
         public int LoaiMauPhieuID { get; set; }
+        [JsonPropertyName("ChiTieuS")]
+
         public string? ChiTieuS { get; set; }  // Chứa danh sách các chỉ tiêu
+
+        [JsonPropertyName("TieuChiS")]
+
         public string? TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
-        public List<RpChiTietMauPhieuInsertModel> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
+
+        [JsonPropertyName("ChiTietMauPhieus")]
+
+        public List<RpChiTietMauPhieuInsertModel>? ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
 
 
         [JsonPropertyName("NguoiTao")]
-        public string? NguoiTao { get; set; }
+        public string? NgayTao { get; set; }
     }
 
     public class RpMauPhieuUpdateModel
