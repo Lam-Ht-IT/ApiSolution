@@ -111,7 +111,7 @@ public class CustomAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
                 while (reader.Read())
                 {
                     // Thêm chức năng và quyền vào dictionary
-                    string functionName = reader.GetString(0);
+                    string functionName = reader.GetString(0);  
                     int permission = reader.GetInt32(1);
                     permissions[functionName] = permission;
                 }

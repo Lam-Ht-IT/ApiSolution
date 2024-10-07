@@ -920,77 +920,42 @@ ALTER PROCEDURE MP_GetByID
     @MauPhieuID INT
 AS
 BEGIN
-    -- Lấy dữ liệu mẫu phiếu
-    SELECT mp.MauPhieuID, mp.TenMauPhieu, mp.MaMauPhieu, mp.NgayTao, mp.NguoiTao
-    FROM BC_MauPhieu mp
+    -- Lấy thông tin chính của mẫu phiếu
+    SELECT 
+        mp.MauPhieuID, 
+        mp.TenMauPhieu, 
+        mp.MaMauPhieu, 
+        mp.LoaiMauPhieuID,
+        mp.ChiTieuS,
+        mp.TieuChiS
+    FROM NV_MauPhieu mp
     WHERE mp.MauPhieuID = @MauPhieuID;
 
-    -- Lấy các chỉ tiêu của mẫu phiếu dưới dạng phân cấp cha con
-    WITH CTE_ChiTieus AS 
-    (
-        -- Cấp đầu tiên là các chỉ tiêu gốc
-        SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu, 0 AS Level
-        FROM DM_ChiTieu ct
-        JOIN BC_ChiTietMauPhieu ctmp ON ct.ChiTieuID = ctmp.ChiTieuID
-        WHERE ctmp.MauPhieuID = @MauPhieuID
-          AND ct.ChiTieuChaID IS NULL
-        
-        UNION ALL
-        
-        -- Cấp tiếp theo là các chỉ tiêu con
-        SELECT ct.ChiTieuID, ct.TenChiTieu, ct.ChiTieuChaID, ct.GhiChu, c.Level + 1
-        FROM DM_ChiTieu ct
-        JOIN CTE_ChiTieus c ON ct.ChiTieuChaID = c.ChiTieuID
-    )
-    SELECT * FROM CTE_ChiTieus
-    ORDER BY Level, ChiTieuChaID;
-
-    -- Lấy các tiêu chí của mẫu phiếu dưới dạng phân cấp cha con
-    WITH CTE_TieuChis AS 
-    (
-        -- Cấp đầu tiên là các tiêu chí gốc
-        SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot, 0 AS Level
-        FROM DM_TieuChi tc
-        JOIN BC_TieuChi mptc ON tc.TieuChiID = mptc.TieuChiID
-        WHERE mptc.MauPhieuID = @MauPhieuID
-          AND tc.TieuChiChaID IS NULL
-        
-        UNION ALL
-        
-        -- Cấp tiếp theo là các tiêu chí con
-        SELECT tc.TieuChiID, tc.TenTieuChi, tc.TieuChiChaID, tc.GhiChu, tc.KieuDuLieuCot, c.Level + 1
-        FROM DM_TieuChi tc
-        JOIN CTE_TieuChis c ON tc.TieuChiChaID = c.TieuChiID
-    )
-    SELECT * FROM CTE_TieuChis
-    ORDER BY Level, TieuChiChaID;
-
-    -- Lấy chi tiết mẫu phiếu (phần này sẽ bao gồm cả các tiêu chí được gộp cột và thông tin nội dung)
+    -- Lấy các chi tiết mẫu phiếu (danh sách các bản ghi)
     SELECT 
         ctmp.ChiTietMauPhieuID,
         ctmp.MauPhieuID,
-        ctmp.TieuChiIDs, -- Danh sách các tiêu chí liên quan
-        ctmp.ChiTieuID,  -- Chỉ tiêu ứng với dòng
+        ctmp.TieuChiIDs,
+        ctmp.ChiTieuID,
         ctmp.NoiDung,
         ctmp.GopCot,
         ctmp.GopTuCot,
         ctmp.GopDenCot,
-        ctmp.SoCotGop,
-        ctmp.GhiChu
-    FROM BC_ChiTietMauPhieu ctmp
+        ctmp.SoCotGop
+    FROM NV_ChiTietMauPhieu ctmp
     WHERE ctmp.MauPhieuID = @MauPhieuID;
 END;
 GO
 
 
-ALTER PROCEDURE MP_Insert
+ALTER PROCEDURE MP_Create
     @TenMauPhieu NVARCHAR(100),
     @LoaiMauPhieuID INT,
     @MaMauPhieu NVARCHAR(50),
     @NguoiTao NVARCHAR(100),
     @ChiTieus NVARCHAR(MAX),  -- JSON dữ liệu chỉ tiêu
     @TieuChis NVARCHAR(MAX),  -- JSON dữ liệu tiêu chí
-    @ChiTietMauPhieus NVARCHAR(MAX) -- JSON dữ liệu chi tiết mẫu phiếu
+    @ChiTietMauPhieus NVARCHAR(MAX) -- JSON danh sách các chi tiết mẫu phiếu
 AS
 BEGIN
     BEGIN TRY
@@ -998,37 +963,16 @@ BEGIN
 
         -- 1. Thêm Mẫu Phiếu
         DECLARE @MauPhieuID INT;
-        INSERT INTO BC_MauPhieu (TenMauPhieu, LoaiMauPhieuID, MaMauPhieu, NguoiTao)
-        VALUES (@TenMauPhieu, @LoaiMauPhieuID, @MaMauPhieu, @NguoiTao);
+        INSERT INTO NV_MauPhieu (TenMauPhieu, LoaiMauPhieuID, MaMauPhieu, NguoiTao, ChiTieuS, TieuChiS)
+        VALUES (@TenMauPhieu, @LoaiMauPhieuID, @MaMauPhieu, @NguoiTao, @ChiTieus, @TieuChis);
 
         SET @MauPhieuID = SCOPE_IDENTITY(); -- Lấy ID mẫu phiếu vừa thêm
 
-        -- 2. Thêm Chỉ Tiêu nếu có
-        IF @ChiTieus IS NOT NULL
-        BEGIN
-            -- Phân tích chuỗi JSON của ChiTieus
-            INSERT INTO BC_ChiTieu (MauPhieuID, ChiTieuID,TrangThai)
-            SELECT @MauPhieuID, JSON_VALUE(value, '$.ChiTieuID'),
-								JSON_VALUE(value, '$.TrangThai') -- Thêm trường TrangThai từ JSON
-            FROM OPENJSON(@ChiTieus);
-        END
-
-        -- 3. Thêm Tiêu Chí nếu có
-        IF @TieuChis IS NOT NULL
-        BEGIN
-            -- Phân tích chuỗi JSON của TieuChis
-            INSERT INTO BC_TieuChi (MauPhieuID, TieuChiID, TrangThai)
-            SELECT @MauPhieuID,
-                   JSON_VALUE(value, '$.TieuChiID'),
-                   JSON_VALUE(value, '$.TrangThai') -- Thêm trường TrangThaiTrangThai từ JSON
-            FROM OPENJSON(@TieuChis);
-        END
-
-        -- 4. Thêm Chi Tiết Mẫu Phiếu nếu có
+        -- 2. Thêm các Chi Tiết Mẫu Phiếu nếu có
         IF @ChiTietMauPhieus IS NOT NULL
         BEGIN
-            -- Phân tích chuỗi JSON của ChiTietMauPhieus
-            INSERT INTO BC_ChiTietMauPhieu (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GopCot, GopTuCot, GopDenCot, SoCotGop, GhiChu)
+            -- Parse JSON và lưu từng chi tiết mẫu phiếu vào bảng NV_ChiTietMauPhieu
+            INSERT INTO NV_ChiTietMauPhieu (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GopCot, GopTuCot, GopDenCot, SoCotGop)
             SELECT @MauPhieuID,
                    JSON_VALUE(value, '$.TieuChiIDs'),
                    JSON_VALUE(value, '$.ChiTieuID'),
@@ -1036,8 +980,7 @@ BEGIN
                    JSON_VALUE(value, '$.GopCot'),
                    JSON_VALUE(value, '$.GopTuCot'),
                    JSON_VALUE(value, '$.GopDenCot'),
-                   JSON_VALUE(value, '$.SoCotGop'),
-                   JSON_VALUE(value, '$.GhiChu')
+                   JSON_VALUE(value, '$.SoCotGop')
             FROM OPENJSON(@ChiTietMauPhieus);
         END
 
@@ -1048,7 +991,7 @@ BEGIN
         ROLLBACK TRANSACTION;
         THROW;
     END CATCH
-END
+END;
 GO
 
 ALTER PROCEDURE MP_Update
@@ -1270,6 +1213,28 @@ END;
 GO
 --endregion	
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --region Stored procedures of DM_LoaiMauPieu
 CREATE TABLE DM_LoaiMauPhieu
 (
@@ -1360,135 +1325,8 @@ END
 GO
 --endregion
 
---region Store Procedure of Report Criteria 
-CREATE TABLE BC_TieuChi(
-	TieuChiBaoCaoID INT PRIMARY KEY IDENTITY (1,1),
-	TieuChiID INT FOREIGN KEY (TieuChiID) REFERENCES DM_TieuChi (TieuChiID),
-	MauPhieuID INT FOREIGN KEY(MauPhieuID) REFERENCES BC_MauPhieu (MauPhieuID),
-	TrangThai BIT NOT NULL DEFAULT 1,
-	GhiChu NVARCHAR(300) NULL
-);
-GO
-
--- Lấy tất cả BC_TieuChi
-ALTER PROCEDURE BCTC_GetAllTieuChiByMauPhieuID
-	@MauPhieuID INT
-AS
-BEGIN
-    SELECT TieuChi.*
-    FROM BC_TieuChi AS TieuChiMauPhieu
-    INNER JOIN DM_TieuChi AS TieuChi ON TieuChiMauPhieu.TieuChiID = TieuChi.TieuChiID
-    WHERE TieuChiMauPhieu.MauPhieuID = @MauPhieuID
-      AND TieuChiMauPhieu.TrangThai = 1; -- Chỉ lấy các tiêu chí có trạng thái hiển thị
-END
-GO
-
-ALTER PROCEDURE BCTC_AddTieuChiBaoCao
-    @MauPhieuID INT,
-    @TieuChiID INT,
-	@TrangThai BIT
-AS
-BEGIN
-    -- Thêm tiêu chí vào mẫu báo cáo
-    INSERT INTO BC_TieuChi (MauPhieuID, TieuChiID,TrangThai)
-    VALUES (@MauPhieuID, @TieuChiID,@TrangThai);
-END;
-GO
-
--- Cập nhật BC_TieuChi
-CREATE PROCEDURE BCTC_UpdateTrangThai
-    @TieuChiID INT,
-    @MauPhieuID INT,
-	@TrangThai INT
-AS
-BEGIN
-    UPDATE BC_TieuChi
-    SET TrangThai = @TrangThai
-    WHERE MauPhieuID = @MauPhieuID AND TieuChiID = @TieuChiID
-END;
-GO
-
--- Xóa BC_TieuChi
-ALTER PROCEDURE BCTC_DeleteTieuChiBaoCao
-    @MauPhieuID INT,
-	@TieuChiID INT
-AS
-BEGIN
-    DELETE FROM BC_TieuChi WHERE MauPhieuID = @MauPhieuID AND TieuChiID = @TieuChiID;
-END;
-GO
---endregion
-
---region Stored Procedure of Report Target
-CREATE TABLE BC_ChiTieu(
-	ChiTieuBaoCaoID INT PRIMARY KEY IDENTITY (1,1),
-	MauPhieuID INT FOREIGN KEY REFERENCES BC_MauPhieu(MauPhieuID) NOT NULL,
-    ChiTieuID INT FOREIGN KEY REFERENCES DM_ChiTieu(ChiTieuID) NOT NULL,
-	TrangThai BIT NOT NULL DEFAULT 1
-);
-GO 
-
-
--- Lấy tất cả BC_ChiTieu
-ALTER PROCEDURE BCCT_GetAllChiTieuByMauPhieuID
-	@MauPhieuID INT
-AS
-BEGIN
-    SELECT ChiTieu.*
-    FROM BC_ChiTieu AS ChiTieuMauPhieu
-    INNER JOIN DM_ChiTieu AS ChiTieu ON ChiTieuMauPhieu.ChiTieuID = ChiTieu.ChiTieuID
-    WHERE ChiTieuMauPhieu.MauPhieuID = @MauPhieuID
-      AND ChiTieuMauPhieu.TrangThai = 1; -- Chỉ lấy các Chỉ Tiêu có trạng thái hiển thị
-END
-GO
-
-
--- Thêm chỉ tiêu vào báo cáo
-ALTER PROCEDURE BCCT_AddChiTieuBaoCao
-    @MauPhieuID INT,
-    @ChiTieuID INT,
-	@TrangThai BIT
-AS
-BEGIN
-    -- Thêm chỉ tiêu vào mẫu báo cáo
-    INSERT INTO BC_ChiTieu (MauPhieuID, ChiTieuID)
-    VALUES (@MauPhieuID, @ChiTieuID);
-END;
-GO	
-
-
--- Cập nhật BC_ChiTieu
-CREATE PROCEDURE BCCT_UpdateTrangThai
-    @ChiTieuID INT,
-    @MauPhieuID INT,
-	@TrangThai INT
-AS
-BEGIN
-    UPDATE BC_ChiTieu
-    SET TrangThai = @TrangThai
-    WHERE MauPhieuID = @MauPhieuID AND ChiTieuID = @ChiTieuID
-END;
-GO
-
-
--- Xóa Chỉ tiêu báo cáo
-ALTER PROCEDURE BCCT_DeleteChiTieuBaoCao
-    @MauPhieuID INT,
-	@ChiTieuID INT
-AS
-BEGIN
-    -- Xóa chỉ tiêu khỏi mẫu báo cáo
-    DELETE FROM BC_ChiTieu
-    WHERE MauPhieuID = @MauPhieuID AND ChiTieuID = @ChiTieuID
-END
-GO
-
-
-
---endregion
-
 --region Stored Procedure of BC_ChiTietMauPhieu
-CREATE TABLE BC_ChiTietMauPhieu(
+CREATE TABLE NV_ChiTietMauPhieu(
 	ChiTietMauPhieuID int PRIMARY KEY IDENTITY(1,1),
 	MauPhieuID INT FOREIGN KEY (MauPhieuID) REFERENCES BC_MauPhieu(MauPhieuID),
 	TieuChiIDs NVARCHAR(MAX),
@@ -1498,44 +1336,42 @@ CREATE TABLE BC_ChiTietMauPhieu(
     GopTuCot INT NULL,
     GopDenCot INT NULL,
     SoCotGop INT NULL,
-	ThangBaoCao INT NULL,
-	GhiChu NVARCHAR (300) DEFAULT NULL	
-);
+	ThangBaoCao INT NULL
+	);
 GO
 
 -- Lấy tất cả BC_ChiTietMauPhieu
-CREATE PROCEDURE BCCTMP_GetAll
+CREATE PROCEDURE CTMP_GetAll
 AS
 BEGIN
-    SELECT * FROM BC_ChiTietMauPhieu;
+    SELECT * FROM NV_ChiTietMauPhieu nctmp;
 END;
 GO
 
-CREATE PROC BCCTMP_GetByID
+ALTER PROC CTMP_GetByID
 	@ChiTietMauPhieuID INT
 AS
 BEGIN
-	SELECT *FROM BC_ChiTietMauPhieu bctmp WHERE bctmp.ChiTietMauPhieuID = @ChiTietMauPhieuID
+	SELECT *FROM NV_ChiTietMauPhieu bctmp WHERE bctmp.ChiTietMauPhieuID = @ChiTietMauPhieuID
 END
 GO
 
 -- Thêm mới BC_ChiTietMauPhieu
-ALTER PROCEDURE BCCTMP_Insert (
+ALTER PROCEDURE CTMP_Insert (
     @MauPhieuID INT,
     @TieuChiIDs NVARCHAR(MAX),
     @ChiTieuID INT,
-    @NoiDung NVARCHAR(MAX) NULL,
-    @GhiChu NVARCHAR(MAX) = NULL
+    @NoiDung NVARCHAR(MAX) NULL
 )
 AS
 BEGIN
-    INSERT INTO BC_ChiTietMauPhieu (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GhiChu)
-    VALUES (@MauPhieuID, @TieuChiIDs, @ChiTieuID, @NoiDung, @GhiChu);
+    INSERT INTO NV_ChiTietMauPhieu (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung)
+    VALUES (@MauPhieuID, @TieuChiIDs, @ChiTieuID, @NoiDung);
 END;
 GO
 
--- Cập nhật BC_ChiTietMauPhieu
-ALTER PROCEDURE BCCTMP_UpdateChiTietMauPhieu
+-- Cập nhật NV_ChiTietMauPhieu
+CREATE PROCEDURE CTMP_UpdateChiTietMauPhieu
     @ChiTietMauPhieuID INT,
     @ChiTieuID INT,
     @TieuChiIDs NVARCHAR(MAX),
@@ -1544,12 +1380,11 @@ ALTER PROCEDURE BCCTMP_UpdateChiTietMauPhieu
     @GopTuCot INT,
     @GopDenCot INT,
     @SoCotGop INT,
-	@ThangBaoCao int,
-    @GhiChu NVARCHAR(300)
+	@ThangBaoCao int
 AS
 BEGIN
     -- Cập nhật chi tiết mẫu phiếu
-    UPDATE BC_ChiTietMauPhieu
+    UPDATE NV_ChiTietMauPhieu
     SET ChiTieuID = @ChiTieuID,
         TieuChiIDs = @TieuChiIDs,
         NoiDung = @NoiDung,
@@ -1557,30 +1392,29 @@ BEGIN
         GopTuCot = @GopTuCot,
         GopDenCot = @GopDenCot,
         SoCotGop = @SoCotGop,
-		ThangBaoCao = @ThangBaoCao,
-        GhiChu = @GhiChu
+		ThangBaoCao = @ThangBaoCao
     WHERE ChiTietMauPhieuID = @ChiTietMauPhieuID;
 END;
 GO
 
-ALTER PROC BCCTMP_UpdateNoiDung
+CREATE PROC CTMP_UpdateNoiDung
 	@TieuChiIDs NVARCHAR(MAX),
 	@ChiTieuID INT,
 	@NoiDung NVARCHAR (300),
 	@ThangBaoCao INT NULL
 AS	
 BEGIN
-	UPDATE BC_ChiTietMauPhieu SET NoiDung = @NoiDung WHERE TieuChiIDs = @TieuChiIDs AND ChitieuID  = @ChiTieuID
+	UPDATE NV_ChiTietMauPhieu SET NoiDung = @NoiDung WHERE TieuChiIDs = @TieuChiIDs AND ChitieuID  = @ChiTieuID
 END
 GO
 
--- Xóa BC_ChiTietMauPhieu
-ALTER PROCEDURE BCCTMP_Delete (
+-- Xóa NV_ChiTietMauPhieu
+ALTER PROCEDURE CTMP_Delete (
     @ChiTietMauPhieuID INT
 )
 AS
 BEGIN
-    DELETE FROM BC_ChiTietMauPhieu WHERE ChiTietMauPhieuID = @ChiTietMauPhieuID;
+    DELETE FROM NV_ChiTietMauPhieu WHERE ChiTietMauPhieuID = @ChiTietMauPhieuID;
 END;
 GO
 
@@ -2709,13 +2543,13 @@ GO
 
 
 	DELETE FROM BC_ChiTietMauPhieu;
-	DBCC CHECKIDENT ('BC_ChiTietMauPhieu', RESEED, 0);
+	DBCC CHECKIDENT ('NV_ChiTietMauPhieu', RESEED, 0);
 	DELETE FROM BC_ChiTieu;
-	DBCC CHECKIDENT ('BC_ChiTieu', RESEED, 0);
+	DBCC CHECKIDENT ('DM_ChiTieu', RESEED, 0);
 	DELETE FROM BC_TieuChi;
-	DBCC CHECKIDENT ('BC_TieuChi', RESEED, 0);
+	DBCC CHECKIDENT ('DM_TieuChi', RESEED, 0);
 	DELETE FROM BC_MauPhieu
-	DBCC CHECKIDENT ('BC_MauPhieu',RESEED,0)
+	DBCC CHECKIDENT ('NV_MauPhieu',RESEED,0)
 
 	-- Reset giá trị IDENTITY về giá trị mặc định (1)
 GO
@@ -2787,10 +2621,3 @@ ALTER TABLE BC_ChiTietMauPhieu
 DROP COLUMN TieuChiID;
 
 --endregion
-
-SELECT *
-FROM BC_ChiTietMauPhieu
-CROSS APPLY OPENJSON(TieuChiIDs)
-WITH (
-    TieuChiID INT '$.TieuChiID'
-) AS jsonResult;
