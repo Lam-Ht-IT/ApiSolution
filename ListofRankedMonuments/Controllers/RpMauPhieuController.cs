@@ -46,14 +46,12 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var result = await _mauPhieuRepository.GetAllMauPhieu(name,pageNumber,pageSize);
-            var mauPhieuList = result.Item1;
-            var totalRecords = result.Item2;
+            var (mauPhieuList, totalRecords) = await _mauPhieuRepository.GetAllMauPhieu(name, pageNumber, pageSize);
             var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
             if (!mauPhieuList.Any())
             {
-                return Ok(new
+                return Ok(new Response
                 {
                     Status = 0,
                     Message = "No data available",
@@ -61,7 +59,7 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            return Ok(new
+            return Ok(new Response
             {
                 Status = 1,
                 Message = "Get information successfully",
@@ -96,7 +94,7 @@ namespace QUANLYVANHOA.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] RpMauPhieuInsertModel model)
         {
-            var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu,1,20);
+            var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
             if (existingMauPhieu.Item1.Any())
             {
                 return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });

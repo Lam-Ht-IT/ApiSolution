@@ -21,7 +21,7 @@ namespace QUANLYVANHOA.Models
         public List<RpChiTietMauPhieu> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
 
         [JsonPropertyName("NgayTao")]
-        public string? NgayTao { get; set; }
+        public DateTime? NgayTao { get; set; }
 
         [JsonPropertyName("NguoiTao")]
         public string NguoiTao { get; set; }

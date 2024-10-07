@@ -21,33 +21,34 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<(IEnumerable<RpMauPhieu>, int)> GetAllMauPhieu(string? name, int pageNumber, int pageSize)
         {
+            var rpMauPhieuList = new List<RpMauPhieu>();
+            int totalRecords = 0;
             using (var connection = new SqlConnection(_connectionString))
             {
                 using (var command = new SqlCommand("MP_GetAll", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@TenMauPhieu", pageNumber);
+                    command.Parameters.AddWithValue("@TenMauPhieu", name);
                     command.Parameters.AddWithValue("@PageNumber", pageNumber);
                     command.Parameters.AddWithValue("@PageSize", pageSize);
 
                     await connection.OpenAsync();
-                    var result = new List<RpMauPhieu>();
-                    int totalRecords = 0;
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
                         {
-                            var mauPhieu = new RpMauPhieu
+                            rpMauPhieuList.Add(new RpMauPhieu
                             {
-                                MauPhieuID = reader.GetInt32(0),
-                                TenMauPhieu = reader.GetString(1),
-                                LoaiMauPhieuID = reader.GetInt32(2),
-                                MaMauPhieu = reader.GetString(3)
-                            };
+                                MauPhieuID = reader.GetInt32(reader.GetOrdinal("MauPhieuID")),
+                                TenMauPhieu = reader.GetString(reader.GetOrdinal("TenMauPhieu")),
+                                LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID")),
+                                MaMauPhieu = reader.GetString(reader.GetOrdinal("MaMauPhieu")),
+                                NgayTao = reader.GetDateTime(reader.GetOrdinal("NgayTao")),
+                                NguoiTao = reader.GetString(reader.GetOrdinal("NguoiTao"))
+                            });
 
-                            // Lấy danh sách chỉ tiêu và tiêu chí theo phân cấp
-                            result.Add(mauPhieu);
+                            
                         }
                         await reader.NextResultAsync();
                         if (await reader.ReadAsync())
@@ -55,9 +56,9 @@ namespace QUANLYVANHOA.Repositories
                             totalRecords = reader.GetInt32(reader.GetOrdinal("TotalRecords"));
                         }
                     }
-                    return (result, totalRecords);
                 }
             }
+            return (rpMauPhieuList, totalRecords);
         }
 
         public async Task<RpMauPhieu> GetMauPhieuByID(int id)
