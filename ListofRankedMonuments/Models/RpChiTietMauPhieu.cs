@@ -14,7 +14,7 @@ namespace QUANLYVANHOA.Models
         public int ChiTieuID { get; set; }
 
         [JsonPropertyName("TieuChiIDs")]
-        public List<int> TieuChiIDs { get; set; }
+        public List<int>? TieuChiIDs { get; set; }
 
         [JsonPropertyName("GopCot")]
         public bool? GopCot { get; set; }

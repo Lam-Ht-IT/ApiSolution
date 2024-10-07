@@ -116,7 +116,7 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
             }
 
-            var result = await _mauPhieuRepository.InsertMauPhieu(model);
+            var result = await _mauPhieuRepository.CreateMauPhieu(model);
             if (result > 0)
             {
                 return Ok(new { Status = 1, Message = "Inserted data successfully" });

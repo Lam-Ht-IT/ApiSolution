@@ -16,8 +16,8 @@ namespace QUANLYVANHOA.Models
         [JsonPropertyName("LoaiMauPhieuID")]
         public int LoaiMauPhieuID { get; set; }
 
-        public List<CtgChiTieu> ChiTieus { get; set; }  // Chứa danh sách các chỉ tiêu
-        public List<CtgTieuChi> TieuChis { get; set; }  // Chứa danh sách các tiêu chí
+        public string? ChiTieuS { get; set; }  // Chứa danh sách các chỉ tiêu
+        public string TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
         public List<RpChiTietMauPhieu> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
 
         [JsonPropertyName("NgayTao")]
@@ -37,8 +37,8 @@ namespace QUANLYVANHOA.Models
 
         [JsonPropertyName("LoaiMauPhieuID")]
         public int LoaiMauPhieuID { get; set; }
-        public List<CtgChiTieu> ChiTieus { get; set; }  // Chứa danh sách các chỉ tiêu
-        public List<CtgTieuChi> TieuChis { get; set; }  // Chứa danh sách các tiêu chí
+        public string? ChiTieuS { get; set; }  // Chứa danh sách các chỉ tiêu
+        public string? TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
         public List<RpChiTietMauPhieuInsertModel> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
 
 
@@ -49,7 +49,7 @@ namespace QUANLYVANHOA.Models
     public class RpMauPhieuUpdateModel
     {
         [JsonPropertyName("MauPhieuID")]
-        public int MauPhieuID { get; set; }
+        public int MauPhieuID { get;    set; }
 
         [JsonPropertyName("TenMauPhieu")]
         public string TenMauPhieu { get; set; }
@@ -59,8 +59,8 @@ namespace QUANLYVANHOA.Models
 
         [JsonPropertyName("LoaiMauPhieuID")]
         public int LoaiMauPhieuID { get; set; }
-        public List<CtgChiTieu> ChiTieus { get; set; }  // Chứa danh sách các chỉ tiêu
-        public List<CtgTieuChi> TieuChis { get; set; }  // Chứa danh sách các tiêu chí
+        public string? ChiTieuS { get; set; }  // Chứa danh sách các chỉ tiêu
+        public string? TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
         public List<RpChiTietMauPhieu> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
 
 

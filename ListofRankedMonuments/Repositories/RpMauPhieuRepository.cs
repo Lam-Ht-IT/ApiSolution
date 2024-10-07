@@ -63,6 +63,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<RpMauPhieu> GetMauPhieuByID(int id)
         {
+            RpMauPhieu mauPhieu = null;
             using (var connection = new SqlConnection(_connectionString))
             {
                 using (var command = new SqlCommand("MP_GetByID", connection))
@@ -71,36 +72,55 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@MauPhieuID", id);
 
                     await connection.OpenAsync();
-                    RpMauPhieu mauPhieu = null;
-
                     using (var reader = await command.ExecuteReaderAsync())
                     {
+                        // Đọc thông tin mẫu phiếu chính
                         if (await reader.ReadAsync())
                         {
                             mauPhieu = new RpMauPhieu
                             {
-                                MauPhieuID = reader.GetInt32(0),
-                                TenMauPhieu = reader.GetString(1),
-                                LoaiMauPhieuID = reader.GetInt32(2),
-                                MaMauPhieu =reader.GetString(3)
+                                MauPhieuID = reader.GetInt32(reader.GetOrdinal("MauPhieuID")),
+                                TenMauPhieu = reader.GetString(reader.GetOrdinal("TenMauPhieu")),
+                                MaMauPhieu = reader.GetString(reader.GetOrdinal("MaMauPhieu")),
+                                LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID")),
+                                NgayTao = reader.GetDateTime(reader.GetOrdinal("NgayTao")),
+                                NguoiTao = reader.GetString(reader.GetOrdinal("NguoiTao")),
+
+                                // Lấy trực tiếp chuỗi JSON
+                                ChiTieuS = reader.IsDBNull(reader.GetOrdinal("ChiTieuS")) ? null : reader.GetString(reader.GetOrdinal("ChiTieuS")),
+                                TieuChiS = reader.IsDBNull(reader.GetOrdinal("TieuChiS")) ? null : reader.GetString(reader.GetOrdinal("TieuChiS"))
                             };
                         }
-                    }
 
-                    if (mauPhieu != null)
-                    {
-                        mauPhieu.ChiTieus = await GetChiTieusHierarchyByMauPhieuID(id);
-                        mauPhieu.TieuChis = await GetTieuChisHierarchyByMauPhieuID(id);
-                        mauPhieu.ChiTietMauPhieus = await GetChiTietMauPhieuByMauPhieuID(id);
+                        // Đọc danh sách các chi tiết mẫu phiếu nếu có
+                        if (await reader.NextResultAsync())
+                        {
+                            mauPhieu.ChiTietMauPhieus = new List<RpChiTietMauPhieu>();
+                            while (await reader.ReadAsync())
+                            {
+                                mauPhieu.ChiTietMauPhieus.Add(new RpChiTietMauPhieu
+                                {
+                                    ChiTietMauPhieuID = reader.GetInt32(reader.GetOrdinal("ChiTietMauPhieuID")),
+                                    MauPhieuID = reader.GetInt32(reader.GetOrdinal("MauPhieuID")),
+                                    ChiTieuID = reader.GetInt32(reader.GetOrdinal("ChiTieuID")),
+                                    TieuChiIDs = JsonConvert.DeserializeObject<List<int>>(reader.GetString(reader.GetOrdinal("TieuChiIDs"))), // Deserialize từ chuỗi thành List<int>
+                                    NoiDung = reader.IsDBNull(reader.GetOrdinal("NoiDung")) ? null : reader.GetString(reader.GetOrdinal("NoiDung")),
+                                    GopCot = reader.GetBoolean(reader.GetOrdinal("GopCot")),
+                                    GopTuCot = reader.GetInt32(reader.GetOrdinal("GopTuCot")),
+                                    GopDenCot = reader.GetInt32(reader.GetOrdinal("GopDenCot")),
+                                    SoCotGop = reader.GetInt32(reader.GetOrdinal("SoCotGop")),
+                                    GhiChu = reader.IsDBNull(reader.GetOrdinal("GhiChu")) ? null : reader.GetString(reader.GetOrdinal("GhiChu"))
+                                });
+                            }
+                        }
                     }
-
-                    return mauPhieu;
                 }
             }
+            return mauPhieu;
         }
 
         // Thêm mới mẫu phiếu
-        public async Task<int> InsertMauPhieu(RpMauPhieuInsertModel mauPhieu)
+        public async Task<int> CreateMauPhieu(RpMauPhieuInsertModel mauPhieu)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
@@ -112,9 +132,10 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", mauPhieu.LoaiMauPhieuID);
                     command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
                     command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
-                    command.Parameters.AddWithValue("@ChiTieus", mauPhieu.ChiTieus != null ? JsonConvert.SerializeObject(mauPhieu.ChiTieus) : DBNull.Value);
-                    command.Parameters.AddWithValue("@TieuChis", mauPhieu.TieuChis != null ? JsonConvert.SerializeObject(mauPhieu.TieuChis) : DBNull.Value);
-                    command.Parameters.AddWithValue("@ChiTietMauPhieus", mauPhieu.ChiTietMauPhieus != null ? JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus) : DBNull.Value);
+
+                    // Truyền xuống dữ liệu JSON string
+                    command.Parameters.AddWithValue("@ChiTieus", mauPhieu.ChiTieuS);
+                    command.Parameters.AddWithValue("@TieuChis", mauPhieu.TieuChiS);
 
                     return await command.ExecuteNonQueryAsync();
                 }
@@ -137,8 +158,8 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
 
                     // Chuyển danh sách Chỉ Tiêu, Tiêu Chí, Chi Tiết Mẫu Phiếu sang JSON
-                    string chiTieusJson = JsonConvert.SerializeObject(mauPhieu.ChiTieus); 
-                    string tieuChisJson = JsonConvert.SerializeObject(mauPhieu.TieuChis);
+                    string chiTieusJson = JsonConvert.SerializeObject(mauPhieu.ChiTieuS); 
+                    string tieuChisJson = JsonConvert.SerializeObject(mauPhieu.TieuChiS);
                     string chiTietMauPhieusJson = JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus);
 
                     // Thêm các parameter cho Chỉ Tiêu, Tiêu Chí và Chi Tiết Mẫu Phiếu

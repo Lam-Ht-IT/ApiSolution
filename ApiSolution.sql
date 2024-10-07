@@ -881,7 +881,7 @@ GO
 
 --region Comprehensive Management Of Report Templates
 --region Stored Procedure of Report Form Management
-CREATE TABLE BC_MauPhieu(
+CREATE TABLE NV_MauPhieu(
 	MauPhieuID INT PRIMARY KEY IDENTITY (1,1),
 	TenMauPhieu NVARCHAR (100),
 	MaMauPhieu NVARCHAR (100),
@@ -900,12 +900,12 @@ AS
 BEGIN	
 	-- Tính tổng số bản ghi phù hợp với điều kiện tìm kiếm
 	DECLARE @TotalRecords INT;
-	SELECT @TotalRecords = COUNT(*) FROM BC_MauPhieu WHERE LOWER(@TenMauPhieu) IS NULL OR TenMauPhieu LIKE '%' + LOWER(@TenMauPhieu) + '%';
+	SELECT @TotalRecords = COUNT(*) FROM NV_MauPhieu WHERE LOWER(@TenMauPhieu) IS NULL OR TenMauPhieu LIKE '%' + LOWER(@TenMauPhieu) + '%';
 
 	-- Trả về dữ liệu cho trang hiện tại
 	SELECT 
 		bmp.MauPhieuID,bmp.TenMauPhieu, bmp.MaMauPhieu,bmp.LoaiMauPhieuID,bmp.NgayTao,bmp.NguoiTao
-	FROM BC_MauPhieu bmp
+	FROM NV_MauPhieu bmp
 	WHERE @TenMauPhieu IS NULL OR  LOWER(@TenMauPhieu) LIKE '%' + LOWER(TenMauPhieu) + '%'
 	ORDER BY bmp.MauPhieuID
 	OFFSET (@PageNumber - 1) * @PageSize ROWS
@@ -1212,8 +1212,6 @@ BEGIN
 END;
 GO
 --endregion	
-
-
 
 
 
