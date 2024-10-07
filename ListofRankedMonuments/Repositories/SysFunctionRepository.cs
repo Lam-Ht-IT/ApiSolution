@@ -9,11 +9,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class SysFunctionRepository : ISysFunctionRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public SysFunctionRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<SysFunction>, int)> GetAll(string? functionName, int pageNumber, int pageSize)
@@ -21,7 +21,7 @@ namespace QUANLYVANHOA.Repositories
             var functionList = new List<SysFunction>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -60,7 +60,7 @@ namespace QUANLYVANHOA.Repositories
         {
             SysFunction function = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FMS_GetByID", connection))
                 {
@@ -88,7 +88,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Create(SysFunctionInsertModel function)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FMS_Create", connection))
                 {
@@ -104,7 +104,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(SysFunctionUpdateModel function)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FMS_Update", connection))
                 {
@@ -121,7 +121,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int functionId)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FMS_Delete", connection))
                 {

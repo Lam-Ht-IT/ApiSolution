@@ -1,22 +1,16 @@
 ﻿using QUANLYVANHOA.Interfaces;
 using QUANLYVANHOA.Models;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Mvc;
 
 namespace QUANLYVANHOA.Repositories
 {
     public class CtgChiTieuRepository : ICtgChiTieuRepository
     {
-        private readonly string _connectionString;
-
+        private readonly Connection _connectionString;
         public CtgChiTieuRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<CtgChiTieu>, int)> GetAll(string? name/*, int pageNumber, int pageSize*/)
@@ -24,7 +18,7 @@ namespace QUANLYVANHOA.Repositories
             var chiTieuList = new List<CtgChiTieu>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -73,7 +67,7 @@ namespace QUANLYVANHOA.Repositories
         {
             CtgChiTieu chiTieu = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("CT_GetByID", connection))
                 {
@@ -107,7 +101,7 @@ namespace QUANLYVANHOA.Repositories
         {
             var chiTieuList = new List<CtgChiTieu>();
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -147,7 +141,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Insert(CtgChiTieuInsertModel chiTieu)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("CT_Insert", connection))
                 {
@@ -166,7 +160,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> InsertChildren(CtgChiTieuInsertChidrenModel chiTieuModelInsertChidren)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -189,7 +183,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(CtgChiTieuUpdateModel chiTieu)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("CT_Update", connection))
                 {
@@ -209,7 +203,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("CT_Delete", connection))
                 {

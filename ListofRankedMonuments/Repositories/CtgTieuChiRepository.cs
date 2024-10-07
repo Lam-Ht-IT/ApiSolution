@@ -10,11 +10,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class CtgTieuChiRepository : ICtgTieuChiRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public CtgTieuChiRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<CtgTieuChi>, int)> GetAll(string? name/*, int pageNumber, int pageSize*/)
@@ -23,7 +23,7 @@ namespace QUANLYVANHOA.Repositories
             int totalRecords = 0;
 
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -72,7 +72,7 @@ namespace QUANLYVANHOA.Repositories
         {
             CtgTieuChi tieuChi = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("TC_GetByID", connection))
                 {
@@ -106,7 +106,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Insert(CtgTieuChiModelInsert tieuChi)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("TC_Insert", connection))
                 {
@@ -125,7 +125,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(CtgTieuChiModelUpdate tieuChi)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("TC_Update", connection))
                 {
@@ -146,7 +146,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("TC_Delete", connection))
                 {

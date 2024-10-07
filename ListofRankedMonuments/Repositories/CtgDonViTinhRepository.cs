@@ -9,11 +9,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class CtgDonViTinhRepository : ICtgDonViTinhRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public CtgDonViTinhRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<CtgDonViTinh>, int)> GetAll(string name, int pageNumber, int pageSize)
@@ -21,7 +21,7 @@ namespace QUANLYVANHOA.Repositories
             var donViTinhList = new List<CtgDonViTinh>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -62,7 +62,7 @@ namespace QUANLYVANHOA.Repositories
         {
             CtgDonViTinh donViTinh = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("DVT_GetByID", connection))
                 {
@@ -92,7 +92,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Insert(CtgDonViTinhModelInsert donViTinh)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("DVT_Insert", connection))
                 {
@@ -109,7 +109,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(CtgDonViTinhModelUpdate donViTinh)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("DVT_Update", connection))
                 {
@@ -127,7 +127,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("DVT_Delete", connection))
                 {

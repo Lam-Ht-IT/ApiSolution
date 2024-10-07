@@ -1,20 +1,18 @@
 ﻿using QUANLYVANHOA.Interfaces;
 using System.Data.SqlClient;
 using System.Data;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
+using QUANLYVANHOA.Utilities;
 using QUANLYVANHOA.Controllers;
 
 namespace QUANLYVANHOA.Repositories
 {
     public class SysUserRepository : ISysUserRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public SysUserRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<SysUser>, int)> GetAll(string? userName, int pageNumber, int pageSize)
@@ -22,7 +20,7 @@ namespace QUANLYVANHOA.Repositories
             var userList = new List<SysUser>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -71,7 +69,7 @@ namespace QUANLYVANHOA.Repositories
         public async Task<SysUser> GetByID(int userId)
         {
             SysUser user = null;
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("UMS_GetByID", connection))
                 {
@@ -102,7 +100,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Create(SysUserInsertModel user)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("UMS_Create", connection))
                 {
@@ -121,7 +119,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Register(RegisterModel user)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("UMS_Create", connection))
                 {
@@ -141,7 +139,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(SysUserUpdateModel user)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("UMS_Update", connection))
                 {
@@ -161,7 +159,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> UpdateToken(SysUser obj)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("UMS_UpdateToken", connection))
                 {
@@ -178,7 +176,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int userId)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("UMS_Delete", connection))
                 {
@@ -192,7 +190,7 @@ namespace QUANLYVANHOA.Repositories
         public async Task<SysUser> GetByRefreshToken(string refreshToken)
         {
             SysUser user = null;
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("UMS_GetByRefreshToken", connection))
                 {
@@ -223,7 +221,7 @@ namespace QUANLYVANHOA.Repositories
         {
             SysUser user = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("VerifyLogin", connection))
                 {

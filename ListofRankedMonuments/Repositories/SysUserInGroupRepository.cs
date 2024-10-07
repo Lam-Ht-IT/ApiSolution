@@ -5,18 +5,18 @@ using System.Data.SqlClient;
 
 public class SysUserInGroupRepository : ISysUserInGroupRepository
 {
-    private readonly string _connectionString;
+    private readonly Connection _connectionString;
 
     public SysUserInGroupRepository(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection");
+        _connectionString = new Connection();
     }
 
     public async Task<IEnumerable<SysUserInGroup>> GetAll()
     {
         var userInGroupList = new List<SysUserInGroup>();
 
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 
@@ -46,7 +46,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
     {
         var userInGroupList = new List<SysUserInGroup>();
 
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 
@@ -77,7 +77,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
     {
         var userInGroupList = new List<SysUserInGroup>();
 
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 
@@ -108,7 +108,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
     {
         SysUserInGroup userInGroup = null;
 
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 
@@ -137,7 +137,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
 
     public async Task<int> Create(SysUserInGroupCreateModel userInGroup)
     {
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 
@@ -153,7 +153,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
 
     public async Task<int> Update(SysUserInGroupUpdateModel userInGroup)
     {
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 
@@ -171,7 +171,7 @@ public class SysUserInGroupRepository : ISysUserInGroupRepository
 
     public async Task<int> Delete(int userInGroupID)
     {
-        using (var connection = new SqlConnection(_connectionString))
+        using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
         {
             await connection.OpenAsync();
 

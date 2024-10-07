@@ -9,11 +9,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class CtgLoaiMauPhieuRepository : ICtgLoaiMauPhieuRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public CtgLoaiMauPhieuRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<CtgLoaiMauPhieu>, int)> GetAll(string name, int pageNumber, int pageSize)
@@ -21,7 +21,7 @@ namespace QUANLYVANHOA.Repositories
             var loaiMauPhieuList = new List<CtgLoaiMauPhieu>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -63,7 +63,7 @@ namespace QUANLYVANHOA.Repositories
         {
             CtgLoaiMauPhieu loaiMauPhieu = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LMP_GetByID", connection))
                 {
@@ -94,7 +94,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Insert(CtgLoaiMauPhieuModelInsert loaiMauPhieu)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LMP_Insert", connection))
                 {
@@ -110,7 +110,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(CtgLoaiMauPhieuModelUpdate loaiMauPhieu)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LMP_Update", connection))
                 {
@@ -127,7 +127,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LMP_Delete", connection))
                 {

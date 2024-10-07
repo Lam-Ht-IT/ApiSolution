@@ -2538,6 +2538,23 @@ GO
 	DELETE FROM NV_MauPhieu
 	DBCC CHECKIDENT ('NV_MauPhieu',RESEED,0)
 	--endregion
+
+
+
+	DROP TABLE DM_DiTichXepHang
+	DROP TABLE DM_DonViTinh
+	DROP TABLE DM_KyBaoCao
+	DROP TABLE DM_LoaiDiTich
+	DROP TABLE DM_TieuChi
+	DROP TABLE NV_ChiTietMauPhieu
+	DROP TABLE NV_MauPhieu
+	DROP TABLE DM_ChiTieu
+	DROP TABLE DM_LoaiMauPhieu
+	DROP TABLE Sys_UserInGroup
+	DROP TABLE Sys_FunctionInGroup
+	DROP TABLE Sys_Function
+	DROP TABLE Sys_User
+	DROP TABLE Sys_Group
 GO
 
 
@@ -2586,18 +2603,6 @@ EXEC CT_Delete @ChiTieuID = 2
 EXEC CT_Delete 113
 --endregion
 
-DROP TABLE DM_DiTichXepHang
-DROP TABLE DM_DonViTinh
-DROP TABLE DM_KyBaoCao
-DROP TABLE DM_LoaiDiTich
-DROP TABLE DM_TieuChi
-DROP TABLE NV_ChiTietMauPhieu
-DROP TABLE NV_MauPhieu
-DROP TABLE DM_ChiTieu
-DROP TABLE DM_LoaiMauPhieu
-DROP TABLE Sys_UserInGroup
-DROP TABLE Sys_FunctionInGroup
-DROP TABLE Sys_Function
-DROP TABLE Sys_User
-DROP TABLE Sys_Group
+
+SELECT * FROM NV_ChiTietMauPhieu nctmp
 

@@ -8,18 +8,18 @@ namespace QUANLYVANHOA.Repositories
 {
     public class RpMauPhieuRepository : IRpMauPhieuRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public RpMauPhieuRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<RpMauPhieu>, int)> GetAllMauPhieu(string? name, int pageNumber, int pageSize)
         {
             var rpMauPhieuList = new List<RpMauPhieu>();
             int totalRecords = 0;
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("MP_GetAll", connection))
                 {
@@ -60,7 +60,7 @@ namespace QUANLYVANHOA.Repositories
         public async Task<RpMauPhieu> GetMauPhieuByID(int id)
         {
             RpMauPhieu mauPhieu = null;
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("MP_GetByID", connection))
                 {
@@ -118,7 +118,7 @@ namespace QUANLYVANHOA.Repositories
         // Thêm mới mẫu phiếu
         public async Task<int> CreateMauPhieu(RpMauPhieuInsertModel mauPhieu)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
                 using (var command = new SqlCommand("MP_Create", connection))
@@ -141,7 +141,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> UpdateMauPhieu(RpMauPhieuUpdateModel mauPhieu)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("UpdateMauPhieu", connection))
                 {
@@ -177,7 +177,7 @@ namespace QUANLYVANHOA.Repositories
         {
             int result = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 

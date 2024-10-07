@@ -9,18 +9,18 @@ namespace QUANLYVANHOA.Repositories
 {
     public class SysFunctionInGroupRepository : ISysFunctionInGroupRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public SysFunctionInGroupRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<IEnumerable<SysFunctionInGroup>> GetAll()
         {
             var functionInGroupList = new List<SysFunctionInGroup>();
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -51,7 +51,7 @@ namespace QUANLYVANHOA.Repositories
         {
             var functionInGroupList = new List<SysFunctionInGroup>();
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -83,7 +83,7 @@ namespace QUANLYVANHOA.Repositories
         {
             var functionInGroupList = new List<SysFunctionInGroup>();
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -115,7 +115,7 @@ namespace QUANLYVANHOA.Repositories
         {
             SysFunctionInGroup functionInGroup = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -145,7 +145,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Create(SysFunctionInGroupInsertModel functionInGroup)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FIG_Create", connection))
                 {
@@ -162,7 +162,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(SysFunctionInGroupUpdateModel functionInGroup)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FIG_Update", connection))
                 {
@@ -180,7 +180,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int functionInGroupID)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("FIG_Delete", connection))
                 {

@@ -9,11 +9,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class CtgKyBaoCaoRepository : ICtgKyBaoCaoRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public CtgKyBaoCaoRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<CtgKyBaoCao>, int)> GetAll(string? name, int pageNumber, int pageSize)
@@ -21,7 +21,7 @@ namespace QUANLYVANHOA.Repositories
             var kyBaoCaoList = new List<CtgKyBaoCao>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -64,7 +64,7 @@ namespace QUANLYVANHOA.Repositories
         {
             CtgKyBaoCao kyBaoCao = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("KBC_GetByID", connection))
                 {
@@ -96,7 +96,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Insert(CtgKyBaoCaoModelInsert kyBaoCao)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("KBC_Insert", connection))
                 {
@@ -113,7 +113,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(CtgKyBaoCaoModelUpdate kyBaoCao)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("KBC_Update", connection))
                 {
@@ -131,7 +131,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("KBC_Delete", connection))
                 {

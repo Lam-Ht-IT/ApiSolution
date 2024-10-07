@@ -10,11 +10,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class CtgLoaiDiTichRepository : ICtgLoaiDiTichRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public CtgLoaiDiTichRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<CtgLoaiDiTich>, int)> GetAll(string name, int pageNumber, int pageSize)
@@ -22,7 +22,7 @@ namespace QUANLYVANHOA.Repositories
             var loaiDiTichList = new List<CtgLoaiDiTich>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -65,7 +65,7 @@ namespace QUANLYVANHOA.Repositories
         {
             CtgLoaiDiTich loaiDiTich = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LDT_GetByID", connection))
                 {
@@ -97,7 +97,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Insert(CtgLoaiDiTichModelInsert loaiDiTich)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LDT_Insert", connection))
                 {
@@ -112,7 +112,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(CtgLoaiDiTichModelUpdate loaiDiTich)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LDT_Update", connection))
                 {
@@ -128,7 +128,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var cmd = new SqlCommand("LDT_Delete", connection))
                 {

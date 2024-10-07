@@ -9,11 +9,11 @@ namespace QUANLYVANHOA.Repositories
 {
     public class SysGroupRepository : ISysGroupRepository
     {
-        private readonly string _connectionString;
+        private readonly Connection _connectionString;
 
         public SysGroupRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = new Connection();
         }
 
         public async Task<(IEnumerable<SysGroup>, int)> GetAll(string? groupName, int pageNumber, int pageSize)
@@ -21,7 +21,7 @@ namespace QUANLYVANHOA.Repositories
             var groupList = new List<SysGroup>();
             int totalRecords = 0;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
 
@@ -60,7 +60,7 @@ namespace QUANLYVANHOA.Repositories
         {
             SysGroup group = null;
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("GMS_GetByID", connection))
                 {
@@ -88,7 +88,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Create(SysGroupInsertModel group)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("GMS_Create", connection))
                 {
@@ -104,7 +104,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Update(SysGroupUpdateModel group)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("GMS_Update", connection))
                 {
@@ -121,7 +121,7 @@ namespace QUANLYVANHOA.Repositories
 
         public async Task<int> Delete(int groupID)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 using (var command = new SqlCommand("GMS_Delete", connection))
                 {
