@@ -929,7 +929,9 @@ BEGIN
         mp.MaMauPhieu, 
         mp.LoaiMauPhieuID,
         mp.ChiTieuS,
-        mp.TieuChiS
+        mp.TieuChiS,
+		mp.NguoiTao,
+		mp.NgayTao
     FROM NV_MauPhieu mp
     WHERE mp.MauPhieuID = @MauPhieuID;
 
@@ -2605,4 +2607,4 @@ EXEC CT_Delete 113
 
 
 SELECT * FROM NV_ChiTietMauPhieu nctmp
-
+SELECT * FROM NV_MauPhieu nmp

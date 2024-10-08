@@ -79,7 +79,7 @@ namespace QUANLYVANHOA.Repositories
                                 TenMauPhieu = reader.GetString(reader.GetOrdinal("TenMauPhieu")),
                                 MaMauPhieu = reader.GetString(reader.GetOrdinal("MaMauPhieu")),
                                 LoaiMauPhieuID = reader.GetInt32(reader.GetOrdinal("LoaiMauPhieuID")),
-                                NgayTao = reader.GetDateTime(reader.GetOrdinal("NgayTao")),
+                                NgayTao = reader.GetDateTime("NgayTao"),
                                 NguoiTao = reader.GetString(reader.GetOrdinal("NguoiTao")),
 
                                 // Lấy trực tiếp chuỗi JSON
@@ -99,14 +99,12 @@ namespace QUANLYVANHOA.Repositories
                                     ChiTietMauPhieuID = reader.GetInt32(reader.GetOrdinal("ChiTietMauPhieuID")),
                                     MauPhieuID = reader.GetInt32(reader.GetOrdinal("MauPhieuID")),
                                     ChiTieuID = reader.GetInt32(reader.GetOrdinal("ChiTieuID")),
-                                    TieuChiIDs = JsonConvert.DeserializeObject<List<int>>(reader.GetString(reader.GetOrdinal("TieuChiIDs"))), // Deserialize từ chuỗi thành List<int>
+                                    TieuChiIDs = reader.GetString(reader.GetOrdinal("TieuChiIDs")), // Deserialize từ chuỗi thành List<int>
                                     NoiDung = reader.IsDBNull(reader.GetOrdinal("NoiDung")) ? null : reader.GetString(reader.GetOrdinal("NoiDung")),
                                     GopCot = reader.GetBoolean(reader.GetOrdinal("GopCot")),
                                     GopTuCot = reader.GetInt32(reader.GetOrdinal("GopTuCot")),
                                     GopDenCot = reader.GetInt32(reader.GetOrdinal("GopDenCot")),
-                                    SoCotGop = reader.GetInt32(reader.GetOrdinal("SoCotGop")),
-                                    GhiChu = reader.IsDBNull(reader.GetOrdinal("GhiChu")) ? null : reader.GetString(reader.GetOrdinal("GhiChu"))
-                                });
+                                    SoCotGop = reader.GetInt32(reader.GetOrdinal("SoCotGop"))                                });
                             }
                         }
                     }
@@ -127,8 +125,7 @@ namespace QUANLYVANHOA.Repositories
                     command.Parameters.AddWithValue("@TenMauPhieu", mauPhieu.TenMauPhieu);
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", mauPhieu.LoaiMauPhieuID);
                     command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
-                    command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NgayTao);
-                    command.Parameters.AddWithValue("@NgayTao", mauPhieu.NgayTao);
+                    command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
 
                     // Truyền xuống dữ liệu JSON string
                     command.Parameters.AddWithValue("@ChiTieus", JsonConvert.SerializeObject(mauPhieu.ChiTieuS));

@@ -60,7 +60,7 @@ namespace QUANLYVANHOA.Models
 
 
         [JsonPropertyName("NguoiTao")]
-        public string? NgayTao { get; set; }
+        public string? NguoiTao { get; set; }
     }
 
     public class RpMauPhieuUpdateModel
