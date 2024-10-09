@@ -185,6 +185,11 @@ namespace QUANLYVANHOA.Controllers
                     return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
                 }
 
+                if (model.ChiTietMauPhieus == null)
+                {
+                    model.ChiTietMauPhieus = new List<RpChiTietMauPhieu>();
+                }
+
                 var result = await _mauPhieuRepository.UpdateMauPhieu(model);
                 if (result > 0)
                 {
