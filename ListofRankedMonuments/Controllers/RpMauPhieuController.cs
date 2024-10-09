@@ -22,32 +22,32 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("List")]
         public async Task<IActionResult> GetAll(string? name, int pageNumber = 1, int pageSize = 20)
         {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                name = name.Trim();
+            }
+
+            // Validate pageNumber and pageSize
+            if (pageNumber <= 0)
+            {
+                return BadRequest(new
+                {
+                    Status = 0,
+                    Message = "Invalid page number. Page number must be greater than 0."
+                });
+            }
+
+            if (pageSize <= 0 || pageSize > 50)
+            {
+                return BadRequest(new
+                {
+                    Status = 0,
+                    Message = "Invalid page size. Page size must be between 1 and 50."
+                });
+            }
+
             try
             {
-                if (!string.IsNullOrWhiteSpace(name))
-                {
-                    name = name.Trim();
-                }
-
-                // Validate pageNumber and pageSize
-                if (pageNumber <= 0)
-                {
-                    return BadRequest(new
-                    {
-                        Status = 0,
-                        Message = "Invalid page number. Page number must be greater than 0."
-                    });
-                }
-
-                if (pageSize <= 0 || pageSize > 50)
-                {
-                    return BadRequest(new
-                    {
-                        Status = 0,
-                        Message = "Invalid page size. Page size must be between 1 and 50."
-                    });
-                }
-
                 var (mauPhieuList, totalRecords) = await _mauPhieuRepository.GetAllMauPhieu(name, pageNumber, pageSize);
                 var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
@@ -74,7 +74,7 @@ namespace QUANLYVANHOA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Status = 0, Message = "An error occurred while processing your request.", Error = ex.Message });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while fetching data.", Error = ex.Message });
             }
         }
 
@@ -82,13 +82,13 @@ namespace QUANLYVANHOA.Controllers
         [HttpGet("FindByID")]
         public async Task<IActionResult> GetByID(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+            }
+
             try
             {
-                if (id <= 0)
-                {
-                    return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
-                }
-
                 var mauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
                 if (mauPhieu == null)
                 {
@@ -99,7 +99,7 @@ namespace QUANLYVANHOA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Status = 0, Message = "An error occurred while processing your request.", Error = ex.Message });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while fetching data.", Error = ex.Message });
             }
         }
 
@@ -112,7 +112,7 @@ namespace QUANLYVANHOA.Controllers
                 var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
                 if (existingMauPhieu.Item1.Any())
                 {
-                    return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });
+                    return Ok(new { Status = 0, Message = "TenMauPhieu already exists" });
                 }
 
                 if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
@@ -131,6 +131,12 @@ namespace QUANLYVANHOA.Controllers
                     return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
                 }
 
+                // Allow ChiTietMauPhieus to be null
+                if (model.ChiTietMauPhieus == null)
+                {
+                    model.ChiTietMauPhieus = new List<RpChiTietMauPhieuInsertModel>();
+                }
+
                 var result = await _mauPhieuRepository.CreateMauPhieu(model);
                 if (result > 0)
                 {
@@ -140,7 +146,7 @@ namespace QUANLYVANHOA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Status = 0, Message = "An error occurred while processing your request.", Error = ex.Message });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while inserting data.", Error = ex.Message });
             }
         }
 
@@ -153,7 +159,7 @@ namespace QUANLYVANHOA.Controllers
                 var existingTenMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
                 if (existingTenMauPhieu.Item1.Any())
                 {
-                    return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });
+                    return Ok(new { Status = 0, Message = "TenMauPhieu already exists" });
                 }
 
                 if (model.MauPhieuID <= 0)
@@ -188,7 +194,7 @@ namespace QUANLYVANHOA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Status = 0, Message = "An error occurred while processing your request.", Error = ex.Message });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while updating data.", Error = ex.Message });
             }
         }
 
@@ -198,11 +204,6 @@ namespace QUANLYVANHOA.Controllers
         {
             try
             {
-                if (id <= 0)
-                {
-                    return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
-                }
-
                 var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
                 if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
 
@@ -215,7 +216,7 @@ namespace QUANLYVANHOA.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Status = 0, Message = "An error occurred while processing your request.", Error = ex.Message });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while deleting data.", Error = ex.Message });
             }
         }
     }
