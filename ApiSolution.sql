@@ -998,7 +998,7 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE MP_Update
+CREATE PROCEDURE [dbo].[MP_Update]
     @MauPhieuID INT,
     @TenMauPhieu NVARCHAR(255),
     @MaMauPhieu NVARCHAR(50),
@@ -1014,163 +1014,31 @@ BEGIN
         BEGIN TRANSACTION;
 
         -- 1. Cập nhật thông tin mẫu phiếu chính
-        UPDATE BC_MauPhieu
+        UPDATE NV_MauPhieu
         SET TenMauPhieu = @TenMauPhieu,
             MaMauPhieu = @MaMauPhieu,
             LoaiMauPhieuID = @LoaiMauPhieuID,
-            NguoiTao = @NguoiTao
+            NguoiTao = @NguoiTao,
+            ChiTieuS = @ChiTieus,
+            TieuChiS = @TieuChis
         WHERE MauPhieuID = @MauPhieuID;
 
-        -- 2. Xử lý Chỉ Tiêu: Thêm mới, cập nhật hoặc xóa
-        IF @ChiTieus IS NOT NULL
-        BEGIN
-            CREATE TABLE #TempChiTieus (
-                ChiTieuID INT,
-                TenChiTieu NVARCHAR(255),
-                ChiTieuChaID INT,
-                TrangThai BIT  -- Thêm trường TrangThai cho chỉ tiêu
-            );
+        -- 2. Xử lý Chi Tiết Mẫu Phiếu: Xóa các chi tiết cũ, thêm mới các chi tiết từ JSON
+        DELETE FROM NV_ChiTietMauPhieu
+        WHERE MauPhieuID = @MauPhieuID;
 
-            -- Insert dữ liệu JSON vào bảng tạm
-            INSERT INTO #TempChiTieus(ChiTieuID, TenChiTieu, ChiTieuChaID, TrangThai)
-            SELECT ChiTieuID, TenChiTieu, ChiTieuChaID, 
-			CASE JSON_VALUE(TrangThai, '$.TrangThai') 
-            WHEN 'true' THEN 1
-            WHEN 'false' THEN 0
-            ELSE NULL
-			END AS TrangThai
-            FROM OPENJSON(@ChiTieus)
-            WITH (
-                ChiTieuID INT,
-                TenChiTieu NVARCHAR(255),
-                ChiTieuChaID INT,
-                TrangThai NVARCHAR(5)  -- Chuyển TrangThai sang kiểu NVARCHAR để xử lý
-            );
-
-            -- Xóa các chỉ tiêu cũ không còn trong danh sách mới
-            DELETE FROM BC_ChiTieu
-            WHERE MauPhieuID = @MauPhieuID
-              AND ChiTieuID NOT IN (SELECT ChiTieuID FROM #TempChiTieus);
-
-            -- Cập nhật hoặc thêm mới các chỉ tiêu
-            MERGE INTO BC_ChiTieu AS Target
-            USING #TempChiTieus AS Source
-            ON Target.ChiTieuID = Source.ChiTieuID AND Target.MauPhieuID = @MauPhieuID
-            WHEN MATCHED THEN
-                UPDATE SET TenChiTieu = Source.TenChiTieu,
-                           ChiTieuChaID = Source.ChiTieuChaID,
-                           TrangThai = Source.TrangThai -- Cập nhật TrangThai khi có thay đổi
-            WHEN NOT MATCHED BY TARGET THEN
-                INSERT (MauPhieuID, ChiTieuID, TenChiTieu, ChiTieuChaID, TrangThai)
-                VALUES (@MauPhieuID, Source.ChiTieuID, Source.TenChiTieu, Source.ChiTieuChaID, Source.TrangThai);
-
-            -- Xóa bảng tạm
-            DROP TABLE #TempChiTieus;
-        END
-
-        -- 3. Xử lý Tiêu Chí: Thêm mới, cập nhật hoặc xóa
-        IF @TieuChis IS NOT NULL
-        BEGIN
-            CREATE TABLE #TempTieuChis (
-                TieuChiID INT,
-                TenTieuChi NVARCHAR(255),
-                TieuChiChaID INT,
-                TrangThai BIT  -- Thêm trường TrangThai cho tiêu chí
-            );
-
-            -- Insert dữ liệu JSON vào bảng tạm
-            INSERT INTO #TempTieuChis(TieuChiID, TenTieuChi, TieuChiChaID, TrangThai)
-            SELECT TieuChiID, TenTieuChi, TieuChiChaID, CASE JSON_VALUE([TrangThai], '$.TrangThai') 
-            WHEN 'true' THEN 1
-            WHEN 'false' THEN 0
-            ELSE NULL
-       END AS TrangThai
-            FROM OPENJSON(@TieuChis)
-            WITH (
-                TieuChiID INT,
-                TenTieuChi NVARCHAR(255),
-                TieuChiChaID INT,
-               TrangThai NVARCHAR(5)  -- Chuyển TrangThai sang kiểu NVARCHAR để xử lý
-            );
-
-            -- Xóa các tiêu chí cũ không còn trong danh sách mới
-            DELETE FROM BC_TieuChi
-            WHERE MauPhieuID = @MauPhieuID
-              AND TieuChiID NOT IN (SELECT TieuChiID FROM #TempTieuChis);
-
-            -- Cập nhật hoặc thêm mới các tiêu chí
-            MERGE INTO BC_TieuChi AS Target
-            USING #TempTieuChis AS Source
-            ON Target.TieuChiID = Source.TieuChiID AND Target.MauPhieuID = @MauPhieuID
-            WHEN MATCHED THEN
-                UPDATE SET TenTieuChi = Source.TenTieuChi,
-                           TieuChiChaID = Source.TieuChiChaID,
-                           TrangThai = Source.TrangThai -- Cập nhật TrangThai khi có thay đổi
-            WHEN NOT MATCHED BY TARGET THEN
-                INSERT (MauPhieuID, TieuChiID, TenTieuChi, TieuChiChaID, TrangThai)
-                VALUES (@MauPhieuID, Source.TieuChiID, Source.TenTieuChi, Source.TieuChiChaID, Source.TrangThai);
-
-            -- Xóa bảng tạm
-            DROP TABLE #TempTieuChis;
-        END
-
-        -- 4. Xử lý Chi Tiết Mẫu Phiếu
         IF @ChiTietMauPhieus IS NOT NULL
         BEGIN
-            CREATE TABLE #TempChiTietMauPhieu (
-                ChiTietMauPhieuID INT,
-                MauPhieuID INT,
-                TieuChiIDs NVARCHAR(MAX),
-                ChiTieuID INT,
-                NoiDung NVARCHAR(300),
-                GopCot BIT,
-                GopTuCot INT,
-                GopDenCot INT,
-                SoCotGop INT,
-                GhiChu NVARCHAR(300)
-            );
-
-            -- Insert dữ liệu JSON vào bảng tạm
-            INSERT INTO #TempChiTietMauPhieu(ChiTietMauPhieuID, MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GopCot, GopTuCot, GopDenCot, SoCotGop, GhiChu)
-            SELECT ChiTietMauPhieuID, MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GopCot, GopTuCot, GopDenCot, SoCotGop, GhiChu
-            FROM OPENJSON(@ChiTietMauPhieus)
-            WITH (
-                ChiTietMauPhieuID INT,
-                MauPhieuID INT,
-                TieuChiIDs NVARCHAR(MAX),
-                ChiTieuID INT,
-                NoiDung NVARCHAR(300),
-                GopCot BIT,
-                GopTuCot INT,
-                GopDenCot INT,
-                SoCotGop INT,
-                GhiChu NVARCHAR(300)
-            );
-
-            -- Xóa chi tiết mẫu phiếu cũ không còn trong danh sách mới
-            DELETE FROM BC_ChiTietMauPhieu
-            WHERE MauPhieuID = @MauPhieuID
-              AND ChiTietMauPhieuID NOT IN (SELECT ChiTietMauPhieuID FROM #TempChiTietMauPhieu);
-
-            -- Cập nhật hoặc thêm mới chi tiết mẫu phiếu
-            MERGE INTO BC_ChiTietMauPhieu AS Target
-            USING #TempChiTietMauPhieu AS Source
-            ON Target.ChiTietMauPhieuID = Source.ChiTietMauPhieuID AND Target.MauPhieuID = @MauPhieuID
-            WHEN MATCHED THEN
-                UPDATE SET TieuChiIDs = Source.TieuChiIDs,
-                           ChiTieuID = Source.ChiTieuID,
-                           NoiDung = Source.NoiDung,
-                           GopCot = Source.GopCot,
-                           GopTuCot = Source.GopTuCot,
-                           GopDenCot = Source.GopDenCot,
-                           SoCotGop = Source.SoCotGop,
-                           GhiChu = Source.GhiChu
-            WHEN NOT MATCHED BY TARGET THEN
-                INSERT (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GopCot, GopTuCot, GopDenCot, SoCotGop, GhiChu)
-                VALUES (Source.MauPhieuID, Source.TieuChiIDs, Source.ChiTieuID, Source.NoiDung, Source.GopCot, Source.GopTuCot, Source.GopDenCot, Source.SoCotGop, Source.GhiChu);
-
-            -- Xóa bảng tạm
-            DROP TABLE #TempChiTietMauPhieu;
+            INSERT INTO NV_ChiTietMauPhieu (MauPhieuID, TieuChiIDs, ChiTieuID, NoiDung, GopCot, GopTuCot, GopDenCot, SoCotGop)
+            SELECT @MauPhieuID,
+                   JSON_VALUE(value, '$.TieuChiIDs'),
+                   JSON_VALUE(value, '$.ChiTieuID'),
+                   JSON_VALUE(value, '$.NoiDung'),
+                   JSON_VALUE(value, '$.GopCot'),
+                   JSON_VALUE(value, '$.GopTuCot'),
+                   JSON_VALUE(value, '$.GopDenCot'),
+                   JSON_VALUE(value, '$.SoCotGop')
+            FROM OPENJSON(@ChiTietMauPhieus);
         END
 
         -- Commit transaction nếu không có lỗi
@@ -1184,7 +1052,8 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE MP_Delete
+
+CREATE PROCEDURE [dbo].[MP_Delete]
     @MauPhieuID INT
 AS
 BEGIN
@@ -1192,31 +1061,21 @@ BEGIN
         BEGIN TRANSACTION;
 
         -- Xóa các chi tiết mẫu phiếu liên quan
-        DELETE FROM BC_ChiTietMauPhieu
-        WHERE MauPhieuID = @MauPhieuID;
-
-        -- Xóa các tiêu chí trong BC_TieuChi
-        DELETE FROM BC_TieuChi
-        WHERE MauPhieuID = @MauPhieuID;
-
-        -- Xóa các chỉ tiêu trong BC_ChiTieu
-        DELETE FROM BC_ChiTieu
-        WHERE MauPhieuID = @MauPhieuID;
-
-        -- Cuối cùng, xóa mẫu phiếu
-        DELETE FROM BC_MauPhieu
+		DELETE FROM NV_ChiTietMauPhieu
+		WHERE MauPhieuID = @MauPhieuID
+        DELETE FROM NV_MauPhieu
         WHERE MauPhieuID = @MauPhieuID;
 
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
-        ROLLBACK TRANSACTION;
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
         THROW;
     END CATCH
 END;
 GO
 --endregion	
-
 
 
 
