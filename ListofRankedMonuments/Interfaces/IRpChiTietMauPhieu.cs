@@ -9,8 +9,8 @@ namespace QUANLYVANHOA.Interfaces
     {
         Task<(IEnumerable<RpChiTietMauPhieu>, int)> GetAll(string? name);
         Task<RpChiTietMauPhieu> GetByID(int id);
-        Task<int> Insert(RpChiTietMauPhieu obj);
-        Task<int> Update(RpChiTietMauPhieu obj);
+        Task<int> Insert(RpChiTietMauPhieuInsertModel obj);
+        Task<int> Update(RpChiTietMauPhieuUpdateModel obj);
         Task<int> Delete(int id);
     }
 }

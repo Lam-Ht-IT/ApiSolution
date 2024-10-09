@@ -13,10 +13,12 @@ namespace QUANLYVANHOA.Controllers
     public class RpMauPhieuController : ControllerBase
     {
         private readonly IRpMauPhieuRepository _mauPhieuRepository;
+        private readonly ICtgLoaiMauPhieuRepository _loaiMauPhieuRepository;
 
-        public RpMauPhieuController(IRpMauPhieuRepository mauPhieuRepository)
+        public RpMauPhieuController(IRpMauPhieuRepository mauPhieuRepository, ICtgLoaiMauPhieuRepository loaiMauPhieuRepository)
         {
             _mauPhieuRepository = mauPhieuRepository;
+            _loaiMauPhieuRepository = loaiMauPhieuRepository;
         }
         [CustomAuthorize(1, "ManageReportForm")]
         [HttpGet("List")]
@@ -131,6 +133,40 @@ namespace QUANLYVANHOA.Controllers
                     return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
                 }
 
+                // Validate LoaiMauPhieuID
+                if (model.LoaiMauPhieuID <= 0)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. Must be greater than 0." });
+                }
+
+                // Check if LoaiMauPhieuID exists
+                var loaiMauPhieu = await _loaiMauPhieuRepository.GetByID(model.LoaiMauPhieuID);
+                if (loaiMauPhieu == null)
+                {
+                    return BadRequest(new { Status = 0, Message = "LoaiMauPhieuID does not exist." });
+                }
+
+                // Check if MaMauPhieu already exists
+                var ListMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(null, 1, 20); 
+                foreach(var mauPhieu in ListMauPhieu.Item1)
+                {
+                    if (mauPhieu.MaMauPhieu == model.MaMauPhieu)
+                    {
+                        return BadRequest(new { Status = 0, Message = "MaMauPhieu already exists." });
+                    }
+                }
+
+                // Validate ChiTieuS and TieuChiS
+                if (string.IsNullOrWhiteSpace(model.ChiTieuS))
+                {
+                    return BadRequest(new { Status = 0, Message = "ChiTieuS cannot be null or empty." });
+                }
+
+                if (string.IsNullOrWhiteSpace(model.TieuChiS))
+                {
+                    return BadRequest(new { Status = 0, Message = "TieuChiS cannot be null or empty." });
+                }
+
                 // Allow ChiTietMauPhieus to be null
                 if (model.ChiTietMauPhieus == null)
                 {
@@ -175,6 +211,40 @@ namespace QUANLYVANHOA.Controllers
                     model.TenMauPhieu = model.TenMauPhieu.Trim();
                 }
 
+                // Validate LoaiMauPhieuID
+                if (model.LoaiMauPhieuID <= 0)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid LoaiMauPhieuID. Must be greater than 0." });
+                }
+
+                // Check if LoaiMauPhieuID exists
+                var loaiMauPhieu = await _loaiMauPhieuRepository.GetByID(model.LoaiMauPhieuID);
+                if (loaiMauPhieu == null)
+                {
+                    return BadRequest(new { Status = 0, Message = "LoaiMauPhieuID does not exist." });
+                }
+
+                // Check if MaMauPhieu already exists
+                var ListMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(null, 1, 20);
+                foreach (var mauPhieu in ListMauPhieu.Item1)
+                {
+                    if (mauPhieu.MaMauPhieu == model.MaMauPhieu)
+                    {
+                        return BadRequest(new { Status = 0, Message = "MaMauPhieu already exists." });
+                    }
+                }
+
+                // Validate ChiTieuS and TieuChiS
+                if (string.IsNullOrWhiteSpace(model.ChiTieuS))
+                {
+                    return BadRequest(new { Status = 0, Message = "ChiTieuS cannot be null or empty." });
+                }
+
+                if (string.IsNullOrWhiteSpace(model.TieuChiS))
+                {
+                    return BadRequest(new { Status = 0, Message = "TieuChiS cannot be null or empty." });
+                }
+
                 if (string.IsNullOrWhiteSpace(model.TenMauPhieu) || model.TenMauPhieu.Length > 100)
                 {
                     return BadRequest(new { Status = 0, Message = "Invalid TenMauPhieu. Must not be empty and not exceed 100 characters." });
@@ -187,7 +257,7 @@ namespace QUANLYVANHOA.Controllers
 
                 if (model.ChiTietMauPhieus == null)
                 {
-                    model.ChiTietMauPhieus = new List<RpChiTietMauPhieu>();
+                    model.ChiTietMauPhieus = new List<RpChiTietMauPhieuUpdateModel>();
                 }
 
                 var result = await _mauPhieuRepository.UpdateMauPhieu(model);

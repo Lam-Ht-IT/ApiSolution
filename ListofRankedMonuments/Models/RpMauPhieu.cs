@@ -78,7 +78,7 @@ namespace QUANLYVANHOA.Models
         public int LoaiMauPhieuID { get; set; }
         public string? ChiTieuS { get; set; }  // Chứa danh sách các chỉ tiêu
         public string? TieuChiS { get; set; }  // Chứa danh sách các tiêu chí
-        public List<RpChiTietMauPhieu> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
+        public List<RpChiTietMauPhieuUpdateModel> ChiTietMauPhieus { get; set; }  // Chi tiết mẫu phiếu với gộp cột
 
 
         [JsonPropertyName("NguoiTao")]

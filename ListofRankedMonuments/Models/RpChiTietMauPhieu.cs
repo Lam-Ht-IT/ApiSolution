@@ -30,10 +30,6 @@ namespace QUANLYVANHOA.Models
 
         [JsonPropertyName("NoiDung")]
         public string? NoiDung { get; set; }
-
-
-        [JsonPropertyName("GhiChu")]
-        public string? GhiChu { get; set; }
     }
 
     public class RpChiTietMauPhieuInsertModel
@@ -62,8 +58,6 @@ namespace QUANLYVANHOA.Models
         [JsonPropertyName("NoiDung")]
         public string? NoiDung { get; set; }
 
-        [JsonPropertyName("GhiChu")]
-        public string? GhiChu { get; set; }
     }
 
     public class RpChiTietMauPhieuUpdateModel
@@ -95,9 +89,5 @@ namespace QUANLYVANHOA.Models
         [JsonPropertyName("NoiDung")]
         public string? NoiDung { get; set; }
 
-        [JsonPropertyName("GhiChu")]
-        public string? GhiChu { get; set; }
     }
-
-
 }
