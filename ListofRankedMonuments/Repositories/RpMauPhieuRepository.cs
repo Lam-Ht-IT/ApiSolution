@@ -140,31 +140,21 @@ namespace QUANLYVANHOA.Repositories
         {
             using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
-                using (var command = new SqlCommand("UpdateMauPhieu", connection))
+                await connection.OpenAsync();
+                using (var command = new SqlCommand("MP_Update", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    // Thêm các parameter cho mẫu phiếu chính
+                    // Add parameters
                     command.Parameters.AddWithValue("@MauPhieuID", mauPhieu.MauPhieuID);
                     command.Parameters.AddWithValue("@TenMauPhieu", mauPhieu.TenMauPhieu);
                     command.Parameters.AddWithValue("@MaMauPhieu", mauPhieu.MaMauPhieu);
                     command.Parameters.AddWithValue("@LoaiMauPhieuID", mauPhieu.LoaiMauPhieuID);
                     command.Parameters.AddWithValue("@NguoiTao", mauPhieu.NguoiTao);
+                    command.Parameters.AddWithValue("@ChiTieus", JsonConvert.SerializeObject(mauPhieu.ChiTieuS));
+                    command.Parameters.AddWithValue("@TieuChis", JsonConvert.SerializeObject(mauPhieu.TieuChiS));
+                    command.Parameters.AddWithValue("@ChiTietMauPhieus", JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus));
 
-                    // Chuyển danh sách Chỉ Tiêu, Tiêu Chí, Chi Tiết Mẫu Phiếu sang JSON
-                    string chiTieusJson = JsonConvert.SerializeObject(mauPhieu.ChiTieuS); 
-                    string tieuChisJson = JsonConvert.SerializeObject(mauPhieu.TieuChiS);
-                    string chiTietMauPhieusJson = JsonConvert.SerializeObject(mauPhieu.ChiTietMauPhieus);
-
-                    // Thêm các parameter cho Chỉ Tiêu, Tiêu Chí và Chi Tiết Mẫu Phiếu
-                    command.Parameters.AddWithValue("@ChiTieus", (object)chiTieusJson ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@TieuChis", (object)tieuChisJson ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@ChiTietMauPhieus", (object)chiTietMauPhieusJson ?? DBNull.Value);
-
-                    // Mở kết nối
-                    await connection.OpenAsync();
-
-                    // Thực thi Stored Procedure và trả về số bản ghi bị ảnh hưởng
                     return await command.ExecuteNonQueryAsync();
                 }
             }
@@ -177,26 +167,18 @@ namespace QUANLYVANHOA.Repositories
             using (var connection = new SqlConnection(_connectionString.GetConnectionString()))
             {
                 await connection.OpenAsync();
-
-                using (var transaction = connection.BeginTransaction())
+                using (var command = new SqlCommand("MP_Delete", connection))
                 {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@MauPhieuID", id);
+
                     try
                     {
-                        using (var command = new SqlCommand("MP_Delete", connection, transaction))
-                        {
-                            command.CommandType = CommandType.StoredProcedure;
-                            command.Parameters.AddWithValue("@MauPhieuID", id);
-
-                            result = await command.ExecuteNonQueryAsync();
-                        }
-
-                        // Nếu mọi thứ thành công thì commit transaction
-                        transaction.Commit();
+                        result = await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
                     {
-                        // Nếu có lỗi thì rollback transaction
-                        transaction.Rollback();
+                        // Handle the exception or rethrow
                         throw;
                     }
                 }

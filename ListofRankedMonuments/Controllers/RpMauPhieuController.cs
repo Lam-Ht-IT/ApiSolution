@@ -46,31 +46,37 @@ namespace QUANLYVANHOA.Controllers
                 });
             }
 
-            var (mauPhieuList, totalRecords) = await _mauPhieuRepository.GetAllMauPhieu(name, pageNumber, pageSize);
-            var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
-
-            if (!mauPhieuList.Any())
+            try
             {
+                var (mauPhieuList, totalRecords) = await _mauPhieuRepository.GetAllMauPhieu(name, pageNumber, pageSize);
+                var totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+                if (!mauPhieuList.Any())
+                {
+                    return Ok(new Response
+                    {
+                        Status = 0,
+                        Message = "No data available",
+                        Data = mauPhieuList
+                    });
+                }
+
                 return Ok(new Response
                 {
-                    Status = 0,
-                    Message = "No data available",
-                    Data = mauPhieuList
+                    Status = 1,
+                    Message = "Get information successfully",
+                    Data = mauPhieuList,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalPages = totalPages,
+                    TotalRecords = totalRecords
                 });
             }
-
-            return Ok(new Response
+            catch (Exception ex)
             {
-                Status = 1,
-                Message = "Get information successfully",
-                Data = mauPhieuList,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                TotalRecords = totalRecords
-            });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while fetching data.", Error = ex.Message });
+            }
         }
-
 
         [CustomAuthorize(1, "ManageReportForm")]
         [HttpGet("FindByID")]
@@ -81,104 +87,142 @@ namespace QUANLYVANHOA.Controllers
                 return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
             }
 
-            var mauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
-            if (mauPhieu == null)
+            try
             {
-                return Ok(new { Status = 0, Message = "ID not found" });
-            }
+                var mauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
+                if (mauPhieu == null)
+                {
+                    return Ok(new { Status = 0, Message = "ID not found" });
+                }
 
-            return Ok(new { Status = 1, Message = "Get information successfully", Data = mauPhieu });
+                return Ok(new { Status = 1, Message = "Get information successfully", Data = mauPhieu });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while fetching data.", Error = ex.Message });
+            }
         }
 
         [CustomAuthorize(2, "ManageReportForm")]
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] RpMauPhieuInsertModel model)
         {
-            var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
-            if (existingMauPhieu.Item1.Any())
+            try
             {
-                return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });
-            }
+                var existingMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
+                if (existingMauPhieu.Item1.Any())
+                {
+                    return Ok(new { Status = 0, Message = "TenMauPhieu already exists" });
+                }
 
-            if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
-            {
-                model.TenMauPhieu = model.TenMauPhieu.Trim();
-            }
+                if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
+                {
+                    model.TenMauPhieu = model.TenMauPhieu.Trim();
+                }
 
-            // Validate input data
-            if (string.IsNullOrWhiteSpace(model.TenMauPhieu) || model.TenMauPhieu.Length > 50)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid TenMauPhieu. Must not be empty and not exceed 50 characters." });
-            }
+                // Validate input data
+                if (string.IsNullOrWhiteSpace(model.TenMauPhieu) || model.TenMauPhieu.Length > 50)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid TenMauPhieu. Must not be empty and not exceed 50 characters." });
+                }
 
-            if (string.IsNullOrWhiteSpace(model.MaMauPhieu) || model.MaMauPhieu.Length > 50)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
-            }
+                if (string.IsNullOrWhiteSpace(model.MaMauPhieu) || model.MaMauPhieu.Length > 50)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
+                }
 
-            var result = await _mauPhieuRepository.CreateMauPhieu(model);
-            if (result > 0)
-            {
-                return Ok(new { Status = 1, Message = "Inserted data successfully" });
+                // Allow ChiTietMauPhieus to be null
+                if (model.ChiTietMauPhieus == null)
+                {
+                    model.ChiTietMauPhieus = new List<RpChiTietMauPhieuInsertModel>();
+                }
+
+                var result = await _mauPhieuRepository.CreateMauPhieu(model);
+                if (result > 0)
+                {
+                    return Ok(new { Status = 1, Message = "Inserted data successfully" });
+                }
+                return StatusCode(500, new { Status = 0, Message = "Insertion failed" });
             }
-            return StatusCode(500, new { Status = 0, Message = "Insertion failed" });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while inserting data.", Error = ex.Message });
+            }
         }
 
         [CustomAuthorize(4, "ManageReportForm")]
         [HttpPost("Update")]
         public async Task<IActionResult> Update([FromBody] RpMauPhieuUpdateModel model)
         {
-
-            var existingTenMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
-            if (existingTenMauPhieu.Item1.Any())
+            try
             {
-                return Ok(new { Status = 0, Message = "TenMauPhieu already exist" });
-            }
+                var existingTenMauPhieu = await _mauPhieuRepository.GetAllMauPhieu(model.TenMauPhieu, 1, 20);
+                if (existingTenMauPhieu.Item1.Any())
+                {
+                    return Ok(new { Status = 0, Message = "TenMauPhieu already exists" });
+                }
 
-            if (model.MauPhieuID <= 0)
+                if (model.MauPhieuID <= 0)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+                }
+
+                var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(model.MauPhieuID);
+                if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
+
+                if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
+                {
+                    model.TenMauPhieu = model.TenMauPhieu.Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(model.TenMauPhieu) || model.TenMauPhieu.Length > 100)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid TenMauPhieu. Must not be empty and not exceed 100 characters." });
+                }
+
+                if (string.IsNullOrWhiteSpace(model.MaMauPhieu) || model.MaMauPhieu.Length > 50)
+                {
+                    return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
+                }
+
+                if (model.ChiTietMauPhieus == null)
+                {
+                    model.ChiTietMauPhieus = new List<RpChiTietMauPhieu>();
+                }
+
+                var result = await _mauPhieuRepository.UpdateMauPhieu(model);
+                if (result > 0)
+                {
+                    return Ok(new { Status = 1, Message = "Updated data successfully" });
+                }
+                return StatusCode(500, new { Status = 0, Message = "Update failed" });
+            }
+            catch (Exception ex)
             {
-                return BadRequest(new { Status = 0, Message = "Invalid ID. ID must be greater than 0." });
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while updating data.", Error = ex.Message });
             }
-
-            var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(model.MauPhieuID);
-            if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
-
-            if (!string.IsNullOrWhiteSpace(model.TenMauPhieu))
-            {
-                model.TenMauPhieu = model.TenMauPhieu.Trim();
-            }
-
-            if (string.IsNullOrWhiteSpace(model.TenMauPhieu) || model.TenMauPhieu.Length > 100)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid TenMauPhieu. Must not be empty and not exceed 100 characters." });
-            }
-
-            if (string.IsNullOrWhiteSpace(model.MaMauPhieu) || model.MaMauPhieu.Length > 50)
-            {
-                return BadRequest(new { Status = 0, Message = "Invalid MaMauPhieu. Must not be empty and not exceed 50 characters." });
-            }
-
-            var result = await _mauPhieuRepository.UpdateMauPhieu(model);
-            if (result > 0)
-            {
-                return Ok(new { Status = 1, Message = "Updated data successfully" });
-            }
-            return StatusCode(500, new { Status = 0, Message = "Update failed" });
         }
 
         [CustomAuthorize(8, "ManageReportForm")]
         [HttpPost("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
-            if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
-
-            var result = await _mauPhieuRepository.DeleteMauPhieu(id);
-            if (result > 0)
+            try
             {
-                return Ok(new { Status = 1, Message = "Deleted data successfully" });
+                var existingMauPhieu = await _mauPhieuRepository.GetMauPhieuByID(id);
+                if (existingMauPhieu == null) return Ok(new { Status = 0, Message = "ID not found" });
+
+                var result = await _mauPhieuRepository.DeleteMauPhieu(id);
+                if (result > 0)
+                {
+                    return Ok(new { Status = 1, Message = "Deleted data successfully" });
+                }
+                return StatusCode(500, new { Status = 0, Message = "Deletion failed" });
             }
-            return StatusCode(500, new { Status = 0, Message = "Deletion failed" });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Status = 0, Message = "An error occurred while deleting data.", Error = ex.Message });
+            }
         }
     }
 }
